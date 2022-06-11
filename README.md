@@ -1,1 +1,1 @@
-# Database_wcm
+# Master Thesis WCM (Western Classical Music)
