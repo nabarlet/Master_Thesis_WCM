@@ -18,6 +18,7 @@ class BBC3Downloader(Base):
     __DEFAULT_BBC3_ID__ = 'BBCR3MusicBot'
     
     def __init__(self):
+        super().__init__()
         self.auth=self.load_credentials()
         self.api=tweepy.API(self.auth,parser=tweepy.parsers.JSONParser())
         #
@@ -52,7 +53,7 @@ class BBC3Downloader(Base):
             humans = humans.split(', ') #array
             composer = self.retrieve_composer(humans[0])
             pdate = BBC3Base.process_date(date)
-            composer.perf_date = BBC3Base.quantize_date(pdate).isoformat()
+            composer.perf_date = pdate.isoformat()
             performers=None
             if len(humans)>1:
                 performers=humans[1:]
