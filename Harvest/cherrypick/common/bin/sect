@@ -1,0 +1,35 @@
+#!/usr/bin/python3
+
+import sys,os
+import csv
+import datetime as dt
+
+sys.path.append(os.path.join(os.path.dirname(__file__), *['..']*2))
+
+from common.objects.composer import Composer
+
+if len(sys.argv) < 2:
+    print("Usage: %s <filename.csv>" % (sys.argv[0]))
+    sys.exit(-1)
+
+file = sys.argv[1]
+
+collection = {}
+
+with open(file, 'r', newline='') as csvfile:
+    reader = csv.reader(csvfile)
+    for row in reader:
+        (nid, name, birth, death, mov, perf_date) = row
+        comp = Composer(name, birth, death, mov, perf_date, nid)
+        pdate = dt.datetime.fromisoformat(perf_date)
+        pdatet = dt.datetime(year=pdate.year, month=pdate.month, day=pdate.day, hour=pdate.hour)
+        isopdate = pdatet.isoformat()
+        if isopdate in collection:
+            collection[isopdate].append(comp)
+        else:
+            collection[isopdate] = [ comp ]
+
+for key, comps in sorted(collection.items(), key=lambda x:x[0]):
+    print("======= %03d %s ========" % (len(comps), key))
+    for c in comps:
+        print(c.to_csv())

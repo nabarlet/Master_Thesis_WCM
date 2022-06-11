@@ -1,0 +1,12 @@
+reference_text.txt
+*_clean.csv
+*_clean-*.csv
+*_not_found.csv
+*_notfound.csv
+*_progress.txt
+*_composers.txt
+*.png
+*_heatmap.csv
+*_heatmap_debug
+full_text.txt
+*.SAVE

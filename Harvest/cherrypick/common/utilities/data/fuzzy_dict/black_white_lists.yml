@@ -1,0 +1,183 @@
+#
+# all labels in black list here will be ignored in fuzzy searches
+#
+black_list:
+  - RTVE
+  - BWV
+
+#
+# all labels in white list here will be directely converted to nid
+#
+white_list:
+  'A. BARRIOS MANGORE':     Q399102
+  'A. BLANQUER':            Q454283
+  'A. FELIX MANDELSSOHN':   Q46096
+  A.SCARLATTI:              Q183087
+  ANÓNIMO:                  Q102358465
+  'C. GARDEL':              Q229613
+  'C. P. E. BACH':          Q76428
+  'C. SCHUMANN':            Q132232
+  C.P.E.BACH:               Q76428
+  CARMICHAEL:               Q460662
+  CAVALLI:                  Q108062
+  CHAIKOVSKY:               Q7315
+  'D. BLUMENFELD':          Q1349550
+  'E. GRANADOS':            Q294225
+  'E. HALFFTER':            Q940656
+  'E. PUJOL':               Q645411
+  'E. SAINZ DE LA MAZA':    Q3719847
+  'E. STRAUSS':             Q347030
+  ELLINGTON:                Q4030
+  EVANS:                    Q714845
+  'F. KLEYNJANS':           Q59504018
+  FALLA:                    Q193283
+  'G. FERLENDIS':           Q1528318
+  'G. GIMÉNEZ':             Q1354911
+  HENSEL-MENDELSSOHN:       Q57286
+  'J.L. TURINA':            Q6292866
+  'LEOPOLD MOZART':         Q156280
+  LLOYD:                    Q1507794
+  MENDELSSOHN:              Q46096
+  MORRISON:                 Q5606036
+  NELSON:                   Q214558
+  PAERT:                    Q189534
+  PARKER:                   Q103767
+  'R. STRAUSS':             Q13894
+  'R. SÁINZ DE LA MAZA':    Q735285
+  SAENS:                    Q150445
+  SCOTT:                    Q1276176
+  'SIGNUM CLASSICS. TIPETT': Q356499
+  SÁNCHEZ-ALLÚ:             Q16601192
+  TURINA:                   Q318077
+  VERDI:                    Q7317
+  'W. F. BACH':             Q107277
+  WILLIAMS:                 Q131285
+  'XX. MOMPOU':             Q457178
+  'Norman Smith':           Q361940
+  "anonimo xiv sec. - hughes de courson":  Q3142352
+  'edoardo boccalari':      Q110193336
+  'antti sarpila':          Q4413306
+  'antonio sartorio':       Q605062
+  'tomaso giovanni albinoni': Q174606
+  "pétros bérékétis - xviii secolo":  Q7179065
+  'barry gibb':             Q296872
+  'jan garbarek':           Q290083
+  "georg friedric haendel": Q7302
+  "johann strauss jr. – arnold schoenberg": Q83309
+  "johann strauss jr.":     Q83309
+  "johann strauss jr.- arnold schoenberg": Q83309
+  "johann strauss jr. - arnold schoenberg": Q83309
+  "gabriel fauré - andré messager": Q104919
+  "enrico rava e giacomo puccini":  Q7311
+  'antonello da caserta':   Q976389
+  'béla bartkók':           Q83326
+  "michael praetorius - francisque caroubel":   Q108278
+  'michael praetorius':     Q108278  
+  "dmitrij šostakovitč":    Q80135
+  "ernst theodor amadeus hoffmann":  Q150471
+  'chiara maria cozzolani': Q460363
+  'sergeij rachmaninov':    Q131861
+  'victoria borisova-ollas (1969)':  Q4940135
+  'carlo gesualdo':         Q192958
+  "harold arlen/edgar yip harburg":   Q448644
+  "franz jospeh haydn":     Q7349
+  'charles bâton':          Q28960865
+  'lead belly / john lomax': Q314310
+  "enrico viii tudor re d’ inghilterra": Q38370
+  'oscar boehme':           Q3430849
+  'giacomo puccini ed émile tavan': Q7311
+  "musiche di ennio morricone per i film di pier paolo pasolini":  Q23848
+  "petru santucci – jean-michel giannelli":  Q3377671
+  "matthias pintscher (1971)":  Q65645
+  'giacomo puccini':         Q7311
+  'laurent de saint luc':    Q3160341
+  'riccardo drigo':          Q545830
+  "alfonso X el sabio 1221 -1284": Q47595
+  'gautier de coincy 1177 -1236':  Q5356
+  'henry mancini e leslie bricusse': Q185928
+  "ennio morricone":        Q23848
+  "gabriel fauré":          Q104919
+  "bach – busoni":          Q1339
+  'arnold schoenberg':      Q154770
+  'attribuito a thomas preston':  Q3990709
+  'dmtrij šostakovič':      Q80135
+  'philippe verdelot':      Q714219
+  "harold arlen":           Q448644
+  "siegfried translateur":  Q87420
+  "alfonso x el sabio":     Q47595
+  'jan koetsier':           Q467937
+  'valentin strobel':       Q55904206
+  'philipp glass':          Q189729
+  'john baldwine':          Q190243
+  'christopher simpson':    Q731249
+  'gio ambrogio dalza':     Q2258464
+  'marco beasley':          Q1260173
+  'anonimo – athanasiu kircher': Q76738
+  'isham jones e gus kahn': Q167409
+  'adrian rose':            Q75321387
+  'giochino rossini':       Q9726
+  'adolphe adam giselle':   Q189544
+  'samule barber':          Q216870
+  'charlie chaplin':        Q882
+  'jacque mart cunelier de tournai sec. XIV': Q95242954
+  'saint camille -saëns':   Q150445
+  'frank zappa – trascrizione di andrea chenna':  Q127330
+  'charlie chaplin 3':      Q882
+  'gualtiero dazzi':        Q54932694
+  'hildegard von bingen':   Q70991
+  'jacopo da bologna':      Q510939
+  'pëtr il’ic cajkovkij':   Q7315
+  'carlo gesualdo da venosa': Q192958
+  'daniele roccato':        Q69748999
+  'richard sherman e robert sherman': Q2419093
+  "jean-marie leclair \"l'ainé\"":  Q348875
+  'antonio de curtis - maria pia de vito': Q2291
+  'chico buarque – tom jobim': Q333632
+  'chico buarque – edu lobo':  Q333632
+  'vilmos montag':          Q109885114
+  'jean-marie leclair':     Q348875
+  'alfonso X il saggio':    Q47595
+  'bill evans / denny zeitlin': Q208205
+  'tomas gubitsch':         Q3208381
+  'ennio moricone':         Q23848
+  'ricordano de stefani':   Q102284699
+  'francesco bendusi':      Q11859875
+  'kaikhosru shapurij sorabji (leon dudley)': Q527936
+  'germain pinel':          Q3104135
+  'hans zimmer - lisa gerrard': Q76364
+  'giacomo carisimi':       Q312686
+  'bèla kovàcs':            Q224993
+  'giovanni stefani':       Q85951666
+  'james van heusen e edgar de lange': Q33124
+  'faustin e maurice jeanjean': Q42786392
+  'jean marie leclair': Q348875
+  'carlo galante': Q54932610
+  'antonio carlos jobim': Q200131
+  'jean baptiste dupuits': Q55875070
+  'jean-baptiste dupuits': Q55875070
+  'grace – andante flight of the bumblebee - arrangiamenti di bobby mc ferrin': Q310894
+  'john playford': Q18756897
+  'edgar meyer': Q731734
+  'piotr ili’c čajkovskij': Q7315
+  'giovanni stefani': Q85951666
+  'william primrose': Q541922
+  'goscalch sec. XIV': Q23584784
+  'pétros bérékétis, XVIII secolo': Q7179065
+  'john lennon paul mccartney': Q1299
+  'le tambours du bronx': Q632614
+  'david riniker': Q1176333
+  'jacopo da bologna': Q510939
+  "youssou n’dour": Q210734
+  'alfredo piatti': Q782832
+  'earl brent': Q16166970
+  'frédérick chopin': Q1268
+  'a filetta': Q300406
+  'piotr ciajkovskij': Q7315
+  'franco piana': Q112122864
+  'jacopo da bologna': Q510939
+  
+  
+  
+  
+  
+    

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ $# -lt 2 ]
+then
+  echo "Usage: $0 <clean file> <errors file>" 1>&2
+  exit -1
+fi
+
+GOOD_LINES=$(cat $1 | wc -l)
+BAD_LINES=$(grep ',None,' $2 | sort | uniq | wc -l)
+PERCENTAGE=$(echo "scale=4; (${BAD_LINES}/${GOOD_LINES})*100" | bc)
+
+echo "$1: non-unique usable results: ${GOOD_LINES} - unique non-usable results: ${BAD_LINES} - percentage ${PERCENTAGE}"
+
+exit 0
