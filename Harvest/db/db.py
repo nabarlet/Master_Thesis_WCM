@@ -104,6 +104,13 @@ class Db:
             return result
 
         @sql_try
+        def fetch_all(self, table, what = '*', extra_args = ''):
+            sql_string = 'SELECT %s FROM %s %s;' % (what, table, extra_args)
+            cur = self.sql_execute(sql_string)
+            results = cur.fetchall()
+            return results
+
+        @sql_try
         def select_all(self, table, what = '*', extra_args = ''):
             """
                 select_all(table, what = '*', extra_args = '')
@@ -113,9 +120,7 @@ class Db:
                 everything), `extra_args` may be any sql addition to the basic
                 query
             """
-            sql_string = 'SELECT %s FROM %s %s;' % (what, table, extra_args)
-            cur = self.sql_execute(sql_string)
-            results = cur.fetchall()
+            results = self.fetch_all(table, what, extra_args)
             for r in results:
                 yield r
 
