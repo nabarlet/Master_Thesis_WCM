@@ -234,3 +234,28 @@ class ComposerProviderPlot(ComposerPlot):
 
             self.condition_matrix()
             self.provider_map_loaded = True
+            
+class ComposerMovementPlot(ComposerPlot):
+
+    def __init__(self, db = DbPro()):
+        super().__init__(db)
+        self.movement_map_loaded = False
+
+    def load_map(self, movement_name):
+        if not self.movement_map_loaded:
+            self.clear_map()
+            mid = int(self.db.query("SELECT id FROM movement WHERE name = '%s';" % (movement_name))[0][0])
+            print(mid)
+            table = 'composer JOIN composer_performance, performance'
+            what = 'nid'
+            extra_args = 'WHERE composer.movement_id = %d AND performance.provider_id < 4 AND composer_performance.composer_id = composer.id AND composer_performance.performance_id = performance.id' % (mid)
+            pdb.set_trace()
+            for p in self.db.select_all(table, what, extra_args):
+                nid = p[0][0] 
+                res = self.db.query("SELECT composer.nid FROM composer JOIN composer_performance \
+                                     WHERE composer.nid = '%s' AND composer_performance.performance_id = performance.id \
+                                     AND composer.id = composer_performance.composer_id;" % (nid))
+                self.fill_matrix(res)
+
+            self.condition_matrix()
+            self.movement_map_loaded = True

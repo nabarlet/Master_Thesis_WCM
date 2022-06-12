@@ -14,4 +14,4 @@ for found, not_found in bpt.parse():
     if found:
 	    print(found.composer.to_csv())
     if not_found:
-        print(not_found.composer.to_csv(), file=sys.stderr)
+        print(not_found.composer.to_csv())

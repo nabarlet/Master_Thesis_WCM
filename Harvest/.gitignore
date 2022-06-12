@@ -2,3 +2,4 @@ __pycache__
 db/data/*
 .*.swp
 parser_debug.out
+TODO.md
