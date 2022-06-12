@@ -12,10 +12,14 @@ from common.utilities.wcm_math import gini_porcaro
 
 class MatrixNode:
 
-    def __init__(self, rid = None,  cid = None, v = 0):
+    def __init__(self, row, col, rid = None,  cid = None, rname = None, cname = None, v = 0):
         self.value = v
+        self.row_nid = row
+        self.col_nid = col
         self.row_movement_id = rid
         self.col_movement_id = cid
+        self.row_name = rname
+        self.col_name = cname
 
     def bump(self):
         self.value += 1
@@ -36,7 +40,7 @@ class ComposerPlot:
 
     def initialize_map(self):
          table = 'composer'
-         what = 'nid, movement_id' 
+         what = 'nid, movement_id, name' 
          extra_args = 'ORDER BY nid'
          comps = self.db.fetch_all(table, what, extra_args)
          #
@@ -51,10 +55,12 @@ class ComposerPlot:
          for rr in comps:
              row = rr[0]
              rid = rr[1]
+             rname = rr[2]
              for cr in comps:
                  col = cr[0]
                  cid = cr[1]
-                 self.matrix[row][col] = MatrixNode(rid, cid)
+                 cname = cr[2]
+                 self.matrix[row][col] = MatrixNode(row, col, rid, cid, rname, cname)
          self.map_loaded = False
 
     def size(self):
