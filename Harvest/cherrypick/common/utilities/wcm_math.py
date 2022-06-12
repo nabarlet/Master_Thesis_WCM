@@ -48,3 +48,14 @@ def fast_gini_coefficient(x):
     for i, xi in enumerate(x[:-1], 1):
         diffsum += np.sum(np.abs(xi - x[i:]))
     return diffsum / (len(x)**2 * np.mean(x))
+
+def decile(datasize, slices = 10):
+    """
+        decile(datasize)
+
+        calculates the decile portions of a data set, returning the 
+        corresponding set of ten indexes for an equal division
+    """
+    ar = np.arange(datasize)
+    result = [int(n) for n in np.percentile(ar, np.arange(0, slices*10, 10)).round()]
+    return result

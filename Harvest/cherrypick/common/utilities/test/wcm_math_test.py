@@ -9,7 +9,7 @@ import sys, os
 import numpy as np
 import time
 sys.path.extend(['..', os.path.join('..', '..')])
-import gini as g
+import wcm_math as wm
 
 HIFI = 6
 LOFI = 1
@@ -27,13 +27,13 @@ class TestGiniUtilities(unittest.TestCase):
               (uneven, 1.0),
 #             (np.zeros(500), 0.0), # this cannot work with the current implementations
       ]
-      self.implementations = [ (g.gini_coefficient, 0.002), (g.gini_porcaro, 0.0001), (g.fast_gini_coefficient, 0.004) ]
+      self.implementations = [ (wm.gini_coefficient, 0.002), (wm.gini_porcaro, 0.0001), (wm.fast_gini_coefficient, 0.004) ]
               
   def test_different_implementations(self):
       for td, should_be in self.test_data:
-          vgc = g.gini_coefficient(td)
-          vgp = g.gini_porcaro(td)
-          vfg = g.fast_gini_coefficient(td)
+          vgc = wm.gini_coefficient(td)
+          vgp = wm.gini_porcaro(td)
+          vfg = wm.fast_gini_coefficient(td)
           self.assertAlmostEqual(vgc, vgp, HIFI, "vgc: %f, vgp: %f" % (vgc, vgp))
           self.assertAlmostEqual(vgc, vfg, HIFI, "vgc: %f, vfg: %f" % (vgc, vfg))
           self.assertAlmostEqual(vgp, vfg, HIFI, "vgp: %f, vfg: %f" % (vgp, vfg))

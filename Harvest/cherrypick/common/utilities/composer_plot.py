@@ -8,7 +8,17 @@ sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..'
 
 from db.db import DbPro
 from common.utilities.plot_range import PlotRange
-from common.utilities.gini import gini_porcaro
+from common.utilities.wcm_math import gini_porcaro
+
+class MatrixNode:
+
+    def __init__(self, rid = None,  cid = None, v = 0):
+        self.value = v
+        self.row_movement_id = rid
+        self.col_movement_id = cid
+
+    def bump(self):
+        self.value += 1
 
 class ComposerPlot:
 
@@ -26,20 +36,25 @@ class ComposerPlot:
 
     def initialize_map(self):
          table = 'composer'
-         what = 'nid' 
+         what = 'nid, movement_id' 
          extra_args = 'ORDER BY nid'
+         comps = self.db.fetch_all(table, what, extra_args)
          #
          # rows first
          #
-         for r in self.db.select_all(table, what, extra_args):
+         for r in comps:
              nid = r[0]
              self.matrix[nid] = {}
          #
          # columns after
          #
-         for row in self.matrix.keys():
-             for col in self.matrix.keys():
-                 self.matrix[row][col] = 0
+         for rr in comps:
+             row = rr[0]
+             rid = rr[1]
+             for cr in comps:
+                 col = cr[0]
+                 cid = cr[1]
+                 self.matrix[row][col] = MatrixNode(rid, cid)
          self.map_loaded = False
 
     def size(self):
@@ -74,8 +89,8 @@ class ComposerPlot:
                 if idx1 != idx2:
                     r = rkey[0]
                     c = ckey[0]
-                    self.matrix[r][c] += 1
-                    self.matrix[c][r] += 1
+                    self.matrix[r][c].bump()
+                    self.matrix[c][r].bump()
                             
     def load_full_map(self):
         if not self.full_map_loaded:
@@ -98,30 +113,30 @@ class ComposerPlot:
             for r in self.matrix.keys():
                 for c in self.matrix[r].keys():
                     if r == c:
-                        self.matrix[r][c]=1
+                        self.matrix[r][c].value = 1
                     else:
-                        self.matrix[r][c] /= self.max_value
+                        self.matrix[r][c].value /= self.max_value
 
     __LOG_ZERO__ = 1e-18    
     def log_values(self):
         eps = ComposerPlot.__LOG_ZERO__
         for r_key in self.matrix.keys():
             for c_key,col in self.matrix[r_key].items():
-                value = math.log10(eps+col) 
+                value = math.log10(eps+col.value) 
                 if value<0:
                     value=0.0
-                self.matrix[r_key][c_key]=value           
-                if self.matrix[r_key][c_key] > self.max_value:
-                    self.max_value = self.matrix[r_key][c_key]
+                self.matrix[r_key][c_key].value=value           
+                if self.matrix[r_key][c_key].value > self.max_value:
+                    self.max_value = self.matrix[r_key][c_key].value
 
     def rescale_with_gini_coefficient(self):
         for row, cols in self.matrix.items():
-            col_values = [v for v in cols.values()]
+            col_values = [v.value for v in cols.values()]
             g = gini_porcaro(col_values)
             self.gini_coefficients[row] = g
             if g and g > 0.0:
                 for col in cols:
-                    self.matrix[row][col] /= g
+                    self.matrix[row][col].value /= g
 
     def condition_matrix(self):
         self.log_values()
@@ -140,7 +155,7 @@ class ComposerPlot:
         for row in self.sorted_keys[rfrom:rto]:
             list_row = []
             for col in self.sorted_keys[cfrom:cto]:
-                list_row.append(self.matrix[row[0]][col[0]])
+                list_row.append(self.matrix[row[0]][col[0]].value)
             yield list_row
 
     def calc_column_sum(self):
@@ -159,7 +174,7 @@ class ComposerPlot:
                     item = t
                     break
             for lr in cols.values():
-                item[1] += lr
+                item[1] += lr.value
                 if item[1] > self.max_col_sum:
                     self.max_col_sum=item[1]
         #
@@ -215,7 +230,7 @@ class ComposerRadioPlot(ComposerPlot):
 class ComposerProviderPlot(ComposerPlot):
 
     def __init__(self, db = DbPro()):
-        super(ComposerFullPlot, self).__init__(db)
+        super().__init__(db)
         self.provider_map_loaded = False
 
     def load_map(self, provider_name):
@@ -234,30 +249,3 @@ class ComposerProviderPlot(ComposerPlot):
 
             self.condition_matrix()
             self.provider_map_loaded = True
-            
-class ComposerMovementPlot(ComposerPlot):
-
-    def __init__(self, db = DbPro()):
-        super().__init__(db)
-        self.movement_map_loaded = False
-
-    def load_map(self, movement_name):
-        if not self.movement_map_loaded:
-            self.clear_map()
-            mid = int(self.db.query("SELECT id FROM movement WHERE name = '%s';" % (movement_name))[0][0])
-            table = 'performance'
-            what = 'id'
-            extra_args = 'WHERE provider_id < 4'
-            for p in self.db.select_all(table, what, extra_args):
-                id = p[0] 
-                table = 'composer JOIN composer_performance'
-                what  = 'composer.nid'
-                extra_args = 'WHERE composer_performance.performance_id = %d \
-                              AND composer.id = composer_performance.composer_id AND composer.movement_id = %d' % (id, mid)
-                res = self.db.fetch_all(table, what, extra_args)
-                if len(res) > 1:
-                    pdb.set_trace()
-                self.fill_matrix(res)
-
-            self.condition_matrix()
-            self.movement_map_loaded = True

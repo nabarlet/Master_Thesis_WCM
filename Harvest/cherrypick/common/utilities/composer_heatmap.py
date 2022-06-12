@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..']*3))])
 
-from common.utilities.composer_plot import ComposerProviderPlot, ComposerFullPlot, ComposerRadioPlot, ComposerMovementPlot
+from common.utilities.composer_plot import ComposerProviderPlot, ComposerFullPlot, ComposerRadioPlot
 from common.utilities.plot_range import PlotRange
 from db.db import DbPro
 
@@ -71,13 +71,3 @@ class ComposerProviderHeatmap(ComposerHeatmap, ComposerProviderPlot):
     def create_heatmap(self, prange = PlotRange()):
         self.load_map(self.provider_name)
         super().create_heatmap(self.provider_name, prange)
-
-class ComposerMovementHeatmap(ComposerHeatmap, ComposerMovementPlot):
-
-    def __init__(self, movement, db = DbPro()):
-        super().__init__(db)
-        self.movement_name = movement
-
-    def create_heatmap(self, prange = PlotRange()):
-        self.load_map(self.movement_name)
-        super().create_heatmap(self.movement_name, prange)
