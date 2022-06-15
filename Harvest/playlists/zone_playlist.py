@@ -15,6 +15,9 @@ class ZonePlaylist(Playlist):
 
     def __init__(self):
         super().__init__()
+        #
+        # TODO: parametrize list
+        #
         self.config = [2, 3, 4, 5, 1, 1, 1, 1, 1, 1]
 
     def generate(self):
@@ -33,3 +36,7 @@ class ZonePlaylist(Playlist):
             shuffle(comps)
             self.generated = comps
         self.already_generated = True
+
+if __name__ == '__main__':
+    mp = ZonePlaylist()
+    mp.print()

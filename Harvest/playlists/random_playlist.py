@@ -17,3 +17,7 @@ class RandomPlaylist(Playlist):
 	        for n in range(self.size):
 	            self.generated.append(choice(self.composers))
         self.already_generated = True
+
+if __name__ == '__main__':
+    rp = RandomPlaylist()
+    rp.print()
