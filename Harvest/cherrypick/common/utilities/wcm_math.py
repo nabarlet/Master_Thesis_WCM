@@ -1,3 +1,4 @@
+import pdb
 import numpy as np
 
 def gini_coefficient(x):
@@ -58,4 +59,24 @@ def decile(datasize, slices = 10):
     """
     ar = np.arange(datasize)
     result = [int(n) for n in np.percentile(ar, np.arange(0, slices*10, 10)).round()]
+    return result
+
+__INNER_GOLDEN_MEAN__ = 2.0/(1.0+np.sqrt(5))
+def exp_decile(datasize, start_slice, end_slice = None, slices = 10):
+    """
+        exp_decile(datasize, start_slice, end_slice = None, slices = 10)
+
+        calculates the exponential decile portions of a data set, returning the 
+        corresponding set of ten indexes for an exponential division (e**(ax+b)).
+        If no end_slice is provided, the end_slice will be taken to be the
+        golden mean of datasize.
+    """
+    if not end_slice:
+        end_slice = int(np.round(datasize*__INNER_GOLDEN_MEAN__))
+    x = np.arange(slices-1)
+    rng = x[-1] - x[0]
+    a_fact = (np.log(end_slice)-np.log(start_slice))/rng
+    b_fact = np.log(start_slice) - (a_fact * x[0])
+    result = np.zeros(slices, dtype=int)
+    result[1:] = [int(n) for n in np.exp(a_fact*x+b_fact).round()]
     return result
