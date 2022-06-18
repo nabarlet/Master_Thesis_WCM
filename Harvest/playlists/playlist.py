@@ -12,17 +12,23 @@ from db.db import DbPro
 class CrossNode:
 
     def __init__(self, cnid, how_many):
-        self.cross_nid = cnid
+        self.nid = cnid
         self.how_many_times = how_many
 
     def __str__(self):
-        return "%s(%d)" % (self.cross_nid, self.how_many_times)
+        return "%s(%10.8f)" % (self.nid, self.how_many_times)
 
     @classmethod
     def create_from_string(cls, string):
         (cnid, how_many) = string.split('(')
-        how_many.rstrip(')')
-        return cls(cnid, how_many)
+        how_many = how_many.rstrip(')')
+        return cls(cnid, float(how_many))
+
+    def match(self, range):
+        result = False
+        if self.how_many_times >= range[0] and self.how_many_times < range[1]:
+            result = True
+        return result
 
 class PlaylistNode:
 
@@ -64,6 +70,13 @@ class PlaylistNode:
                 result.crossings.append(CrossNode.create_from_string(c))
         return result
 
+    def lookup_cross_range(self, range):
+        result = []
+        for other in self.crossings:
+            if other.match(range):
+                result.append(other)
+        return result
+
 
 class PureVirtualMethodCalled(Exception):
     pass
@@ -87,7 +100,8 @@ class Playlist:
                 for key, coeff in skeys:
                     pn = PlaylistNode.create_from_db(key, self.db)
                     for cross in cp.cross_lookup(key):
-                        pn.crossings.append(CrossNode(cross.col_nid, cross.value))
+                        pn.crossings.append(CrossNode(cross.col_nid, cross.conditioned_value))
+                    pn.crossings = sorted(pn.crossings, key=lambda x:x.how_many_times, reverse=True)
                     cache_string = pn.save_to_cache()
                     print(cache_string, file=file)
                     result.append(pn)
