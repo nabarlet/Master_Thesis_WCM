@@ -14,6 +14,7 @@ class MatrixNode:
 
     def __init__(self, row, col, rid = None,  cid = None, rname = None, cname = None, v = 0):
         self.value = v
+        self.conditioned_value = None
         self.row_nid = row
         self.col_nid = col
         self.row_movement_id = rid
@@ -114,14 +115,20 @@ class ComposerPlot:
             self.condition_matrix()
             self.full_map_loaded = True
 
+    def cross_lookup(self, nid):
+        self.load_full_map()
+        for col in self.matrix[nid].values():
+            if col.value > 0:
+                yield col
+
     def normalize_map(self):
         if self.max_value > 0:
             for r in self.matrix.keys():
                 for c in self.matrix[r].keys():
                     if r == c:
-                        self.matrix[r][c].value = 1
+                        self.matrix[r][c].conditioned_value = 1
                     else:
-                        self.matrix[r][c].value /= self.max_value
+                        self.matrix[r][c].conditioned_value /= self.max_value
 
     __LOG_ZERO__ = 1e-18    
     def log_values(self):
@@ -131,18 +138,18 @@ class ComposerPlot:
                 value = math.log10(eps+col.value) 
                 if value<0:
                     value=0.0
-                self.matrix[r_key][c_key].value=value           
-                if self.matrix[r_key][c_key].value > self.max_value:
-                    self.max_value = self.matrix[r_key][c_key].value
+                self.matrix[r_key][c_key].conditioned_value=value           
+                if self.matrix[r_key][c_key].conditioned_value > self.max_value:
+                    self.max_value = self.matrix[r_key][c_key].conditioned_value
 
     def rescale_with_gini_coefficient(self):
         for row, cols in self.matrix.items():
-            col_values = [v.value for v in cols.values()]
+            col_values = [v.conditioned_value for v in cols.values()]
             g = gini_porcaro(col_values)
             self.gini_coefficients[row] = g
             if g and g > 0.0:
                 for col in cols:
-                    self.matrix[row][col].value /= g
+                    self.matrix[row][col].conditioned_value /= g
 
     def condition_matrix(self):
         self.log_values()
@@ -161,7 +168,7 @@ class ComposerPlot:
         for row in self.sorted_keys[rfrom:rto]:
             list_row = []
             for col in self.sorted_keys[cfrom:cto]:
-                list_row.append(self.matrix[row[0]][col[0]].value)
+                list_row.append(self.matrix[row[0]][col[0]].conditioned_value)
             yield list_row
 
     def calc_column_sum(self):
@@ -180,7 +187,7 @@ class ComposerPlot:
                     item = t
                     break
             for lr in cols.values():
-                item[1] += lr.value
+                item[1] += lr.conditioned_value
                 if item[1] > self.max_col_sum:
                     self.max_col_sum=item[1]
         #
