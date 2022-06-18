@@ -29,7 +29,6 @@ class MovementPlaylist(Playlist):
         if not self.already_generated:
             for n in range(self.size):
                 pn = choice(self.movement_composers)
-                pn.zone = n
                 comps.append(pn)
             shuffle(comps)
             self.generated = comps
