@@ -2,11 +2,13 @@ import pdb
 import sys, os
 import math
 import re
+import numpy as np
 
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherrypick')])
 
 from common.utilities.composer_plot import ComposerPlot
+from common.utilities.wcm_math import exp_decile
 from db.db import DbPro
 from playlist_node import PlaylistNode
 from cross_node import CrossNode
@@ -21,6 +23,7 @@ class Playlist:
         self.db = db
         self.size = size
         self.composers = self.load_composers()
+        self.zones = self.subdivide_in_zones()
         self.clear()
 
     __PLAYLIST_CACHE_NAME__ = os.path.join(mypath, '__playlist_cache__')
@@ -46,9 +49,10 @@ class Playlist:
                     for cross in cp.cross_lookup(pn.nid):
                         cpn = Playlist.lookup(cross.col_nid, result)
                         pn.crossings.append(CrossNode(cpn, cross.conditioned_value))
-                    pn.crossings = sorted(pn.crossings, key=lambda x:x.how_many_times, reverse=True)
-                    cache_string = pn.save_to_cache()
-                    print(cache_string, file=file)
+                    if len(pn.crossings) > 0:
+                        pn.crossings = sorted(pn.crossings, key=lambda x:x.how_many_times, reverse=True)
+                        cache_string = pn.save_to_cache()
+                        print(cache_string, file=file)
         return result
 
     def load_composers_from_cache(self):
@@ -93,5 +97,23 @@ class Playlist:
         for pn in composers:
             if pn.nid == nid:
                 result = pn
+                break
+        return result
+
+    def subdivide_in_zones(self):
+        result = []
+        subdiv = exp_decile(len(self.composers), 20)
+        subdiv = np.append(subdiv, len(self.composers)-1)
+        start = subdiv[0]
+        for end in subdiv[1:]:
+            result.append(self.composers[start:end])
+            start = end
+        return result
+
+    def zone_lookup(self, pn):
+        result = None
+        for idx, zone in enumerate(self.zones):
+            if pn in zone:
+                result = idx
                 break
         return result

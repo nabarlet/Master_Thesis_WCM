@@ -13,17 +13,19 @@ from common.utilities.wcm_math import exp_decile
 
 class PathPlaylist(Playlist):
 
-    def __init__(self, config):
+    def __init__(self, rng, config):
         super().__init__()
         self.config = config
-        self.range = [0.0,0.1]
+        self.range = rng
 
     __DEFAULT_ZONE_CONFIG__ = '2,3,4,5,1,1,1,1,1,1'
     @classmethod
-    def create(cls, config_string = __DEFAULT_ZONE_CONFIG__):
-        result = config_string.split(',')
-        result = [int(n) for n in result]
-        return cls(result)
+    def create(cls, rng, config_string = __DEFAULT_ZONE_CONFIG__):
+        rngs = rng.split('-')
+        range = [float(r) for r in rngs]
+        conf = config_string.split(',')
+        conf = [int(n) for n in conf]
+        return cls(range, conf)
 
     def generate(self):
         if not self.already_generated:
@@ -38,7 +40,7 @@ class PathPlaylist(Playlist):
                 n += 1
                 possibilities = cur.lookup_cross_range(self.range)
                 cur = self.next(comps, cur, possibilities)
-                cur.zone = n
+                cur.zone = self.zone_lookup(cur)
                 comps.append(cur)
             # shuffle(comps)
             self.generated = comps
@@ -56,7 +58,10 @@ class PathPlaylist(Playlist):
                     break
                 attempts += 1
         if not result:
-            prev = already_found[-1]
+            idx = -2
+            if len(already_found) < 3:
+                idx = 0
+            prev = already_found[idx]
             new_possibilities = prev.lookup_cross_range([0.0, 2.0])
             print("---> cannot find anything for %s, trying new_possibilities for %s" % (seed.nid, prev.nid), file=sys.stderr)
             result = self.next(already_found, prev, new_possibilities)
@@ -64,7 +69,11 @@ class PathPlaylist(Playlist):
 
 if __name__ == '__main__':
     config = PathPlaylist.__DEFAULT_ZONE_CONFIG__
-    if len(sys.argv) > 1:
-        config = sys.argv[1]
-    zp = PathPlaylist.create(config)
+    range = '0.0-0.3'
+    if len(sys.argv) == 3:
+        range  = sys.argv[1]
+        config = sys.argv[2]
+    if len(sys.argv) == 2:
+        range  = sys.argv[1]
+    zp = PathPlaylist.create(range, config)
     zp.print()

@@ -16,17 +16,13 @@ class ExpZonePlaylist(ZonePlaylist):
 
     def generate(self):
         if not self.already_generated:
-            d_indexes = exp_decile(len(self.composers), 20)
-            np.append(d_indexes, len(self.composers)-1)
-            start = d_indexes[0]
             comps = []
-            for idx, end in enumerate(d_indexes[1:]):
+            for idx, zone in enumerate(self.zones):
                 iter = self.config[idx]
                 for n in range(iter):
-                    pn = choice(self.composers[start:end])
+                    pn = choice(zone)
                     pn.zone = idx
                     comps.append(pn)
-                start = end+1
             shuffle(comps)
             self.generated = comps
         self.already_generated = True

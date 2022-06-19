@@ -105,10 +105,13 @@ class ComposerPlot:
             pquery = "SELECT id from performance;"
             perfs = self.db.query(pquery)
             for pid in perfs:
-                query = "SELECT composer.nid FROM composer JOIN composer_performance, performance \
+                query = "SELECT composer.nid FROM composer JOIN composer_performance, performance, provider, provider_type \
                          WHERE composer_performance.performance_id = performance.id \
                          AND composer_performance.composer_id = composer.id \
-                         AND performance.id = %d;" % (pid[0])
+                         AND performance.id = %d \
+                         AND performance.provider_id = provider.id \
+                         AND provider.type_id = provider_type.id \
+                         AND provider_type.type = 'radio';" % (pid[0])
                 res = self.db.query(query)
                 self.fill_matrix(res)
                             
