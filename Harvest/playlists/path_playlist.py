@@ -16,7 +16,7 @@ class PathPlaylist(Playlist):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.range = [0.4, 0.6]
+        self.range = [0.0,0.1]
 
     __DEFAULT_ZONE_CONFIG__ = '2,3,4,5,1,1,1,1,1,1'
     @classmethod
@@ -27,41 +27,39 @@ class PathPlaylist(Playlist):
 
     def generate(self):
         if not self.already_generated:
-            d_indexes = list(exp_decile(len(self.composers), 10))
+            d_indexes = list(exp_decile(len(self.composers), 20))
             d_indexes.append(len(self.composers)-1)
             comps = []
+            n = 0
             cur = choice(self.composers[d_indexes[0]:d_indexes[1]])
+            cur.zone = n
             comps.append(cur)
-            n = 1
             while (n < self.size):
-                cur = self.next(comps, cur)
+                n += 1
+                possibilities = cur.lookup_cross_range(self.range)
+                cur = self.next(comps, cur, possibilities)
+                cur.zone = n
                 comps.append(cur)
-            shuffle(comps)
+            # shuffle(comps)
             self.generated = comps
         self.already_generated = True
 
-    def next(self, already_found, seed):
+    def next(self, already_found, seed, possibilities):
         result = None
-        pn = self.lookup(seed)
-        results = pn.lookup_cross_range(self.range)
-        if len(results) > 0:
-            while True:
-                result = choice(results) 
-                if not result in already_found:
+        attempts = 0
+        if len(possibilities) > 0:
+            while attempts < 10:
+                cross = choice(possibilities) 
+                cross = cross.node
+                if not cross in already_found:
+                    result = cross
                     break
-        else:
-            #
-            # DECIDE WHAT TO DO HERE (for example go back to already found)
-            #
-            pass
-        return result
-
-    def lookup(self, seed):
-        result = None
-        for pn in self.composers:
-            if pn.nid == seed.nid:
-                result = pn
-                break
+                attempts += 1
+        if not result:
+            prev = already_found[-1]
+            new_possibilities = prev.lookup_cross_range([0.0, 2.0])
+            print("---> cannot find anything for %s, trying new_possibilities for %s" % (seed.nid, prev.nid), file=sys.stderr)
+            result = self.next(already_found, prev, new_possibilities)
         return result
 
 if __name__ == '__main__':
