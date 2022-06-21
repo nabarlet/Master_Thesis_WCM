@@ -21,6 +21,7 @@ class MovementPlaylist(Playlist):
         result = []
         for c in self.composers:
             if c.movement_name == self.movement:
+                c.zone = self.zone_lookup(c)
                 result.append(c)
         return result
 
@@ -29,7 +30,6 @@ class MovementPlaylist(Playlist):
         if not self.already_generated:
             for n in range(self.size):
                 pn = choice(self.movement_composers)
-                pn.zone = self.zone_lookup(pn)
                 comps.append(pn)
             shuffle(comps)
             self.generated = comps

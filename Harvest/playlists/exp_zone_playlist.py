@@ -10,7 +10,6 @@ import numpy as np
 from random import choice, shuffle
 from db.db import DbPro
 from zone_playlist import ZonePlaylist
-from common.utilities.wcm_math import exp_decile
 
 class ExpZonePlaylist(ZonePlaylist):
 
