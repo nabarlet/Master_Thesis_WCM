@@ -3,3 +3,4 @@ db/data/*
 .*.swp
 parser_debug.out
 TODO.md
+*.png
