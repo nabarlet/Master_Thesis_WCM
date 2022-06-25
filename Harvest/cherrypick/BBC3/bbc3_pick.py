@@ -13,6 +13,7 @@ from common.wikid.sparql import sparql_composer
 from common.objects import Composer
 from cherrypick.csv_source_base import CsvSourceBase
 from bbc3_base import BBC3Base
+from bbc3_schedule import BBC3Schedule
 
 class BBC3Pick(CsvSourceBase):
 
@@ -22,6 +23,7 @@ class BBC3Pick(CsvSourceBase):
 
     def __init__(self, file):
         super(BBC3Pick, self).__init__(file)
+        self.schedule = BBC3Schedule()
 
     @classmethod
     def manage(cls, repo_dir = __DEFAULT_BBC3_REPO_PATH__):
@@ -54,7 +56,7 @@ class BBC3Pick(CsvSourceBase):
                     print("ValueError: wrong values to unpack: %d (file: %s, line: %d). Skipping..." % (len(row), os.path.basename(self.filename), lineno), file=sys.stderr)
                     continue
                 try:
-                    qperf_date = BBC3Base.quantize_date(BBC3Base.process_date(perf_date)).isoformat()
+                    qperf_date = self.schedule.quantize_date(BBC3Base.process_date(perf_date)).isoformat()
                 except ValueError as e:
                     print("row: %s generates date error (ValueError)" % (row), file=sys.stderr)
                     raise ValueError(e)
@@ -74,7 +76,7 @@ class BBC3Pick(CsvSourceBase):
             for row in reader:
                 (nid, name, birth, death, movement, perf_date) = row
                 key = str(perf_date)
-                qperf_date = BBC3Pick.quantize_date(BBC3Downloader.process_date(perf_date))
+                qperf_date = self.schedule.quantize_date(BBC3Base.process_date(perf_date))
                 if not key in BBC3Pick.cache:
                     BBC3Pick.cache.append(key)
                     comp = Composer(name, birth, death, movement, qperf_date, nid)
