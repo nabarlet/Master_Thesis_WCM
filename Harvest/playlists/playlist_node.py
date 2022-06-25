@@ -1,9 +1,10 @@
 class PlaylistNode:
 
-    def __init__(self, nid, name, mname):
+    def __init__(self, nid, name, mname, pop):
         self.nid = nid
         self.name = name
         self.movement_name = mname.rstrip()
+        self.popvalue = pop
         self.zone = None
         self.crossings = []
 
@@ -11,9 +12,9 @@ class PlaylistNode:
         print("%-36s %-14s - %-16s - zone: %s" % (self.name, '(' + self.nid + ')', self.movement_name, str(self.zone)))
 
     @classmethod
-    def create_from_db(cls, nid, db):
+    def create_from_db(cls, nid, db, pop):
         (nid, name, mname) = cls.load_composer(nid, db)
-        return cls(nid, name, mname)
+        return cls(nid, name, mname, pop)
 
     @staticmethod
     def load_composer(nid, db):
@@ -25,13 +26,13 @@ class PlaylistNode:
     def save_to_cache(self):
         cps = PlaylistNode.__CACHE_PN_SEPARATOR__
         scross = PlaylistNode.__CACHE_PN_CROSS_SEPARATOR__.join([str(c) for c in self.crossings])
-        s = "%s%s%s%s%s%s%s" % (self.nid, cps, self.name, cps, self.movement_name, cps, scross)
+        s = "%s%s%s%s%s%s%s%s%s" % (self.nid, cps, str(self.popvalue), cps, self.name, cps, self.movement_name, cps, scross)
         return s
 
     @classmethod
     def create_from_cache(cls, string):
-        (nid, name, mname, cross) = string.split(PlaylistNode.__CACHE_PN_SEPARATOR__)
-        return cls(nid, name, mname)
+        (nid, pop, name, mname, cross) = string.split(PlaylistNode.__CACHE_PN_SEPARATOR__)
+        return cls(nid, name, mname, pop)
 
     @classmethod
     def append_cache_cross_correlations(cls, string, composers):
