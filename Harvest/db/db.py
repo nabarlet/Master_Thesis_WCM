@@ -2,7 +2,8 @@ import pdb
 import sys, os
 import sqlite3 as sl
 
-sys.path.append(os.path.join(os.path.dirname(__file__), *['..']*2, 'cherrypick'))
+mypath = os.path.dirname(__file__)
+sys.path.append(os.path.join(mypath, '..', 'cherrypick'))
 
 from common.utilities.path import db_path
 

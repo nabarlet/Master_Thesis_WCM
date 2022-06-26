@@ -6,7 +6,10 @@ mypath = os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..']*3), 'db', 'create')])
 import common.utilities.path as p
 import common.objects as obj
-from db.db import DbDev, DbPro
+try:
+    from db.db import DbDev, DbPro
+except ModuleNotFoundError:
+    from db import DbDev, DbPro
 
 class ComposerAgeIsZero(Exception):
     pass

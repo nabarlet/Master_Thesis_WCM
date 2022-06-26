@@ -9,5 +9,5 @@ with open(cache, 'r') as fh:
         (nid, pop, name, mov, cross) = line.split('|')
         values.append(float(pop))
 
-plt.bar(range(len(values)), values)
+plt.bar(range(len(values[:1000])), values[:1000])
 plt.savefig('./pop_bar_chart.png')

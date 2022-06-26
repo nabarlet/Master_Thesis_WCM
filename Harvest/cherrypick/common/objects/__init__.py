@@ -5,7 +5,7 @@ from common.objects.file	     import File
 from common.objects.performer	 import Performer
 from common.objects.recording	 import Recording
 from common.objects.time_section import TimeSection
-from common.objects.composer     import Composer, ComposerPerformance
+from common.objects.composer     import Composer, ComposerPerformance, ComposerComposer
 from common.objects.duration     import Duration
 from common.objects.timeline     import TimeLine
 from common.objects.provider     import Providers
