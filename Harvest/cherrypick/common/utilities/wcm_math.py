@@ -50,15 +50,34 @@ def fast_gini_coefficient(x):
         diffsum += np.sum(np.abs(xi - x[i:]))
     return diffsum / (len(x)**2 * np.mean(x))
 
+def float_decile(datasize, slices = 10):
+    ar = np.arange(datasize)
+    result = np.percentile(ar, np.arange(0, slices*10, 10))
+    return result
+
 def decile(datasize, slices = 10):
     """
-        decile(datasize)
+        decile(datasize, slices = 10)
 
         calculates the decile portions of a data set, returning the 
         corresponding set of ten indexes for an equal division
     """
-    ar = np.arange(datasize)
-    result = [int(n) for n in np.percentile(ar, np.arange(0, slices*10, 10)).round()]
+    result = float_decile(datasize, slices)
+    result = [int(n) for n in result.round()]
+    return result
+
+def reverse_decile():
+    """
+        reverse_decile():
+
+        calculate the decile portions of an interval running from 1.0 to
+        0.0 in slices corresponding to the slice argument, returning the
+        corresponding set of 10 values for an equal division
+    """
+    slices = 10 # FIXME: does not work for a different number of slices
+    result = float_decile(slices)/float(slices)
+    result = np.append(result, 1.0)
+    result = result[::-1]
     return result
 
 __INNER_GOLDEN_MEAN__ = 2.0/(1.0+np.sqrt(5))
@@ -71,12 +90,15 @@ def exp_decile(datasize, start_slice, end_slice = None, slices = 10):
         If no end_slice is provided, the end_slice will be taken to be the
         golden mean of datasize.
     """
+    ss = int(start_slice)
     if not end_slice:
         end_slice = int(np.round(datasize*__INNER_GOLDEN_MEAN__))
+    end_slice -= ss
     x = np.arange(slices-1)
     rng = x[-1] - x[0]
     a_fact = (np.log(end_slice)-np.log(start_slice))/rng
     b_fact = np.log(start_slice) - (a_fact * x[0])
     result = np.zeros(slices, dtype=int)
-    result[1:] = [int(n) for n in np.exp(a_fact*x+b_fact).round()]
+    result[1] = ss
+    result[2:] = [ss+int(n) for n in np.exp(a_fact*x[1:]+b_fact).round()]
     return result

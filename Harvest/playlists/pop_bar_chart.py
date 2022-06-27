@@ -11,5 +11,5 @@ with open(cache, 'r') as fh:
         values.append(pop)
         print("%-40s %14.12f" % (name + '(' + nid + ')', pop))
 
-plt.bar(range(len(values)), values)
+plt.bar(range(len(values[:1000])), values[:1000])
 plt.savefig('./pop_bar_chart.png')

@@ -7,7 +7,104 @@ sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..'
 
 import common.objects as obj
 from common.utilities.date import date
-from db.db import DbDev, DbPro
+from common.objects.provider import Providers
+from common.utilities.bump   import Bump
+try:
+    from db.db import DbDev, DbPro
+except ModuleNotFoundError:
+    from db import DbDev, DbPro
+
+class ComposerComposer(obj.ObjectBase):
+
+    __DB_TABLE_NAME__ = 'composer_composer'
+    def __init__(self, composer_1_id, composer_2_id, performance_id):
+        super().__init__(ComposerComposer.__DB_TABLE_NAME__)
+        self.composer_1_id = composer_1_id
+        self.composer_2_id = composer_2_id
+        self.performance_id = performance_id
+
+    def inspect(self):
+        result = 'ComposerComposer(composer_1_id = %d, composer_2_id = %d, performance_id = %d)' % (self.composer_1_id, self.composer_2_id, self.performance_id)
+        return result
+
+    def __str__(self, db = DBPro()):
+        pass
+        # TO BE DONE
+        # c1 = 
+
+
+    @classmethod
+    def query_by_composers_and_performance(cls, c1id, c2id, pid, db = None):
+        result = None
+        query = "SELECT * FROM %s WHERE ((composer_1_id = %d AND composer_2_id = %d) OR (composer_1_id = %d AND composer_2_id = %d)) AND performance_id = %d" % (ComposerComposer.__DB_TABLE_NAME__, c1id, c2id, c2id, c1id, pid)
+        results = self.sql_execute(query, db)
+        if len(results) > 0:
+            (id, comp1id, comp2id, perf_id) = results[0]
+            result = cls(comp1id, comp2id, perf_id)
+        return result
+
+    def insert(self):
+        args = (('composer_1_id', 'integer', 'non null'), ('composer_2_id', 'integer', 'non null'), ('performance_id', 'integer', 'non null'))
+        properties = [('FOREIGN KEY(composer_1_id) REFERENCES composer(id)'), ('FOREIGN KEY(composer_2_id) REFERENCES composer(id)'), ('FOREIGN KEY(performance_id) REFERENCES performance(id)')]
+        self.create_table(args, properties)
+        j_string = "INSERT INTO %s (composer_1_id, composer_2_id, performance_id) VALUES (%d, %d, %d);" % (ComposerComposer.__DB_TABLE_NAME__, self.composer_1_id, self.composer_2_id, self.performance_id)
+        self.db_dev.sql_execute(j_string)
+
+    @staticmethod
+    def clear_composer_composer_of_provider(provider):
+        result = None
+        db = DbDev()
+        prov = obj.Providers.query_by_name(provider)
+        d_string = "DELETE FROM %s WHERE performance_id IN (SELECT performance.id FROM performance JOIN provider WHERE provider.name = '%s' AND performance.provider_id = provider.id)" % (ComposerComposer.__DB_TABLE_NAME__, provider)
+        db.sql_execute(d_string)
+        return prov.id
+
+    @classmethod
+    def create_composer_composer_table(cls):
+        b = Bump()
+        db = DbDev()
+        pnames = [p[0] for p in db.select_all('provider AS P JOIN provider_type AS PT', 'P.name', "WHERE P.type_id = PT.id AND PT.type = 'radio'")]
+        providers = [Providers.query_by_name(p) for p in pnames]
+        try:
+            for p in providers:
+                ComposerComposer.clear_composer_composer_performances_of_provider(p.name)
+            b.bump('+')
+        except:
+            """
+                there might be no table yet, so we ignore the ensuing error
+            """
+            pass
+        for p in providers:
+            perfs = db.select_all('performance AS P', 'P.id', "WHERE P.provider_id = %d" % (p.id))
+            for r in perfs:
+                (perf_id, ) = r
+                comps = db.select_all('composer AS C JOIN composer_performance AS CP, performance AS P', 'C.id', "WHERE CP.composer_id = C.id AND CP.performance_id = P.id AND P.id = %d ORDER BY P.datetime" % (perf_id))
+                comps = [c for c in comps] # need to explicitely bypass the 'select_all' generator and have the list of composers per performance
+                sz = len(comps)
+                off = 0
+                while (sz > 1):
+                    for idx, c in enumerate(comps[off:]):
+                        idx1 = off
+                        idx2 = off+idx
+                        if idx1 != idx2:
+                            c1id = comps[idx1][0]
+                            c2id = comps[idx2][0]
+                            cc = cls(c1id, c2id, perf_id)
+                            cc.insert()
+                    off += 1
+                    sz  -= 1
+                b.bump()
+
+    @classmethod
+    def list(cls, db = DbPro()):
+        """
+            TO BE DONE
+            download performance
+            downlad all cc with p.id 
+            create objects
+            list names and nids
+        """
+        pass
 
 class ComposerPerformance(obj.ObjectBase):
 
@@ -87,26 +184,26 @@ class Composer(obj.ObjectBase):
         return years
 
     @classmethod
-    def query(cls, nid, db = DbDev()):
+    def common_query(cls, qstring, db = DbPro()):
         result = None
-        q_string = "SELECT * FROM %s WHERE nid = '%s';" % (Composer.__DB_TABLE_NAME__, nid)
-        results = db.query(q_string)
-        if len(results) > 0:
-            (id, name, birth, death, nid, movement_id) = results[0]
-            mov = obj.TimeLine.query_by_id(movement_id).key
-            result = cls(name, birth, death, mov, None, nid, id)
-        return result
-
-    @classmethod
-    def query_by_name(cls, name, db = DbDev()):
-        result = None
-        q_string = "SELECT * FROM %s WHERE name = '%s' COLLATE NOCASE;" % (Composer.__DB_TABLE_NAME__, name)
         results = db.query(q_string)
         if results and len(results) > 0:
             (id, name, birth, death, nid, movement_id) = results[0]
             mov = obj.TimeLine.query_by_id(movement_id).key
             result = cls(name, birth, death, mov, None, nid, id)
         return result
+
+    @classmethod
+    def query(cls, nid, db = DbPro()):
+        return cls.common_query("SELECT * FROM %s WHERE nid = '%s';" % (Composer.__DB_TABLE_NAME__, nid), db)
+
+    @classmethod
+    def query_by_name(cls, name, db = DbPro()):
+        return cls.common_query("SELECT * FROM %s WHERE name = '%s' COLLATE NOCASE;" % (Composer.__DB_TABLE_NAME__, name), db)
+
+    @classmethod
+    def query_by_id(cls, id, db = DbPro()):
+        return cls.common_query("SELECT * FROM %s WHERE id = %d;" % (Composer.__DB_TABLE_NAME__, id), db)
 
     def insert(self, provider):
         """

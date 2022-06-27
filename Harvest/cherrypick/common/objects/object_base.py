@@ -4,7 +4,10 @@ import re
 mypath = os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..']*3))])
 
-from db.db import DbDev, DbPro
+try:
+    from db.db import DbDev, DbPro
+except ModuleNotFoundError:
+    from db import DbDev, DbPro
 
 class ObjectBase:
 
@@ -26,7 +29,7 @@ class ObjectBase:
 
     def sql_execute(self, string, db = None):
         if not db:
-            db = DbDev()
+            db = self.db_dev
         db.execute(string)
 
     def table_exists(self, db = None):
@@ -41,7 +44,7 @@ class ObjectBase:
 
     def table_size(self, db = None):
         if not db:
-            db = DbDev()
+            db = self.db_dev
         return db.table_size(self.table_name)
 
     def select_all(self, db = None):

@@ -6,13 +6,17 @@ mypath = os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..']*3), 'db', 'create')])
 import common.utilities.path as p
 import common.objects as obj
-from db.db import DbDev, DbPro
+try:
+    from db.db import DbDev, DbPro
+except ModuleNotFoundError:
+    from db import DbDev, DbPro
 
 class Provider:
 
-    def __init__(self, name, nation, id = None):
+    def __init__(self, name, nation, type_id, id = None):
         self.name = name
         self.nation = nation
+        self.type_id = type_id
         self.id   = id
 
     def inspect(self):
@@ -23,7 +27,7 @@ class Provider:
     def save_record(self, db, tn):
         res = Providers.query_by_name(self.name)
         if len(res) <= 0:
-            i_string = "INSERT INTO %s (name, nation) VALUES ('%s', '%s')" % (tn, self.name, self.nation)
+            i_string = "INSERT INTO %s (name, nation, type_id) VALUES ('%s', '%s')" % (tn, self.name, self.nation, self.type_id)
             db.sql_execute(i_string)
 
 class Providers(obj.ObjectBase):
@@ -41,7 +45,7 @@ class Providers(obj.ObjectBase):
         with open(csv_file, 'r') as fh:
             reader = csv.reader(fh, delimiter=delimiter)
             for row in reader:
-                this_node = Provider(row[0], row[1])
+                this_node = Provider(row[0], row[1], row[2])
                 result.providers.append(this_node)
         return result
 
@@ -61,7 +65,7 @@ class Providers(obj.ObjectBase):
         self.providers = [] # clear just in case
         for r in db.select_all(Providers.__DB_TABLE_NAME__):
             (id, name, nation) = r
-            p = Provider(name, nation, id)
+            p = Provider(name, nation, id, type_id)
             self.providers.append(p)
 
     @classmethod
@@ -87,6 +91,6 @@ class Providers(obj.ObjectBase):
         q_string = "SELECT * FROM %s WHERE name = '%s';" % (cls.__DB_TABLE_NAME__, name)
         results = db.query(q_string)
         if len(results) > 0:
-            (id, name, nation) = results[0]
-            result = Provider(name, nation, id)
+            (id, name, nation, type_id) = results[0]
+            result = Provider(name, nation, type_id, id)
         return result

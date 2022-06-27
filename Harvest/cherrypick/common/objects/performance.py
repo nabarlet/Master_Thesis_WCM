@@ -7,7 +7,10 @@ sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..'
 
 import common.objects as obj
 from common.utilities.date import clean_datetime
-from db.db import DbDev, DbPro
+try:
+    from db.db import DbDev, DbPro
+except ModuleNotFoundError:
+    from db import DbDev, DbPro
 
 class Performance(obj.ObjectBase):
 
