@@ -27,6 +27,12 @@ class ComposerComposer(obj.ObjectBase):
         result = 'ComposerComposer(composer_1_id = %d, composer_2_id = %d, performance_id = %d)' % (self.composer_1_id, self.composer_2_id, self.performance_id)
         return result
 
+    def __str__(self, db = DBPro()):
+        pass
+        # TO BE DONE
+        # c1 = 
+
+
     @classmethod
     def query_by_composers_and_performance(cls, c1id, c2id, pid, db = None):
         result = None
@@ -88,6 +94,17 @@ class ComposerComposer(obj.ObjectBase):
                     off += 1
                     sz  -= 1
                 b.bump()
+
+    @classmethod
+    def list(cls, db = DbPro()):
+        """
+            TO BE DONE
+            download performance
+            downlad all cc with p.id 
+            create objects
+            list names and nids
+        """
+        pass
 
 class ComposerPerformance(obj.ObjectBase):
 
@@ -167,26 +184,26 @@ class Composer(obj.ObjectBase):
         return years
 
     @classmethod
-    def query(cls, nid, db = DbDev()):
+    def common_query(cls, qstring, db = DbPro()):
         result = None
-        q_string = "SELECT * FROM %s WHERE nid = '%s';" % (Composer.__DB_TABLE_NAME__, nid)
-        results = db.query(q_string)
-        if len(results) > 0:
-            (id, name, birth, death, nid, movement_id) = results[0]
-            mov = obj.TimeLine.query_by_id(movement_id).key
-            result = cls(name, birth, death, mov, None, nid, id)
-        return result
-
-    @classmethod
-    def query_by_name(cls, name, db = DbDev()):
-        result = None
-        q_string = "SELECT * FROM %s WHERE name = '%s' COLLATE NOCASE;" % (Composer.__DB_TABLE_NAME__, name)
         results = db.query(q_string)
         if results and len(results) > 0:
             (id, name, birth, death, nid, movement_id) = results[0]
             mov = obj.TimeLine.query_by_id(movement_id).key
             result = cls(name, birth, death, mov, None, nid, id)
         return result
+
+    @classmethod
+    def query(cls, nid, db = DbPro()):
+        return cls.common_query("SELECT * FROM %s WHERE nid = '%s';" % (Composer.__DB_TABLE_NAME__, nid), db)
+
+    @classmethod
+    def query_by_name(cls, name, db = DbPro()):
+        return cls.common_query("SELECT * FROM %s WHERE name = '%s' COLLATE NOCASE;" % (Composer.__DB_TABLE_NAME__, name), db)
+
+    @classmethod
+    def query_by_id(cls, id, db = DbPro()):
+        return cls.common_query("SELECT * FROM %s WHERE id = %d;" % (Composer.__DB_TABLE_NAME__, id), db)
 
     def insert(self, provider):
         """
