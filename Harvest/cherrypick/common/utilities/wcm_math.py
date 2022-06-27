@@ -50,20 +50,21 @@ def fast_gini_coefficient(x):
         diffsum += np.sum(np.abs(xi - x[i:]))
     return diffsum / (len(x)**2 * np.mean(x))
 
-def float_decile(datasize, slices = 10):
-    ar = np.arange(datasize)
-    result = np.percentile(ar, np.arange(0, slices*10, 10))
+def float_decile(dataset, slices = 10):
+    result = np.percentile(dataset, np.arange(0, slices*10, 10))
     return result
 
-def decile(datasize, slices = 10):
+def decile(dataset, slices = 10):
     """
-        decile(datasize, slices = 10)
+        decile(dataset, slices = 10)
 
         calculates the decile portions of a data set, returning the 
         corresponding set of ten indexes for an equal division
     """
-    result = float_decile(datasize, slices)
+    result = np.zeros(slices+1)
+    result[1:] = float_decile(dataset, slices)
     result = [int(n) for n in result.round()]
+    result = np.append(result, len(dataset)-1)
     return result
 
 def reverse_decile():
@@ -81,9 +82,9 @@ def reverse_decile():
     return result
 
 __INNER_GOLDEN_MEAN__ = 2.0/(1.0+np.sqrt(5))
-def exp_decile(datasize, start_slice, end_slice = None, slices = 10):
+def exp_decile(dataset, start_slice, end_slice = None, slices = 10):
     """
-        exp_decile(datasize, start_slice, end_slice = None, slices = 10)
+        exp_decile(dataset, start_slice, end_slice = None, slices = 10)
 
         calculates the exponential decile portions of a data set, returning the 
         corresponding set of ten indexes for an exponential division (e**(ax+b)).
@@ -92,7 +93,7 @@ def exp_decile(datasize, start_slice, end_slice = None, slices = 10):
     """
     ss = int(start_slice)
     if not end_slice:
-        end_slice = int(np.round(datasize*__INNER_GOLDEN_MEAN__))
+        end_slice = int(np.round(len(dataset)*__INNER_GOLDEN_MEAN__))
     end_slice -= ss
     x = np.arange(slices-1)
     rng = x[-1] - x[0]

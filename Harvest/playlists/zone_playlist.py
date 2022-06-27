@@ -10,6 +10,7 @@ from random import choice, shuffle
 from db.db import DbPro
 from playlist import Playlist
 from common.utilities.wcm_math import decile
+from utilities.plugs import exclusive_random
 
 class ZonePlaylist(Playlist):
 
@@ -17,7 +18,7 @@ class ZonePlaylist(Playlist):
         super().__init__()
         self.config = config
 
-    __DEFAULT_ZONE_CONFIG__ = '2,3,4,5,1,1,1,1,1,1'
+    __DEFAULT_ZONE_CONFIG__ = '1,1,1,1,1,1,1,2,2,4,5'
     @classmethod
     def create(cls, config_string = __DEFAULT_ZONE_CONFIG__):
         result = config_string.split(',')
@@ -26,18 +27,20 @@ class ZonePlaylist(Playlist):
 
     def generate(self):
         if not self.already_generated:
-            d_indexes = decile(len(self.composers), 10)
-            d_indexes.append(len(self.composers)-1)
+            dataset = [pn.cross_value for pn in self.composers]
+            d_indexes = decile(dataset, 10)
             start = d_indexes[0]
             comps = []
             for idx, end in enumerate(d_indexes[1:]):
                 iter = self.config[idx]
+                already_chosen = []
                 for n in range(iter):
-                    pn = choice(self.composers[start:end])
+                    pn = exclusive_random(self.composers[start:end], already_chosen)
                     pn.zone = idx
+                    already_chosen.append(pn)
                     comps.append(pn)
                 start = end+1
-            shuffle(comps)
+            # shuffle(comps)
             self.generated = comps
         self.already_generated = True
 
@@ -46,4 +49,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         config = sys.argv[1]
     zp = ZonePlaylist.create(config)
-    zp.print()
+    zp.print_csv()

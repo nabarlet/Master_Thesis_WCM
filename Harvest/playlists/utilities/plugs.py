@@ -14,5 +14,5 @@ def random(dataset, previous_choices = None):
 def exclusive_random(dataset, previous_choices):
     remaining_dataset = [d for d in dataset if not d in previous_choices]
     if len(remaining_dataset) < 1:
-        raise ValueError("No more values to choose from!")
+        remaining_dataset = dataset
     return random(remaining_dataset)

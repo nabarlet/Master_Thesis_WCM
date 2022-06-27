@@ -23,7 +23,7 @@ class Playlist:
         self.db = db
         self.size = size
         self.composers = self.load_composers()
-        self.zones = self.subdivide_in_zones()
+        # self.zones = self.subdivide_in_zones()
         self.clear()
 
     __PLAYLIST_CACHE_NAME__ = os.path.join(mypath, '__playlist_cache__')
@@ -42,8 +42,8 @@ class Playlist:
             cp = ComposerPlot()
             skeys = cp.sorted_keys
             with open(Playlist.__PLAYLIST_CACHE_NAME__, 'w') as file:
-                for key, coeff in skeys:
-                    pn = PlaylistNode.create_from_db(key, self.db, coeff)
+                for key, coeff, value in skeys:
+                    pn = PlaylistNode.create_from_db(key, self.db, coeff, value)
                     result.append(pn)
                 for pn in result:
                     for cross in cp.cross_lookup(pn.nid):
@@ -78,6 +78,11 @@ class Playlist:
         self.generate()
         for pn in self.generated:
             pn.print()
+
+    def print_csv(self):
+        self.generate()
+        for pn in self.generated:
+            pn.print_csv()
 
     def plot(self):
         pass

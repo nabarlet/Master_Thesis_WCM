@@ -142,8 +142,6 @@ class ComposerPlot:
                 if value<0:
                     value=0.0
                 self.matrix[r_key][c_key].conditioned_value=value           
-                if self.matrix[r_key][c_key].conditioned_value > self.max_value:
-                    self.max_value = self.matrix[r_key][c_key].conditioned_value
 
     def rescale_with_gini_coefficient(self):
         for row, cols in self.matrix.items():
@@ -153,6 +151,8 @@ class ComposerPlot:
             if g and g > 0.0:
                 for col in cols:
                     self.matrix[row][col].conditioned_value /= g
+                    if self.matrix[row][col].conditioned_value > self.max_value:
+                        self.max_value = self.matrix[row][col].conditioned_value
 
     def condition_matrix(self):
         self.log_values()
@@ -182,7 +182,7 @@ class ComposerPlot:
             matrix, that is all the possible values. We normalize everything
             at the end
         """
-        result = [[k, 0] for k in self.matrix.keys()]
+        result = [[k, 0, 0] for k in self.matrix.keys()]
         for row, cols in self.matrix.items():
             item = None
             for t in result:
@@ -191,12 +191,13 @@ class ComposerPlot:
                     break
             for lr in cols.values():
                 item[1] += lr.conditioned_value
+                item[2] += lr.value
                 if item[1] > self.max_col_sum:
                     self.max_col_sum=item[1]
         #
         # we normalize everything at the end
         #
-        result = [[item[0], item[1]/self.max_col_sum] for item in result]
+        result = [[item[0], item[1]/self.max_col_sum, item[2]] for item in result]
         return result
 
     def sort_keys(self):

@@ -31,7 +31,7 @@ class ZonePlaylist(Playlist):
             for idx,z in enumerate(comps):
                 print("=========== zone %d ===========" % (idx))
                 for c in z:
-                    print("%s(%d)" % (c.name, c.popvalue))
+                    print("%s(%14.12f)" % (c.name, c.popvalue))
 #           for idx, end in enumerate(d_indexes[1:]):
 #               iter = self.config[idx]
 #               for n in range(iter):

@@ -1,4 +1,7 @@
 import sys,os
+
+sys.path.append('../cherrypick')
+
 from db import DbDev, DbPro
 
 db = DbDev()
