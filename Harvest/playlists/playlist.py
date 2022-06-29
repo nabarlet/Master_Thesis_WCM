@@ -83,7 +83,7 @@ class Playlist:
 
     def print_csv(self, args = ''):
         self.generate()
-        print("\n=== %s (%s) (%s) ===" %(self.__class__, dt.datetime.now().isoformat(), args))
+        print("\n=== %s (%s) (%s) ===" %(self.__class__.__name__, dt.datetime.now().isoformat(), args))
         for pn in self.generated:
             pn.print_csv()
 
