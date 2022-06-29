@@ -72,6 +72,21 @@ class Playlist:
         raise PureVirtualMethodCalled
         self.already_generated = True
 
+    @staticmethod
+    def calc_distance(a, b):
+        """
+            calc_distance(a, b)
+
+            calculates the distance between composer A and composer B
+            by checking the position of composer B in the crossings of
+            composer A. Returns -1 if no crossing is found.
+        """
+        result = -1
+        for c in a.crossings:
+            if b.nid == c.node.nid:
+                result = c.how_many_times
+        return result
+
     def clear(self):
         self.generated = []
         self.already_generated = False
