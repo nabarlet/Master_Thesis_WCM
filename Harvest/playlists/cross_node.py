@@ -19,6 +19,6 @@ class CrossNode:
 
     def match(self, rng):
         result = False
-        if self.how_many_times >= rng[0] and self.how_many_times < rng[1]:
+        if self.how_many_times >= rng[0] and self.how_many_times <= rng[1]:
             result = True
         return result

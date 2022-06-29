@@ -3,6 +3,7 @@ import sys, os
 import math
 import re
 import numpy as np
+import datetime as dt
 
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherrypick')])
@@ -18,12 +19,12 @@ class PureVirtualMethodCalled(Exception):
 
 class Playlist:
 
-    __DEFAULT_PLAYLIST_SIZE__ = 20
+    __DEFAULT_PLAYLIST_SIZE__ = 10
     def __init__(self, size = __DEFAULT_PLAYLIST_SIZE__, db = DbPro()):
         self.db = db
         self.size = size
         self.composers = self.load_composers()
-        # self.zones = self.subdivide_in_zones()
+        self.zones = self.subdivide_in_zones()
         self.clear()
 
     __PLAYLIST_CACHE_NAME__ = os.path.join(mypath, '__playlist_cache__')
@@ -43,8 +44,9 @@ class Playlist:
             skeys = cp.sorted_keys
             with open(Playlist.__PLAYLIST_CACHE_NAME__, 'w') as file:
                 for key, coeff, value in skeys:
-                    pn = PlaylistNode.create_from_db(key, self.db, coeff, value)
-                    result.append(pn)
+                	if(value>0):
+                		pn = PlaylistNode.create_from_db(key, self.db, coeff, value)
+                		result.append(pn)
                 for pn in result:
                     for cross in cp.cross_lookup(pn.nid):
                         cpn = Playlist.lookup(cross.col_nid, result)
@@ -79,8 +81,9 @@ class Playlist:
         for pn in self.generated:
             pn.print()
 
-    def print_csv(self):
+    def print_csv(self, args = ''):
         self.generate()
+        print("\n=== %s (%s) (%s) ===" %(self.__class__, dt.datetime.now().isoformat(), args))
         for pn in self.generated:
             pn.print_csv()
 
@@ -107,11 +110,13 @@ class Playlist:
 
     def subdivide_in_zones(self):
         result = []
-        subdiv = exp_decile(len(self.composers), 20)
-        subdiv = np.append(subdiv, len(self.composers)-1)
+        subdiv = exp_decile(self.composers, 20)
         start = subdiv[0]
         for end in subdiv[1:]:
-            result.append(self.composers[start:end])
+            zcomps=self.composers[start:end]
+            for zc in zcomps:
+            	zc.zone = start
+            result.append(zcomps)
             start = end
         return result
 

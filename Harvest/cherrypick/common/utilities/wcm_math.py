@@ -102,4 +102,5 @@ def exp_decile(dataset, start_slice, end_slice = None, slices = 10):
     result = np.zeros(slices, dtype=int)
     result[1] = ss
     result[2:] = [ss+int(n) for n in np.exp(a_fact*x[1:]+b_fact).round()]
+    result=np.append(result,len(dataset)-1)
     return result
