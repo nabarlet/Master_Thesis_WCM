@@ -26,8 +26,6 @@ class PathPlaylist(Playlist):
 
     def generate(self):
         if not self.already_generated:
-            #d_indexes = list(exp_decile(len(self.composers), 20))
-            #d_indexes.append(len(self.composers)-1)
             comps = []
             n = 0
             cur = choice(self.zones[0])

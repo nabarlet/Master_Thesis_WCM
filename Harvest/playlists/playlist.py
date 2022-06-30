@@ -123,9 +123,10 @@ class Playlist:
                 break
         return result
 
+    __ZONE_0_SIZE__ = 30
     def subdivide_in_zones(self):
         result = []
-        subdiv = exp_decile(self.composers, 20)
+        subdiv = exp_decile(self.composers, Playlist.__ZONE_0_SIZE__)
         start = subdiv[0]
         for end in subdiv[1:]:
             zcomps=self.composers[start:end]

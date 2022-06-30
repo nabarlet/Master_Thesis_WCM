@@ -11,7 +11,7 @@ from db.db import DbPro
 
 class ComposerHeatmap:
 
-    __THRESHOLD_PERCENTAGE__ = 0.6
+    __THRESHOLD_PERCENTAGE__ = 0.5
     def calc_labels(self, th_perc = __THRESHOLD_PERCENTAGE__):
         col_sum = self.sorted_keys
         threshold=th_perc
@@ -45,12 +45,10 @@ class ComposerHeatmap:
 class ComposerGlobalHeatmap(ComposerHeatmap, ComposerFullPlot):
 
     def __init__(self, db = DbPro()):
-        #super(ComposerFullPlot, self).__init__(db)
         super().__init__(db)
 
     def create_heatmap(self, prange = PlotRange()):
         self.load_map()
-        #super(ComposerHeatmap, self).create_heatmap('global', prange)
         super().create_heatmap('global', prange)
 
 class ComposerRadioHeatmap(ComposerHeatmap, ComposerRadioPlot):

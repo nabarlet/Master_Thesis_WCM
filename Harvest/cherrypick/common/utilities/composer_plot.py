@@ -102,16 +102,14 @@ class ComposerPlot:
     def load_full_map(self):
         if not self.full_map_loaded:
             self.clear_map()
-            pquery = "SELECT id from performance;"
+            pquery = "SELECT P.id from performance AS P JOIN provider AS PR, \
+                      provider_type AS PT WHERE P.provider_id = PR.id AND PR.type_id = PT.id AND PT.type = 'radio';"
             perfs = self.db.query(pquery)
             for pid in perfs:
-                query = "SELECT composer.nid FROM composer JOIN composer_performance, performance, provider, provider_type \
+                query = "SELECT composer.nid FROM composer JOIN composer_performance, performance \
                          WHERE composer_performance.performance_id = performance.id \
                          AND composer_performance.composer_id = composer.id \
-                         AND performance.id = %d \
-                         AND performance.provider_id = provider.id \
-                         AND provider.type_id = provider_type.id \
-                         AND provider_type.type = 'radio';" % (pid[0])
+                         AND performance.id = %d;" % (pid[0])
                 res = self.db.query(query)
                 self.fill_matrix(res)
                             
@@ -128,10 +126,7 @@ class ComposerPlot:
         if self.max_value > 0:
             for r in self.matrix.keys():
                 for c in self.matrix[r].keys():
-                    if r == c:
-                        self.matrix[r][c].conditioned_value = 1
-                    else:
-                        self.matrix[r][c].conditioned_value /= self.max_value
+                    self.matrix[r][c].conditioned_value /= self.max_value
 
     __LOG_ZERO__ = 1e-18    
     def log_values(self):
@@ -142,21 +137,18 @@ class ComposerPlot:
                 if value<0:
                     value=0.0
                 self.matrix[r_key][c_key].conditioned_value=value           
+                if value > self.max_value:
+                    self.max_value = value
 
-    def rescale_with_gini_coefficient(self):
-        for row, cols in self.matrix.items():
-            col_values = [v.conditioned_value for v in cols.values()]
-            g = gini_porcaro(col_values)
-            self.gini_coefficients[row] = g
-            if g and g > 0.0:
-                for col in cols:
-                    self.matrix[row][col].conditioned_value /= g
-                    if self.matrix[row][col].conditioned_value > self.max_value:
-                        self.max_value = self.matrix[row][col].conditioned_value
+    def calc_gini_coefficient(self, row):
+        cols = self.matrix[row]
+        col_values = [v.conditioned_value for v in cols.values()]
+        g = gini_porcaro(col_values)
+        self.gini_coefficients[row] = g
+        return g
 
     def condition_matrix(self):
         self.log_values()
-        self.rescale_with_gini_coefficient()
         self.normalize_map()
 
     def get_submatrix(self):
@@ -185,15 +177,32 @@ class ComposerPlot:
         result = [[k, 0, 0] for k in self.matrix.keys()]
         for row, cols in self.matrix.items():
             item = None
+            #
+            # find the item with the proper key in the result array
+            # (put it in the 'item' variable)
+            #
             for t in result:
                 if t[0] == row:
                     item = t
                     break
+            #
+            # sum up both the conditioned_value (item[1])
+            # and the linear integer value (item[2])
+            #
             for lr in cols.values():
                 item[1] += lr.conditioned_value
                 item[2] += lr.value
-                if item[1] > self.max_col_sum:
-                    self.max_col_sum=item[1]
+            #
+            # rescale with the gini coefficient
+            #
+            if item[2] > 0:
+                gcoeff = self.calc_gini_coefficient(row)
+                item[1] /= gcoeff    
+            #
+            # set up the maximum value for normalization
+            #
+            if item[1] > self.max_col_sum:
+                self.max_col_sum=item[1]
         #
         # we normalize everything at the end
         #

@@ -57,3 +57,10 @@ class PlaylistNode:
             if other.match(range):
                 result.append(other)
         return result
+
+    def lookup_cross_range_and_zone(self, range, zone_array):
+        result = []
+        for other in self.crossings:
+            if other.match(range) and other.node in zone_array:
+                result.append(other)
+        return result
