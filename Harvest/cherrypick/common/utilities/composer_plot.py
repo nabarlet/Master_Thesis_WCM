@@ -14,7 +14,7 @@ from common.utilities.wcm_math import gini_porcaro
 class MatrixNode:
 
     def __init__(self, row, col, rid = None,  cid = None, rname = None, cname = None, v = 0):
-        self.value = v
+        self.__value__ = v
         self.conditioned_value = None
         self.row_nid = row
         self.col_nid = col
@@ -24,7 +24,17 @@ class MatrixNode:
         self.col_name = cname
 
     def bump(self):
-        self.value += 0.5
+        self.__value__ += 1
+
+    def value(self):
+        """
+            value()
+
+            is needed because the actual linear value is doubled compared
+            since it appears both in row/column and in column/row symmetrical
+            pairs.
+        """
+        return self.__value__
 
 class ComposerPlot:
 
@@ -94,7 +104,7 @@ class ComposerPlot:
     def fill_matrix(self, query_results):
         sz = len(query_results)
         off = 0
-        while (sz > 1):
+        while (sz >= 1):
             for idx, key in enumerate(query_results[off:]):
                 idx1 = off
                 idx2 = off+idx
@@ -126,7 +136,7 @@ class ComposerPlot:
     def cross_lookup(self, nid):
         self.load_full_map()
         for col in self.matrix[nid].values():
-            if col.value > 0:
+            if col.value() > 0:
                 yield col
 
     def normalize_map(self):
@@ -140,7 +150,7 @@ class ComposerPlot:
         eps = ComposerPlot.__LOG_ZERO__
         for r_key in self.matrix.keys():
             for c_key,col in self.matrix[r_key].items():
-                value = math.log10(eps+col.value) 
+                value = math.log10(eps+col.value()) 
                 if value<0:
                     value=0.0
                 self.matrix[r_key][c_key].conditioned_value=value           
@@ -198,13 +208,13 @@ class ComposerPlot:
             #
             for lr in cols.values():
                 item[1] += lr.conditioned_value
-                item[2] += lr.value
+                item[2] += lr.value()
             #
             # rescale with the gini coefficient
             #
             if item[1] > 0.0:
                 gcoeff = self.calc_gini_coefficient(row)
-                item[1] /= gcoeff    
+                item[1] *= gcoeff    
             #
             # set up the maximum value for normalization
             #
@@ -213,7 +223,11 @@ class ComposerPlot:
         #
         # we normalize everything at the end
         #
-        result = [[item[0], item[1]/self.max_col_sum, item[2]] for item in result]
+        # (we also divide the linear value by two to adjust for the column/row
+        #  duplicate) --------------------------------------+
+        #                                                   |
+        #                                                   v
+        result = [[item[0], item[1]/self.max_col_sum, (item[2]/2.0)] for item in result]
         return result
 
     def sort_keys(self):

@@ -50,7 +50,7 @@ class Playlist:
                 for pn in result:
                     for cross in cp.cross_lookup(pn.nid):
                         cpn = Playlist.lookup(cross.col_nid, result)
-                        pn.crossings.append(CrossNode(cpn, cross.conditioned_value, cross.value))
+                        pn.crossings.append(CrossNode(cpn, cross.conditioned_value, cross.value()))
                     if len(pn.crossings) > 0:
                         pn.crossings = sorted(pn.crossings, key=lambda x:x.log_distance, reverse=True)
                         cache_string = pn.save_to_cache()

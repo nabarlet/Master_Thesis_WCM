@@ -9,7 +9,7 @@ class CrossNode:
         self.lin_distance = how_many_lin
 
     def __str__(self):
-        return "%s(%10.8f:%d)" % (self.node.nid, self.log_distance,self.lin_distance)
+        return "%s(%.6g:%3.1f)" % (self.node.nid, self.log_distance,self.lin_distance)
 
     @classmethod
     def create_from_string(cls, string, composers):
@@ -18,7 +18,7 @@ class CrossNode:
         pn = Playlist.lookup(cnid, composers)
         (log, lin) = how_many.split(':')
         lin = lin.rstrip(')')
-        return cls(pn, float(log), int(lin))
+        return cls(pn, float(log), float(lin))
 
     def match(self, rng):
         result = False

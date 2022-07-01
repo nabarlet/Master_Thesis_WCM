@@ -30,7 +30,7 @@ class PlaylistTestCache(unittest.TestCase):
               pdb.set_trace()
               for other in c.crossings:
                   col_query_format = row_query_format.rstrip(';') + 'AND performance.id = %d;'
-                  col_query = col_query_format % (other.cross_nid, rowp[0])
+                  col_query = col_query_format % (other.node.nid, rowp[0])
                   col_perfs = self.db.query(col_query)
                   count += len(col_perfs)
                   print(count, other.how_many_times)
