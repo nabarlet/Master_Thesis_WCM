@@ -24,7 +24,7 @@ class StrictPathPlaylist(Playlist):
             try:
                 while True:
                     pn = self.next(cur, comps)
-                    pn.distance = self.calc_distance(cur, pn)
+                    (pn.log_distance, pn.lin_distance) = self.calc_distance(cur, pn)
                     pn.zone = self.zone_lookup(pn)
                     comps.append(pn)
                     cur = pn

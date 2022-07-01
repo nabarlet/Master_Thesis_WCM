@@ -2,6 +2,7 @@ import pdb
 import sys, os
 import math
 import re
+import numpy as np
 
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..']*3))])
@@ -23,7 +24,7 @@ class MatrixNode:
         self.col_name = cname
 
     def bump(self):
-        self.value += 1
+        self.value += 0.5
 
 class ComposerPlot:
 
@@ -91,13 +92,19 @@ class ComposerPlot:
         self.initialize_map()
 
     def fill_matrix(self, query_results):
-        for idx1,rkey in enumerate(query_results):
-            for idx2,ckey in enumerate(query_results):
+        sz = len(query_results)
+        off = 0
+        while (sz > 1):
+            for idx, key in enumerate(query_results[off:]):
+                idx1 = off
+                idx2 = off+idx
                 if idx1 != idx2:
-                    r = rkey[0]
-                    c = ckey[0]
+                    r = query_results[idx1][0]
+                    c = query_results[idx2][0]
                     self.matrix[r][c].bump()
                     self.matrix[c][r].bump()
+            off += 1
+            sz  -= 1
                             
     def load_full_map(self):
         if not self.full_map_loaded:
@@ -128,7 +135,7 @@ class ComposerPlot:
                 for c in self.matrix[r].keys():
                     self.matrix[r][c].conditioned_value /= self.max_value
 
-    __LOG_ZERO__ = 1e-18    
+    __LOG_ZERO__ = 1e-4    
     def log_values(self):
         eps = ComposerPlot.__LOG_ZERO__
         for r_key in self.matrix.keys():
@@ -195,7 +202,7 @@ class ComposerPlot:
             #
             # rescale with the gini coefficient
             #
-            if item[2] > 0:
+            if item[1] > 0.0:
                 gcoeff = self.calc_gini_coefficient(row)
                 item[1] /= gcoeff    
             #

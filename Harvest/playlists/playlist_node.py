@@ -7,14 +7,15 @@ class PlaylistNode:
         self.popvalue = pop
         self.cross_value = cv # total number of crossings of this composer with others
         self.zone = None
-        self.distance = 0.0
+        self.log_distance = 0.0
+        self.lin_distance = 0
         self.crossings = []
 
     def print(self):
         print("%-36s %-14s - %-16s - zone: %s" % (self.name, '(' + self.nid + ')', self.movement_name, str(self.zone)))
 
     def print_csv(self):
-        print("\"%s\",\"%s\",%s,%d,%12.10f,%d,%12.10f" % (self.name, self.nid, self.movement_name, self.zone, self.popvalue, self.cross_value, self.distance))
+        print("\"%s\",\"%s\",%s,%d,%12.10f,%d,%12.10f,%d" % (self.name, self.nid, self.movement_name, self.zone, self.popvalue, self.cross_value, self.log_distance, self.lin_distance))
 
     @classmethod
     def create_from_db(cls, nid, db, pop, value):

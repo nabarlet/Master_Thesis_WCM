@@ -50,9 +50,9 @@ class Playlist:
                 for pn in result:
                     for cross in cp.cross_lookup(pn.nid):
                         cpn = Playlist.lookup(cross.col_nid, result)
-                        pn.crossings.append(CrossNode(cpn, cross.conditioned_value))
+                        pn.crossings.append(CrossNode(cpn, cross.conditioned_value, cross.value))
                     if len(pn.crossings) > 0:
-                        pn.crossings = sorted(pn.crossings, key=lambda x:x.how_many_times, reverse=True)
+                        pn.crossings = sorted(pn.crossings, key=lambda x:x.log_distance, reverse=True)
                         cache_string = pn.save_to_cache()
                         print(cache_string, file=file)
         return result
@@ -81,10 +81,10 @@ class Playlist:
             by checking the position of composer B in the crossings of
             composer A. Returns -1 if no crossing is found.
         """
-        result = -1
+        result = (-1.0, -1)
         for c in a.crossings:
             if b.nid == c.node.nid:
-                result = c.how_many_times
+                result = (c.log_distance, c.lin_distance)
         return result
 
     def clear(self):
@@ -99,6 +99,7 @@ class Playlist:
     def print_csv(self, args = ''):
         self.generate()
         print("\n=== %s (%s) (%s) ===" %(self.__class__.__name__, dt.datetime.now().isoformat(), args))
+        print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d")
         for pn in self.generated:
             pn.print_csv()
 

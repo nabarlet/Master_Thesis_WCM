@@ -28,7 +28,6 @@ class MovementPathPlaylist(MovementPlaylist):
         if not self.already_generated:
             first_zone = self.lookup_first_zone()
             cur = choice(self.mov_zones[first_zone])
-            cur.distance = 0.0
             comps.append(cur)
             for n in range(self.size-1):
                 pn = self.next(cur,comps)
@@ -53,7 +52,7 @@ class MovementPathPlaylist(MovementPlaylist):
             if c.node.name == cur.name:
         	    continue
             if c.node.movement_name ==self.movement:
-                c.node.distance = c.how_many_times
+                (c.node.log_distance, c.node.lin_distance) = (c.log_distance, c.lin_distance)
                 possibilities.append(c.node)
         if len(possibilities) < 1:
             print("%s does not cross with his own movement" %(cur.name), file = sys.stderr)

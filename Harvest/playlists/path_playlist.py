@@ -49,8 +49,8 @@ class PathPlaylist(Playlist):
             while attempts < 10:
                 cross = choice(possibilities) 
                 pn = cross.node
-                pn.distance = cross.how_many_times
                 if not pn in already_found:
+                    (pn.log_distance, pn.lin_distance) = (cross.log_distance, cross.lin_distance)
                     result = pn
                     break
                 attempts += 1
