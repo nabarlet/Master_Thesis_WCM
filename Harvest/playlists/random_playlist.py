@@ -14,8 +14,16 @@ class RandomPlaylist(Playlist):
 
     def generate(self):
         if not self.already_generated:
-	        for n in range(self.size):
-	            self.generated.append(choice(self.composers))
+            cur = None
+            for n in range(self.size):
+                pn = choice(self.composers)
+                if cur:
+                    (pn.log_distance, pn.lin_distance) = self.calc_distance(cur, pn)
+                else:
+                    (pn.log_distance, pn.lin_distance) = (0.0, 0.0)
+                pn.zone = self.zone_lookup(pn)
+                self.generated.append(pn)
+                cur = pn
         self.already_generated = True
 
 if __name__ == '__main__':

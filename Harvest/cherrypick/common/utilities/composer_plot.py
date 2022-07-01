@@ -96,25 +96,37 @@ class ComposerPlot:
             result += (csv_row + '\n')
         return result
 
-
     def clear_map(self):
         self.matrix = {}
         self.initialize_map()
 
-    def fill_matrix(self, query_results):
-        sz = len(query_results)
+    @staticmethod
+    def static_matrix_fill(input):
+        """
+            static_matrix_fill(input, output)
+
+            isolates the delicate gauss summation-driven fill of a matrix
+            creating a generator which will hand over the input list in
+            ordered combinations (for ex. for [A, B, C]: [A,B], [A,C], [B, C])
+        """
+        sz = len(input)
         off = 0
         while (sz >= 1):
-            for idx, key in enumerate(query_results[off:]):
+            for idx, key in enumerate(input[off:]):
                 idx1 = off
                 idx2 = off+idx
                 if idx1 != idx2:
-                    r = query_results[idx1][0]
-                    c = query_results[idx2][0]
-                    self.matrix[r][c].bump()
-                    self.matrix[c][r].bump()
+                    row = input[idx1]
+                    col = input[idx2]
+                    yield row, col
             off += 1
             sz  -= 1
+
+    def fill_matrix(self, query_results):
+        qr = [n[0] for n in query_results] # clean up results of database
+        for row, col in ComposerPlot.static_matrix_fill(qr):
+            self.matrix[row][col].bump()
+            self.matrix[col][row].bump()
                             
     def load_full_map(self):
         if not self.full_map_loaded:
