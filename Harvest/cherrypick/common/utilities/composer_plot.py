@@ -7,7 +7,11 @@ import numpy as np
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..']*3))])
 
-from db.db import DbPro
+try:
+    from db.db import DbPro
+except ModuleNotFoundError:
+    from db import DbPro
+
 from common.utilities.plot_range import PlotRange
 from common.utilities.wcm_math import gini_porcaro
 

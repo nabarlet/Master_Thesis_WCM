@@ -8,6 +8,7 @@ sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..'
 import common.objects as obj
 from common.utilities.date import date
 from common.objects.provider import Providers
+from common.utilities.composer_plot  import ComposerPlot
 from common.utilities.bump   import Bump
 try:
     from db.db import DbDev, DbPro
@@ -27,7 +28,7 @@ class ComposerComposer(obj.ObjectBase):
         result = 'ComposerComposer(composer_1_id = %d, composer_2_id = %d, performance_id = %d)' % (self.composer_1_id, self.composer_2_id, self.performance_id)
         return result
 
-    def __str__(self, db = DBPro()):
+    def __str__(self, db = DbPro()):
         pass
         # TO BE DONE
         # c1 = 
@@ -63,36 +64,21 @@ class ComposerComposer(obj.ObjectBase):
     def create_composer_composer_table(cls):
         b = Bump()
         db = DbDev()
+        drop_query = "DROP TABLE IF EXISTS composer_composer;"
+        db.query(drop_query)
         pnames = [p[0] for p in db.select_all('provider AS P JOIN provider_type AS PT', 'P.name', "WHERE P.type_id = PT.id AND PT.type = 'radio'")]
         providers = [Providers.query_by_name(p) for p in pnames]
-        try:
-            for p in providers:
-                ComposerComposer.clear_composer_composer_performances_of_provider(p.name)
-            b.bump('+')
-        except:
-            """
-                there might be no table yet, so we ignore the ensuing error
-            """
-            pass
         for p in providers:
             perfs = db.select_all('performance AS P', 'P.id', "WHERE P.provider_id = %d" % (p.id))
             for r in perfs:
                 (perf_id, ) = r
                 comps = db.select_all('composer AS C JOIN composer_performance AS CP, performance AS P', 'C.id', "WHERE CP.composer_id = C.id AND CP.performance_id = P.id AND P.id = %d ORDER BY P.datetime" % (perf_id))
-                comps = [c for c in comps] # need to explicitely bypass the 'select_all' generator and have the list of composers per performance
-                sz = len(comps)
-                off = 0
-                while (sz > 1):
-                    for idx, c in enumerate(comps[off:]):
-                        idx1 = off
-                        idx2 = off+idx
-                        if idx1 != idx2:
-                            c1id = comps[idx1][0]
-                            c2id = comps[idx2][0]
-                            cc = cls(c1id, c2id, perf_id)
-                            cc.insert()
-                    off += 1
-                    sz  -= 1
+                comps = [c[0] for c in comps] # need to explicitely bypass the 'select_all' generator and have the list of composers per performance
+                for row, col in ComposerPlot.static_matrix_fill(comps):
+                    c1id = row
+                    c2id = col
+                    cc = cls(c1id, c2id, perf_id)
+                    cc.insert()
                 b.bump()
 
     @classmethod
