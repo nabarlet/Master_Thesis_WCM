@@ -88,3 +88,5 @@ if __name__ == '__main__':
         rng_string = sys.argv[2]
     zpp = ZonePathPlaylist.create(rng_string, config)
     zpp.print_csv(config)
+    
+    print(zpp.stat_top_era(),file=sys.stderr)

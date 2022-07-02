@@ -15,7 +15,6 @@ class MovementPlaylist(Playlist):
     def __init__(self, mov = 'Classical'):
         super().__init__()
         self.movement = mov
-        self.mov_zones=[[] for n in range(10)]
         self.movement_composers = self.load_movement_composers()
 
     def load_movement_composers(self):
@@ -24,16 +23,18 @@ class MovementPlaylist(Playlist):
             if c.movement_name == self.movement:
                 idx = self.zone_lookup(c)
                 c.zone=idx
-                self.mov_zones[idx].append(c)
                 result.append(c)
         return result
 
     def generate(self):
         comps = []
         if not self.already_generated:
+            prev = None
             for n in range(self.size):
                 pn = choice(self.movement_composers)
+                (pn.log_distance, pn.lin_distance) = self.calc_distance(prev,pn)
                 comps.append(pn)
+                prev = pn
             #shuffle(comps)
             self.generated = comps
         self.already_generated = True
@@ -44,3 +45,5 @@ if __name__ == '__main__':
         mov = sys.argv[1]
     mp = MovementPlaylist(mov)
     mp.print_csv()
+    
+    mp.print_stats()

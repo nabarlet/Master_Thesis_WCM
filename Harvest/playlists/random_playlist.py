@@ -29,3 +29,5 @@ class RandomPlaylist(Playlist):
 if __name__ == '__main__':
     rp = RandomPlaylist()
     rp.print_csv()
+    
+    rp.print_stats()

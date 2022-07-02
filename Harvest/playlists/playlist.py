@@ -10,6 +10,7 @@ sys.path.extend([os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherryp
 
 from common.utilities.composer_plot import ComposerPlot
 from common.utilities.wcm_math import exp_decile
+from common.objects.timeline import TimeLine
 from db.db import DbPro
 from playlist_node import PlaylistNode
 from cross_node import CrossNode
@@ -82,9 +83,10 @@ class Playlist:
             composer A. Returns -1 if no crossing is found.
         """
         result = (-1.0, -1)
-        for c in a.crossings:
-            if b.nid == c.node.nid:
-                result = (c.log_distance, c.lin_distance)
+        if a:
+            for c in a.crossings:
+                if b.nid == c.node.nid:
+                    result = (c.log_distance, c.lin_distance)
         return result
 
     def clear(self):
@@ -144,3 +146,80 @@ class Playlist:
                 result = idx
                 break
         return result
+        
+        
+    def print_stats(self, file=sys.stderr):
+        print('Eras: ' + str(self.eras_dist()), file=file)
+        print('Zones: ' + str(self.zones_dist()),file=file)
+        print('Composers: ' + str(self.composers_dist()), file=file)
+        print('Pop_Average: ' + str(self.pop_avg()), file=file)
+        print('Pop_Median: ' + str(self.pop_median()), file=file)
+        print ('Average distance (log,lin): ' + str(self.distance_avg()), file=file)
+    
+    def build_stats(self, d):
+        for k,v in d.items():
+            d[k] = (v/len(self.generated))*100.0
+        return sorted(d.items(),key=lambda x:x[1], reverse=True)
+           
+    def eras_dist(self):
+        tl = TimeLine.create()
+        result = {k:0 for k in tl.keys()}
+        max_value = 0
+        self.generate()
+        for pn in self.generated:
+            result[pn.movement_name] += 1
+        return self.build_stats(result)
+        
+    def composers_dist(self):
+        self.generate()
+        result = {pn.name:0 for pn in self.generated}
+        for pn in self.generated:
+            result[pn.name] += 1
+        return self.build_stats(result)
+        
+    def zones_dist(self):
+        self.generate()
+        result = {pn.zone:0 for pn in self.generated}
+        for pn in self.generated:
+            result[pn.zone] += 1
+        return self.build_stats(result) 
+        
+    def pop_avg(self):
+        self.generate()
+        result = 0
+        for pn in self.generated:
+            result += pn.popvalue
+        result /= len(self.generated)
+        return result
+        
+    def pop_median(self):
+        self.generate()
+        sort_result = sorted([pn.popvalue for pn in self.generated])
+        sz = len(sort_result)
+        idx = int((sz+1)/2.0)-1
+        result = None
+        if (sz%2) > 0:
+            result = sort_result[idx]
+        else:
+            prev = sort_result[idx]
+            next = sort_result[idx+1]
+            result = (prev + next)/2.0
+        return result
+        
+    def distance_avg(self):
+        self.generate()
+        result_log = 0
+        result_lin = 0
+        for pn in self.generated:
+            result_log += pn.log_distance
+            result_lin += pn.lin_distance
+        result_log /= len(self.generated)
+        result_lin /= len(self.generated)
+        return (result_log, result_lin)
+        
+           
+        
+        
+        
+ 
+        

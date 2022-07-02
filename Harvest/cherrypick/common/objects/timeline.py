@@ -127,7 +127,7 @@ class TimeLine(dict, obj.ObjectBase):
 
     def load_records(self):
         last_parent = None
-        for r in self.db.select_all(TimeLine.__DB_TABLE_NAME__):
+        for r in self.db_pro.select_all(TimeLine.__DB_TABLE_NAME__):
             (id, name, start, end, parent_id) = r
             tn = TimeNode(start, end, name, id)
             if not parent_id:
@@ -139,7 +139,7 @@ class TimeLine(dict, obj.ObjectBase):
     @classmethod
     def create(cls):
         result = None
-        db = DbDev()
+        db = DbPro()
         args = ('name', ('start', 'year', 'non_null'), ('end', 'year'), ('parent_id', 'integer'))
         db.create_table(cls.__DB_TABLE_NAME__, args)
         if db.table_size(cls.__DB_TABLE_NAME__) == 0:

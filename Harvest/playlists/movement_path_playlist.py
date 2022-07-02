@@ -22,6 +22,9 @@ class MovementPathPlaylist(MovementPlaylist):
     def __init__(self, mov = 'Classical', rng = [0.0, 1.0]):
         super().__init__(mov)
         self.range = rng
+        self.mov_zones = [[] for z in range(len(self.zones))]
+        for c in self.movement_composers:
+            self.mov_zones[c.zone].append(c)
             
     def generate(self):
         comps = []
@@ -37,11 +40,10 @@ class MovementPathPlaylist(MovementPlaylist):
         self.already_generated = True
         
     def lookup_first_zone(self):
-        result=None
-        for idx,z in enumerate(self.mov_zones):
-            if len(z)>0:
-                result=idx
-                break
+        result=100
+        for idx,pn in enumerate(self.movement_composers):
+            if pn.zone < result:
+                result=pn.zone
         return result
         
     def next(self, cur, already_found):
@@ -69,3 +71,5 @@ if __name__ == '__main__':
         rng = sys.argv[2]
     mp = MovementPathPlaylist.create(mov, rng)
     mp.print_csv("%s %s" %(mov,rng))
+    
+    mp.print_stats()
