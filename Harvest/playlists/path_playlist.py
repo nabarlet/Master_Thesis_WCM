@@ -6,7 +6,7 @@ import re
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, '.'), os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherrypick')])
 
-from random import choice, shuffle
+from random import choice, shuffle, random
 from db.db import DbPro
 from playlist import Playlist
 from common.utilities.wcm_math import exp_decile
@@ -23,6 +23,12 @@ class PathPlaylist(Playlist):
         rngs = rng.split('-')
         range = [float(r) for r in rngs]
         return cls(range)
+        
+    @classmethod
+    def create_random_args(cls):
+        ranges = [[0.0,0.1],[0.0,0.2],[0.1,0.2],[0.2,0.3],[0.0,0.3],[0.3,0.4],[0.4,0.5],[0.3,0.5],[0.5,0.7],[0.6,0.8],[0.8,1.0]]   
+        rng = choice(ranges)
+        return cls(rng)
 
     def generate(self):
         if not self.already_generated:
@@ -31,7 +37,7 @@ class PathPlaylist(Playlist):
             cur = choice(self.zones[0])
             cur.zone = n
             comps.append(cur)
-            while (n < self.size):
+            while (n < self.__size__):
                 n += 1
                 possibilities = cur.lookup_cross_range(self.range)
                 cur = self.next(comps, cur, possibilities)

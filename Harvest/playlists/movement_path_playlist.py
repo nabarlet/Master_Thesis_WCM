@@ -6,7 +6,7 @@ import re
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, '.'), os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherrypick')])
 
-from random import choice, shuffle
+from random import choice, choices, shuffle
 from db.db import DbPro
 from movement_playlist import MovementPlaylist
 from utilities.plugs import exclusive_random
@@ -18,6 +18,18 @@ class MovementPathPlaylist(MovementPlaylist):
         rngs = rng.split('-')
         range = [float(r) for r in rngs]
         return cls(mov,range)
+        
+    @classmehod
+    def create_random_args(cls):
+        total = 0
+        eras = [('Medieval', 29), ('Renaissance', 142),('Baroque', 468), ('Classical', 188), ('Romantic', 488), ('Modernism', 1288), ('Contemporary', 1441)]
+        for e,v in eras:
+            total +=v 
+        weights = [v/float(total) for n,v in eras]
+        era = choices(eras,weights = weights)
+        ranges = [[0.0,0.1],[0.0,0.2],[0.1,0.2],[0.2,0.3],[0.0,0.3],[0.3,0.4],[0.4,0.5],[0.3,0.5],[0.5,0.7],[0.6,0.8],[0.8,1.0]]   
+        rng = choice(ranges)
+        return cls(era,rng)
 
     def __init__(self, mov = 'Classical', rng = [0.0, 1.0]):
         super().__init__(mov)
@@ -32,7 +44,7 @@ class MovementPathPlaylist(MovementPlaylist):
             first_zone = self.lookup_first_zone()
             cur = choice(self.mov_zones[first_zone])
             comps.append(cur)
-            for n in range(self.size-1):
+            for n in range(self.__size__-1):
                 pn = self.next(cur,comps)
                 comps.append(pn)
             #shuffle(comps)

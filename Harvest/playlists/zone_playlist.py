@@ -47,4 +47,4 @@ if __name__ == '__main__':
     zp = ZonePlaylist.create(config)
     zp.print_csv(config)
     
-    print(zp.stat_top_era(), file=sys.stderr)
+    #print(zp.stat_top_era(), file=sys.stderr)

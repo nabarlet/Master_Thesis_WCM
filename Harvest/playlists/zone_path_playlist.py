@@ -21,6 +21,13 @@ class ZonePathPlaylist(ZonePlaylist):
     def __init__(self, config, rng):
         super().__init__(config)
         self.range = rng
+        
+    @classmethod
+    def create_random_args(cls):
+        config = ZonePlaylist.__DEFAULT_ZONE_CONFIG__
+        ranges = [[0.0,0.1],[0.0,0.2],[0.1,0.2],[0.2,0.3],[0.0,0.3],[0.3,0.4],[0.4,0.5],[0.3,0.5],[0.5,0.7],[0.6,0.8],[0.8,1.0]]   
+        rng = choice(ranges)
+        return cls(config, rng)
 
     @classmethod
     def create(cls, rng, config_string = ZonePlaylist.__DEFAULT_ZONE_CONFIG__):
@@ -37,9 +44,10 @@ class ZonePathPlaylist(ZonePlaylist):
             cur = choice(self.zones[0])
             cur.zone = n
             comps.append(cur)
-            while (n < len(self.zones)):
-                n += 1
+            n += 1
+            while (n < len(self.zones)):                
                 possibilities = cur.lookup_cross_range_and_zone(self.range, self.zones[n])
+                n += 1
                 try:
                     cur = self.next(comps, cur, possibilities, n)
                     cur.zone = self.zone_lookup(cur)
@@ -89,4 +97,4 @@ if __name__ == '__main__':
     zpp = ZonePathPlaylist.create(rng_string, config)
     zpp.print_csv(config)
     
-    print(zpp.stat_top_era(),file=sys.stderr)
+    zpp.print_stats()

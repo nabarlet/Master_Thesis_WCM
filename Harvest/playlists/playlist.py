@@ -17,16 +17,102 @@ from cross_node import CrossNode
 
 class PureVirtualMethodCalled(Exception):
     pass
-
+    
+class PlaylistStats:
+    
+    def __init__(self, playlist):
+        self.playlist = playlist
+        self.calc_stats()
+        
+    def calc_stats(self):
+        self.eras_dist = self.eras_dist_calc()
+        self.zones_dist = self.zones_dist_calc()
+        self.composers_list = self.composers_list_calc()
+        self.pop_avg = self.pop_avg_calc()
+        self.pop_median = self.pop_median_calc()
+        self.distance_avg = self.distance_avg_calc()
+    
+    def print_stats(self, file=sys.stderr):
+        print('Eras: ' + str(self.eras_dist), file=file)
+        print('Zones: ' + str(self.zones_dist),file=file)
+        print('Composers: ' + str(self.composers_list), file=file)
+        print('Pop_Average: ' + str(self.pop_avg), file=file)
+        print('Pop_Median: ' + str(self.pop_median), file=file)
+        print('Average distance (log,lin): ' + str(self.distance_avg), file=file)
+    
+    def build_stats(self, d):
+        for k,v in d.items():
+            d[k] = (v/(self.playlist.size()))*100.0
+        return sorted(d.items(),key=lambda x:x[1], reverse=True)
+           
+    def eras_dist_calc(self):
+        tl = TimeLine.create()
+        result = {k:0 for k in tl.keys()}
+        max_value = 0        
+        for pn in self.playlist.run():
+            result[pn.movement_name] += 1
+        return self.build_stats(result)
+        
+    def composers_list_calc(self):        
+        result = {pn.name:0 for pn in self.playlist.run()}
+        for pn in self.playlist.run():
+            result[pn.name] += 1
+        return self.build_stats(result)
+        
+    def zones_dist_calc(self):        
+        result = {pn.zone:0 for pn in self.playlist.run()}
+        for pn in self.playlist.run():
+            result[pn.zone] += 1
+        return self.build_stats(result) 
+        
+    def pop_avg_calc(self):
+        result = 0
+        for pn in self.playlist.run():
+            result += pn.popvalue
+        result /= (self.playlist.size())
+        return result
+        
+    def pop_median_calc(self):
+        sort_result = sorted([pn.popvalue for pn in self.playlist.run()])
+        sz = len(sort_result)
+        idx = int((sz+1)/2.0)-1
+        result = None
+        if (sz%2) > 0:
+            result = sort_result[idx]
+        else:
+            prev = sort_result[idx]
+            next = sort_result[idx+1]
+            result = (prev + next)/2.0
+        return result
+        
+    def distance_avg_calc(self):
+        result_log = 0
+        result_lin = 0
+        for pn in self.playlist.run():
+            result_log += pn.log_distance
+            result_lin += pn.lin_distance
+        result_log /= (self.playlist.size())
+        result_lin /= (self.playlist.size())
+        return (result_log, result_lin)
+        
+        
 class Playlist:
 
     __DEFAULT_PLAYLIST_SIZE__ = 10
     def __init__(self, size = __DEFAULT_PLAYLIST_SIZE__, db = DbPro()):
         self.db = db
-        self.size = size
+        self.__size__ = size
         self.composers = self.load_composers()
         self.zones = self.subdivide_in_zones()
         self.clear()
+        
+    @classmethod
+    def create_random_args(cls):
+        return cls()
+        
+    def size(self):
+        self.generate()
+        return len(self.generated)
 
     __PLAYLIST_CACHE_NAME__ = os.path.join(mypath, '__playlist_cache__')
     def load_composers(self):
@@ -45,9 +131,9 @@ class Playlist:
             skeys = cp.sorted_keys
             with open(Playlist.__PLAYLIST_CACHE_NAME__, 'w') as file:
                 for key, coeff, value in skeys:
-                	if(value>0):
-                		pn = PlaylistNode.create_from_db(key, self.db, coeff, value)
-                		result.append(pn)
+                    if(value>0):
+                        pn = PlaylistNode.create_from_db(key, self.db, coeff, value)
+                        result.append(pn)
                 for pn in result:
                     for cross in cp.cross_lookup(pn.nid):
                         cpn = Playlist.lookup(cross.col_nid, result)
@@ -80,9 +166,9 @@ class Playlist:
 
             calculates the distance between composer A and composer B
             by checking the position of composer B in the crossings of
-            composer A. Returns -1 if no crossing is found.
+            composer A. Returns 0 if no crossing is found.
         """
-        result = (-1.0, -1)
+        result = (0.0, 0)
         if a:
             for c in a.crossings:
                 if b.nid == c.node.nid:
@@ -134,7 +220,7 @@ class Playlist:
         for end in subdiv[1:]:
             zcomps=self.composers[start:end]
             for zc in zcomps:
-            	zc.zone = start
+                zc.zone = start
             result.append(zcomps)
             start = end
         return result
@@ -147,75 +233,19 @@ class Playlist:
                 break
         return result
         
+    def calc_stats(self):
+        self.generate()
+        result = PlaylistStats(self)
+        return result
         
     def print_stats(self, file=sys.stderr):
-        print('Eras: ' + str(self.eras_dist()), file=file)
-        print('Zones: ' + str(self.zones_dist()),file=file)
-        print('Composers: ' + str(self.composers_dist()), file=file)
-        print('Pop_Average: ' + str(self.pop_avg()), file=file)
-        print('Pop_Median: ' + str(self.pop_median()), file=file)
-        print ('Average distance (log,lin): ' + str(self.distance_avg()), file=file)
-    
-    def build_stats(self, d):
-        for k,v in d.items():
-            d[k] = (v/len(self.generated))*100.0
-        return sorted(d.items(),key=lambda x:x[1], reverse=True)
-           
-    def eras_dist(self):
-        tl = TimeLine.create()
-        result = {k:0 for k in tl.keys()}
-        max_value = 0
+        cs = self.calc_stats()
+        cs.print_stats(file)
+        
+    def run(self):
         self.generate()
         for pn in self.generated:
-            result[pn.movement_name] += 1
-        return self.build_stats(result)
-        
-    def composers_dist(self):
-        self.generate()
-        result = {pn.name:0 for pn in self.generated}
-        for pn in self.generated:
-            result[pn.name] += 1
-        return self.build_stats(result)
-        
-    def zones_dist(self):
-        self.generate()
-        result = {pn.zone:0 for pn in self.generated}
-        for pn in self.generated:
-            result[pn.zone] += 1
-        return self.build_stats(result) 
-        
-    def pop_avg(self):
-        self.generate()
-        result = 0
-        for pn in self.generated:
-            result += pn.popvalue
-        result /= len(self.generated)
-        return result
-        
-    def pop_median(self):
-        self.generate()
-        sort_result = sorted([pn.popvalue for pn in self.generated])
-        sz = len(sort_result)
-        idx = int((sz+1)/2.0)-1
-        result = None
-        if (sz%2) > 0:
-            result = sort_result[idx]
-        else:
-            prev = sort_result[idx]
-            next = sort_result[idx+1]
-            result = (prev + next)/2.0
-        return result
-        
-    def distance_avg(self):
-        self.generate()
-        result_log = 0
-        result_lin = 0
-        for pn in self.generated:
-            result_log += pn.log_distance
-            result_lin += pn.lin_distance
-        result_log /= len(self.generated)
-        result_lin /= len(self.generated)
-        return (result_log, result_lin)
+            yield pn
         
            
         

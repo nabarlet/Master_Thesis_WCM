@@ -15,7 +15,7 @@ class RandomPlaylist(Playlist):
     def generate(self):
         if not self.already_generated:
             cur = None
-            for n in range(self.size):
+            for n in range(self.__size__):
                 pn = choice(self.composers)
                 if cur:
                     (pn.log_distance, pn.lin_distance) = self.calc_distance(cur, pn)
