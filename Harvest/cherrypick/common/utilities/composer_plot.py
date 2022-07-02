@@ -161,12 +161,15 @@ class ComposerPlot:
                 for c in self.matrix[r].keys():
                     self.matrix[r][c].conditioned_value /= self.max_value
 
-    __LOG_ZERO__ = 1e-4    
+    __LOG_ZERO__ = 1e-2    
     def log_values(self):
         eps = ComposerPlot.__LOG_ZERO__
         for r_key in self.matrix.keys():
             for c_key,col in self.matrix[r_key].items():
-                value = math.log10(eps+col.value()) 
+                value = col.value()
+                if value <= 1.0:         # log10(1) -> 0, so we need to bias it with an epsilon value
+                    value = 1.0 + eps
+                value = math.log10(value) 
                 if value<0:
                     value=0.0
                 self.matrix[r_key][c_key].conditioned_value=value           
