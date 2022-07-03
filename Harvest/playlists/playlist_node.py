@@ -1,3 +1,5 @@
+import sys
+
 class PlaylistNode:
 
     def __init__(self, nid, name, mname, pop, cv):
@@ -11,11 +13,11 @@ class PlaylistNode:
         self.lin_distance = 0
         self.crossings = []
 
-    def print(self):
-        print("%-36s %-14s - %-16s - zone: %s" % (self.name, '(' + self.nid + ')', self.movement_name, str(self.zone)))
+    def print(self, file=sys.stdout):
+        print("%-36s %-14s - %-16s - zone: %s" % (self.name, '(' + self.nid + ')', self.movement_name, str(self.zone)), file=file)
 
-    def print_csv(self):
-        print("\"%s\",\"%s\",%s,%d,%.6g,%d,%.6g,%3.1f" % (self.name, self.nid, self.movement_name, self.zone, self.popvalue, self.cross_value, self.log_distance, self.lin_distance))
+    def print_csv(self, file=sys.stdout):
+        print("\"%s\",\"%s\",%s,%d,%.6g,%d,%.6g,%3.1f" % (self.name, self.nid, self.movement_name, self.zone, self.popvalue, self.cross_value, self.log_distance, self.lin_distance), file=file)
 
     @classmethod
     def create_from_db(cls, nid, db, pop, value):

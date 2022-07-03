@@ -25,7 +25,7 @@ class MovementPlaylist(Playlist):
             total +=v 
         weights = [v/float(total) for n,v in eras]
         era = choices(eras, weights = weights)
-        return cls(era, cache)
+        return cls(era[0][0], cache)
 
     def load_movement_composers(self):
         result = []

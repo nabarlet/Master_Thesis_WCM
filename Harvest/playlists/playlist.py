@@ -33,6 +33,8 @@ class PlaylistStats:
         self.distance_avg = self.distance_avg_calc()
     
     def print_stats(self, file=sys.stderr):
+        self.playlist.print_csv(file = file)
+        print('Size of playlist: ' + str(len(self.playlist.generated)), file = file)
         print('Eras: ' + str(self.eras_dist), file=file)
         print('Zones: ' + str(self.zones_dist),file=file)
         print('Composers: ' + str(self.composers_list), file=file)
@@ -191,13 +193,13 @@ class Playlist:
     def header(self, args):
         return "=== %s (%s) (%s) ===" % (self.__class__.__name__, dt.datetime.now().isoformat(), args)
 
-    def print_csv(self, args = ''):
+    def print_csv(self, args = '', file = sys.stdout):
         self.generate()
-        print() # precede header with a newline
-        print(self.header(args))
-        print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d")
+        print(file = file) # precede header with a newline
+        print(self.header(args), file = file)
+        print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d", file = file)
         for pn in self.generated:
-            pn.print_csv()
+            pn.print_csv(file = file)
 
     def plot(self):
         pass
