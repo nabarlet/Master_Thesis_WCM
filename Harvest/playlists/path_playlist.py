@@ -14,21 +14,21 @@ from utilities.plugs import exclusive_random
 
 class PathPlaylist(Playlist):
 
-    def __init__(self, rng):
-        super().__init__()
+    def __init__(self, rng, cache = None):
+        super().__init__(cache)
         self.range = rng
 
     @classmethod
-    def create(cls, rng):
+    def create(cls, rng, cache = None):
         rngs = rng.split('-')
         range = [float(r) for r in rngs]
-        return cls(range)
+        return cls(range, cache)
         
     @classmethod
-    def create_random_args(cls):
+    def create_random_args(cls, cache = None):
         ranges = [[0.0,0.1],[0.0,0.2],[0.1,0.2],[0.2,0.3],[0.0,0.3],[0.3,0.4],[0.4,0.5],[0.3,0.5],[0.5,0.7],[0.6,0.8],[0.8,1.0]]   
         rng = choice(ranges)
-        return cls(rng)
+        return cls(rng, cache)
 
     def generate(self):
         if not self.already_generated:

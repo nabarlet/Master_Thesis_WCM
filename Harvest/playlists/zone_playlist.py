@@ -14,16 +14,20 @@ from utilities.plugs import exclusive_random
 
 class ZonePlaylist(Playlist):
 
-    def __init__(self, config):
-        super().__init__()
+    def __init__(self, config, cache = None):
+        super().__init__(cache)
         self.config = config
 
     __DEFAULT_ZONE_CONFIG__ = '1,1,1,1,1,1,1,1,1,1'
     @classmethod
-    def create(cls, config_string = __DEFAULT_ZONE_CONFIG__):
+    def create(cls, config_string = __DEFAULT_ZONE_CONFIG__, cache = None):
         result = config_string.split(',')
         result = [int(n) for n in result]
-        return cls(result)
+        return cls(result, cache)
+
+    @classmethod
+    def create_random_args(cls, cache = None):
+        return cls.create(ZonePlaylist.__DEFAULT_ZONE_CONFIG__, cache)
 
     def generate(self):
         if not self.already_generated:

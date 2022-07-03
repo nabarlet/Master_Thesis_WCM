@@ -14,13 +14,13 @@ from utilities.plugs import exclusive_random
 class MovementPathPlaylist(MovementPlaylist):
 
     @classmethod
-    def create(cls, mov, rng):
+    def create(cls, mov, rng, cache = None):
         rngs = rng.split('-')
         range = [float(r) for r in rngs]
-        return cls(mov,range)
+        return cls(mov, range, cache)
         
-    @classmehod
-    def create_random_args(cls):
+    @classmethod
+    def create_random_args(cls, cache = None):
         total = 0
         eras = [('Medieval', 29), ('Renaissance', 142),('Baroque', 468), ('Classical', 188), ('Romantic', 488), ('Modernism', 1288), ('Contemporary', 1441)]
         for e,v in eras:
@@ -29,10 +29,10 @@ class MovementPathPlaylist(MovementPlaylist):
         era = choices(eras,weights = weights)
         ranges = [[0.0,0.1],[0.0,0.2],[0.1,0.2],[0.2,0.3],[0.0,0.3],[0.3,0.4],[0.4,0.5],[0.3,0.5],[0.5,0.7],[0.6,0.8],[0.8,1.0]]   
         rng = choice(ranges)
-        return cls(era,rng)
+        return cls(era, rng, cache)
 
-    def __init__(self, mov = 'Classical', rng = [0.0, 1.0]):
-        super().__init__(mov)
+    def __init__(self, mov = 'Classical', rng = [0.0, 1.0], cache = None):
+        super().__init__(mov, cache)
         self.range = rng
         self.mov_zones = [[] for z in range(len(self.zones))]
         for c in self.movement_composers:

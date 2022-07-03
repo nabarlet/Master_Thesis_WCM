@@ -6,16 +6,26 @@ import re
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, '.'), os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherrypick')])
 
-from random import choice, shuffle
+from random import choice, shuffle, choices
 from db.db import DbPro
 from playlist import Playlist
 
 class MovementPlaylist(Playlist):
 
-    def __init__(self, mov = 'Classical'):
-        super().__init__()
+    def __init__(self, mov = 'Classical', cache = None):
+        super().__init__(cache)
         self.movement = mov
         self.movement_composers = self.load_movement_composers()
+
+    @classmethod
+    def create_random_args(cls, cache = None):
+        total = 0
+        eras = [('Medieval', 29), ('Renaissance', 142),('Baroque', 468), ('Classical', 188), ('Romantic', 488), ('Modernism', 1288), ('Contemporary', 1441)]
+        for e,v in eras:
+            total +=v 
+        weights = [v/float(total) for n,v in eras]
+        era = choices(eras, weights = weights)
+        return cls(era, cache)
 
     def load_movement_composers(self):
         result = []

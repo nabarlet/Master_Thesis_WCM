@@ -18,24 +18,24 @@ class CandidateNotFound(Exception):
 
 class ZonePathPlaylist(ZonePlaylist):
 
-    def __init__(self, config, rng):
-        super().__init__(config)
+    def __init__(self, config, rng, cache = None):
+        super().__init__(config, cache)
         self.range = rng
         
     @classmethod
-    def create_random_args(cls):
+    def create_random_args(cls, cache = None):
         config = ZonePlaylist.__DEFAULT_ZONE_CONFIG__
         ranges = [[0.0,0.1],[0.0,0.2],[0.1,0.2],[0.2,0.3],[0.0,0.3],[0.3,0.4],[0.4,0.5],[0.3,0.5],[0.5,0.7],[0.6,0.8],[0.8,1.0]]   
         rng = choice(ranges)
-        return cls(config, rng)
+        return cls(config, rng, cache)
 
     @classmethod
-    def create(cls, rng, config_string = ZonePlaylist.__DEFAULT_ZONE_CONFIG__):
+    def create(cls, rng, config_string = ZonePlaylist.__DEFAULT_ZONE_CONFIG__, cache = None):
         rngs = rng.split('-')
         range = [float(r) for r in rngs]
         conf = config_string.split(',')
         conf = [int(n) for n in conf]
-        return cls(conf, range)
+        return cls(conf, range, cache)
 
     def generate(self):
         if not self.already_generated:

@@ -99,23 +99,23 @@ class PlaylistStats:
 class Playlist:
 
     __DEFAULT_PLAYLIST_SIZE__ = 10
-    def __init__(self, size = __DEFAULT_PLAYLIST_SIZE__, db = DbPro()):
+    def __init__(self, cache = None, size = __DEFAULT_PLAYLIST_SIZE__, db = DbPro()):
         self.db = db
         self.__size__ = size
-        self.composers = self.load_composers()
+        self.composers = self.load_composers(cache)
         self.zones = self.subdivide_in_zones()
         self.clear()
         
     @classmethod
-    def create_random_args(cls):
-        return cls()
+    def create_random_args(cls, cache = None):
+        return cls(cache)
         
     def size(self):
         self.generate()
         return len(self.generated)
 
     __PLAYLIST_CACHE_NAME__ = os.path.join(mypath, '__playlist_cache__')
-    def load_composers(self):
+    def load_composers(self, cache = None):
         """
             load_composers()
 
@@ -125,7 +125,10 @@ class Playlist:
             loading all the composers and then creating the
             cross-relationships
         """
-        result = self.load_composers_from_cache()
+        if cache:
+            result = cache
+        else:
+            result = Playlist.load_composers_from_cache()
         if len(result) == 0:
             cp = ComposerPlot()
             skeys = cp.sorted_keys
@@ -144,7 +147,8 @@ class Playlist:
                         print(cache_string, file=file)
         return result
 
-    def load_composers_from_cache(self):
+    @staticmethod
+    def load_composers_from_cache():
         result = []
         if os.path.exists(Playlist.__PLAYLIST_CACHE_NAME__):
             with open(Playlist.__PLAYLIST_CACHE_NAME__, 'r') as file:
@@ -184,9 +188,13 @@ class Playlist:
         for pn in self.generated:
             pn.print()
 
+    def header(self, args):
+        return "=== %s (%s) (%s) ===" % (self.__class__.__name__, dt.datetime.now().isoformat(), args)
+
     def print_csv(self, args = ''):
         self.generate()
-        print("\n=== %s (%s) (%s) ===" %(self.__class__.__name__, dt.datetime.now().isoformat(), args))
+        print() # precede header with a newline
+        print(self.header(args))
         print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d")
         for pn in self.generated:
             pn.print_csv()
@@ -246,10 +254,3 @@ class Playlist:
         self.generate()
         for pn in self.generated:
             yield pn
-        
-           
-        
-        
-        
- 
-        
