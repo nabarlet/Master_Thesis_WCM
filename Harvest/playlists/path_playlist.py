@@ -12,6 +12,9 @@ from playlist import Playlist
 from common.utilities.wcm_math import exp_decile
 from utilities.plugs import exclusive_random
 
+class CandidateNotFound(Exception):
+    pass
+
 class PathPlaylist(Playlist):
 
     def __init__(self, rng, cache = None):
@@ -40,7 +43,7 @@ class PathPlaylist(Playlist):
             while (n < self.__size__):
                 n += 1
                 possibilities = cur.lookup_cross_range(self.range)
-                cur = self.next(comps, cur, possibilities)
+                cur = self.next(comps, cur, possibilities, 0)
                 cur.zone = self.zone_lookup(cur)
                 comps.append(cur)
             # shuffle(comps)
@@ -48,7 +51,9 @@ class PathPlaylist(Playlist):
         self.already_generated = True
         
     __WIDEN__= 0.1
-    def next(self, already_found, seed, possibilities):
+    def next(self, already_found, seed, possibilities, attempt):
+        if attempt > 10:
+            raise CandidateNotFound
         result = None
         attempts = 0
         if len(possibilities) > 0:
@@ -72,7 +77,7 @@ class PathPlaylist(Playlist):
             	
             new_possibilities = prev.lookup_cross_range(new_rng)
             print("---> cannot find anything for %s, trying new_possibilities for %s" % (seed.nid, prev.nid), file=sys.stderr)
-            result = self.next(already_found, prev, new_possibilities)
+            result = self.next(already_found, prev, new_possibilities, attempt+1)
         return result
 
 if __name__ == '__main__':

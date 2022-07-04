@@ -1,4 +1,5 @@
 import sys
+import pdb
 
 class PlaylistNode:
 
@@ -17,6 +18,8 @@ class PlaylistNode:
         print("%-36s %-14s - %-16s - zone: %s" % (self.name, '(' + self.nid + ')', self.movement_name, str(self.zone)), file=file)
 
     def print_csv(self, file=sys.stdout):
+        if self.zone == None:
+            self.zone = -1
         print("\"%s\",\"%s\",%s,%d,%.6g,%d,%.6g,%3.1f" % (self.name, self.nid, self.movement_name, self.zone, self.popvalue, self.cross_value, self.log_distance, self.lin_distance), file=file)
 
     @classmethod

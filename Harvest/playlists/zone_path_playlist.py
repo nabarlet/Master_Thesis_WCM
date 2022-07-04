@@ -8,13 +8,10 @@ sys.path.extend([os.path.join(mypath, '.'), os.path.join(mypath, '..'), os.path.
 
 from random import choice, shuffle
 from db.db import DbPro
-from path_playlist import PathPlaylist
+from path_playlist import PathPlaylist, CandidateNotFound
 from zone_playlist import ZonePlaylist
 from common.utilities.wcm_math import decile, exp_decile
 from utilities.plugs import exclusive_random
-
-class CandidateNotFound(Exception):
-    pass
 
 class ZonePathPlaylist(ZonePlaylist):
 
@@ -86,6 +83,9 @@ class ZonePathPlaylist(ZonePlaylist):
             print("---> cannot find anything for %s, trying new_possibilities for %s" % (seed.nid, prev.nid), file=sys.stderr)
             result = self.next(already_found, prev, new_possibilities, zone_number)
         return result
+        
+    def print_csv(self, args = '', file = sys.stdout):
+        super().print_csv(args=str(self.range), file = file)
 
 if __name__ == '__main__':
     config = ZonePathPlaylist.__DEFAULT_ZONE_CONFIG__

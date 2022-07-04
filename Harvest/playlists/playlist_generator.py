@@ -17,7 +17,7 @@ from zone_playlist import ZonePlaylist
 from movement_path_playlist import MovementPathPlaylist
 from zone_path_playlist import ZonePathPlaylist
 from path_playlist import PathPlaylist
-from decorators import plotmethod, barmethod
+from decorators import plotmethod, vbarmethod, hbarmethod
 
 class PlaylistGenerator:
 
@@ -46,7 +46,7 @@ class PlaylistGenerator:
                         self.succeded += 1
                         b.bump() 
                 except Exception as e:
-                    print("Playlist generation failed: %s" % (str(e)), file=sys.stderr)
+                    print("%s: Playlist generation failed: %s" % (self.name, str(e)), file=sys.stderr)
                     print(traceback.format_exc(), file=sys.stderr)
                     self.failed += 1
             self.generated = True
@@ -79,7 +79,7 @@ class PlaylistGenerator:
         pmeds = [ps.pop_median for ps in self.stats]
         return pmeds, self.header(plot_name), self.filename(plot_name), plotdir
 
-    @barmethod
+    @vbarmethod
     def create_era_coverage_plot(self, plotdir):
         plot_name = 'era_coverage'
         keys = ['Medieval', 'Renaissance', 'Baroque', 'Classical', 'Romantic', 'Modernism', 'Contemporary']
@@ -93,10 +93,10 @@ class PlaylistGenerator:
         values = [result[k]/statsz for k in keys]
         return keys, values, self.header(plot_name), self.filename(plot_name), plotdir
 
-    __MAX_COMPOSERS_PLOTTED__ = 60
+    __MAX_COMPOSERS_PLOTTED__ = 40
     __MAX_COMPOSER_NAME_LEN__ = 20
     __NAME_DOTS__             = '...'
-    @barmethod
+    @vbarmethod
     def create_composer_coverage_plot(self, plotdir):
         plot_name = 'composer_coverage'
         result = {}
@@ -125,7 +125,7 @@ class PlaylistGenerator:
         for v in values:
             if v > max_value:
                 max_value = v
-        values = [v/max_value for v in values]
+        #values = [v/max_value for v in values]
         return keys, values, self.header(plot_name), self.filename(plot_name), plotdir
 
 if __name__ == '__main__':

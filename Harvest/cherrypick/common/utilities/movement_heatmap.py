@@ -28,6 +28,7 @@ class MovementHeatmap(MovementPlot):
                 r_arr.append(col)
             result.append(r_arr)
         (xs,labels) = self.calc_labels()
+        plt.rc('font',size=25)
         fig, ax = plt.subplots()
         fig.set_figwidth(25.6)
         fig.set_figheight(19.2)

@@ -227,12 +227,14 @@ class Playlist:
         result = []
         subdiv = exp_decile(self.composers, Playlist.__ZONE_0_SIZE__)
         start = subdiv[0]
+        idx = 0
         for end in subdiv[1:]:
             zcomps=self.composers[start:end]
             for zc in zcomps:
-                zc.zone = start
+                zc.zone = idx
             result.append(zcomps)
             start = end
+            idx += 1
         return result
 
     def zone_lookup(self, pn):

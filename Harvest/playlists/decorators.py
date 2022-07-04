@@ -1,5 +1,6 @@
 import os
 import matplotlib.pyplot as plt
+import pdb
 
 __RUNNING_AVERAGE_SIZE__ = 100
 def running_average(data):
@@ -40,9 +41,9 @@ def plotmethod(func):
 
     return inner
 
-def barmethod(func):
+def vbarmethod(func):
     """
-        @barmethod is a decorator to manage bar charts seamlessly
+        @vbarmethod is a decorator to manage bar charts seamlessly (vertical)
     """
     def inner(*arg):
         (xlabels, y, plot_name, filename, plotdir) = func(*arg)
@@ -53,6 +54,23 @@ def barmethod(func):
         ax.tick_params(axis="x", rotation=90)
         plt.bar(x, y)
         plt.xticks(x, xlabels)
+        plt.title(plot_name)
+        plt.savefig(os.path.join(plotdir, filename), bbox_inches='tight')
+
+    return inner
+    
+def hbarmethod(func):
+    """
+        @hbarmethod is a decorator to manage bar charts seamlessly (horizontal)
+    """
+    def inner(*arg):
+        (ylabels, y, plot_name, filename, plotdir) = func(*arg)
+        x = range(len(y))
+        fig, ax = plt.subplots()
+        fig.set_figwidth(11.5)
+        fig.set_figheight(15.3)
+        plt.barh(y,x)
+        plt.yticks(x, ylabels)
         plt.title(plot_name)
         plt.savefig(os.path.join(plotdir, filename), bbox_inches='tight')
 

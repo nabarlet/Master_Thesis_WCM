@@ -48,7 +48,10 @@ class MovementPlaylist(Playlist):
             #shuffle(comps)
             self.generated = comps
         self.already_generated = True
-
+        
+    def print_csv(self, file = sys.stdout):
+        super().print_csv(args=self.movement, file = file) 
+    
 if __name__ == '__main__':
     mov = 'Classical'
     if len(sys.argv) > 1:
