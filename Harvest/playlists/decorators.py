@@ -65,11 +65,16 @@ def hbarmethod(func):
     """
     def inner(*arg):
         (ylabels, y, plot_name, filename, plotdir) = func(*arg)
+        #
+        # we need to reverse the lists to have the top at the top of the chart
+        #
+        y.reverse()
+        ylabels.reverse()
         x = range(len(y))
         fig, ax = plt.subplots()
         fig.set_figwidth(11.5)
         fig.set_figheight(15.3)
-        plt.barh(y,x)
+        plt.barh(x,y)
         plt.yticks(x, ylabels)
         plt.title(plot_name)
         plt.savefig(os.path.join(plotdir, filename), bbox_inches='tight')

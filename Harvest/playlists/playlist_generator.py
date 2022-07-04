@@ -96,7 +96,7 @@ class PlaylistGenerator:
     __MAX_COMPOSERS_PLOTTED__ = 40
     __MAX_COMPOSER_NAME_LEN__ = 20
     __NAME_DOTS__             = '...'
-    @vbarmethod
+    @hbarmethod
     def create_composer_coverage_plot(self, plotdir):
         plot_name = 'composer_coverage'
         result = {}
