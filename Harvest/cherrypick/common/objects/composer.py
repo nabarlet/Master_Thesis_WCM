@@ -172,7 +172,7 @@ class Composer(obj.ObjectBase):
     @classmethod
     def common_query(cls, qstring, db = DbPro()):
         result = None
-        results = db.query(q_string)
+        results = db.query(qstring)
         if results and len(results) > 0:
             (id, name, birth, death, nid, movement_id) = results[0]
             mov = obj.TimeLine.query_by_id(movement_id).key

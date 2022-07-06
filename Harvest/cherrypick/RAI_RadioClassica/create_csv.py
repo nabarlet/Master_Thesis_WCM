@@ -16,7 +16,7 @@ for found, not_found in RRCPick.create_csv():
     b.bump()
     if found:
         try:
-            found.insert(PROVIDER)
+            #found.insert(PROVIDER)
             print(found.to_csv())
         except Exception as e:
             print(e, file=sys.stderr)

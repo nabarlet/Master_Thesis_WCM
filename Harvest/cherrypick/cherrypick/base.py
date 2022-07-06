@@ -48,10 +48,11 @@ class Base:
     @classmethod
     def create_csv(cls, repo_dir):
         for coll in cls.manage(repo_dir):
-            for comp in coll.parse():
+            for rec in coll.parse():
                 found = not_found = None
+                comp = rec.composer
                 if comp and comp.nid and comp.birth:
-                    found = comp
+                    found = rec
                 else:
-                    not_found = comp
+                    not_found = rec
                 yield found, not_found

@@ -27,4 +27,4 @@ class Recording:
         return result
 
     def to_csv(self):
-        return self.composer.to_csv()
+        return "%s,%s,%s,%s,%s" % (self.composer.to_csv(), self.title, self.duration, self.label, self.perf_date)

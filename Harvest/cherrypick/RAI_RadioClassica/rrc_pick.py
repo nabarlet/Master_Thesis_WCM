@@ -37,10 +37,12 @@ class RRCPick(PdfSourceBase):
                     pdate = RRCPick.process_date(current_date, current_time)
                     if wd_comp:
                         wd_comp.perf_date = pdate
-                        yield wd_comp
+                        o.composer = wd_comp
+                        yield o
                     else:
                         comp.perf_date = pdate
-                        yield comp
+                        o.composer = comp
+                        yield o
 
     @classmethod
     def create_csv(cls, repo_dir = __DEFAULT_RRC_REPO_PATH__):

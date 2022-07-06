@@ -74,7 +74,6 @@ class RRCRecordingParser(Parser, RRCParserBase):
 
     @_('DURATA DURATA_VALUE EOL')
     def durata(self, p):
-        # print("inside durata: %s" % (p.DURATA_VALUE))
         result = obj.Duration(p.DURATA_VALUE)
         return result
 
