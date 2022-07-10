@@ -37,10 +37,12 @@ class RRCPick(PdfSourceBase):
                     pdate = RRCPick.process_date(current_date, current_time)
                     if wd_comp:
                         wd_comp.perf_date = pdate
+                        o.perf_date = pdate
                         o.composer = wd_comp
                         yield o
                     else:
                         comp.perf_date = pdate
+                        o.perf_date = pdate
                         o.composer = comp
                         yield o
 

@@ -10,8 +10,8 @@ from common.utilities.bump import Bump
 b = Bump()
 
 PROVIDER = 'RAIRadioClassica'
-Performance.clear_performances_of_provider(PROVIDER)
-b.bump('+')
+# Performance.clear_performances_of_provider(PROVIDER)
+# b.bump('+')
 for found, not_found in RRCPick.create_csv():
     b.bump()
     if found:

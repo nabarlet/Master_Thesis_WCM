@@ -54,14 +54,13 @@ class RRCRecordingParser(Parser, RRCParserBase):
     def recording_section(self, p):
         return p.recording
 
-    @_('composer title_and_musicians durata label')
+    @_('composer title_and_other_info durata label')
     def recording(self, p):
         composer = obj.Composer(p.composer)
-        result = obj.Recording()
-        result.composer = composer
-        result.title = p.title_and_musicians
-        result.duration = p.durata
-        result.label = p.label
+        other_info = title = None
+        title = p.title_and_other_info[0].rstrip()
+        other_info = [s.rstrip() for s in p.title_and_other_info[1:]]
+        result = obj.Recording(composer, other_info, title, dur = p.durata, label = p.label)
         return result
     
     @_('one_line_string EOL')
@@ -69,7 +68,7 @@ class RRCRecordingParser(Parser, RRCParserBase):
         return p.one_line_string
     
     @_('multiple_line_string')
-    def title_and_musicians(self, p):
+    def title_and_other_info(self, p):
         return p.multiple_line_string
 
     @_('DURATA DURATA_VALUE EOL')
@@ -79,7 +78,6 @@ class RRCRecordingParser(Parser, RRCParserBase):
 
     @_('one_line_string EOL')
     def label(self, p):
-        # print("inside label: %s" % (p.one_line_string))
         return p.one_line_string
 
     #
@@ -87,11 +85,14 @@ class RRCRecordingParser(Parser, RRCParserBase):
     #
     @_('one_line_string EOL')
     def multiple_line_string(self, p):
-        return p.one_line_string
+        mls = []
+        mls.append(p.one_line_string)
+        return mls
 
     @_('multiple_line_string one_line_string EOL')
     def multiple_line_string(self, p):
-        return p.multiple_line_string + ' ' + p.one_line_string
+        p.multiple_line_string.append(p.one_line_string)
+        return p.multiple_line_string
     #
     # rule for multiple WORDs (name) on a single string
     #

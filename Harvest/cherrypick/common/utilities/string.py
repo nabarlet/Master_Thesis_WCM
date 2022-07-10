@@ -107,3 +107,9 @@ def string_similarity(a, b):
 def random_string(size = 16):
     result = ''.join(random.choice(string.ascii_letters) for _ in range(size))
     return result
+
+def escape_quotes(string):
+    qre = re.compile('"') 
+    escaped = qre.sub(r'\"', string)
+    return escaped
+
