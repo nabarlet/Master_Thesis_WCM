@@ -12,6 +12,6 @@ if len(sys.argv) > 1:
 	bpt.limit=int(sys.argv[1])
 for found, not_found in bpt.parse():
     if found:
-	    print(found.composer.to_csv())
+	    print(found.to_csv())
     if not_found:
-        print(not_found.composer.to_csv())
+        print(not_found.to_csv())
