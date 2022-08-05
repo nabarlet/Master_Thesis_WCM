@@ -9,7 +9,7 @@ sys.path.append(os.path.join(mypath, '..'))
 from db.db import DbPro
 db = DbPro()
 
-def barhplot(comps, query, filename_template, title, limit = 60):
+def barhplot(comps, query, filename_template, title, limit = 60, xlimit = None):
     plotdir = os.path.join(mypath, './plots')
     results = []
     for cid, name in comps:
@@ -29,10 +29,12 @@ def barhplot(comps, query, filename_template, title, limit = 60):
     plt.barh(x,y)
     plt.yticks(x, ylabels)
     plt.title(title % (limit))
+    if xlimit:
+        plt.axis([0, xlimit, -1, limit+1])
     filename = filename_template % (limit)
     plt.savefig(os.path.join(plotdir, filename), bbox_inches='tight')
 
-    return results
+    return top
 
 #
 # composer query
@@ -43,17 +45,18 @@ composers = db.query(cquery)
 #
 # global chart
 #
-gquery = "SELECT C.id,C.name,count(*) FROM composer AS C JOIN composer_performance AS CP WHERE CP.composer_id = C.id AND C.id = %d;" 
+gquery = "SELECT C.id,C.name,count(*) FROM composer AS C JOIN composer_performance AS CP WHERE CP.composer_id = C.id AND C.id = %d ORDER BY count(*) DESC;" 
 barhplot(composers, gquery, 'Top_%d_global_pop.png', 'Top %d global popularity')
 
 #
 # single radio charts
 #
+SINGLE_PROV_XLIMIT = 600
 rquery = "SELECT P.id,P.name FROM provider AS P JOIN provider_type AS PT WHERE P.type_id = PT.id AND PT.type = 'radio';"
 radios = db.query(rquery)
 for rid, rname in radios:
-    lquery_tail = " AND P.provider_id = %d;" % (rid)
+    lquery_tail = " AND P.provider_id = %d AND CP.performance_id = P.id;" % (rid)
     lquery = "SELECT C.id,C.name,count(*) FROM composer AS C JOIN composer_performance AS CP, performance AS P WHERE CP.composer_id = C.id AND C.id = %d" + lquery_tail 
     filename = 'Top_%d_' + ("%s_pop.png" % (rname))
-    plot_title = 'Top %d' + ("%s popularity" % (rname)) 
-    barhplot(composers, lquery, filename, plot_title)
+    plot_title = 'Top %d ' + ("%s popularity" % (rname)) 
+    barhplot(composers, lquery, filename, plot_title, xlimit = SINGLE_PROV_XLIMIT)
