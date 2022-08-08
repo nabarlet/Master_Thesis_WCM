@@ -71,8 +71,9 @@ def retrieve_composer(name):
         "sroffset" : offset,
     }
     rsize = result_size(params)
-    if rsize > 30:
-        rsize = 30
+    max_search = 30
+    if rsize > max_search:
+        rsize = max_search
     if rsize:
         while offset < rsize:
             nid = retrieve_composer_slice(offset, params, cre)

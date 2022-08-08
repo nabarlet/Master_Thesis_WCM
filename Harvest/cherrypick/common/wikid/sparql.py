@@ -21,14 +21,18 @@ def get_results(endpoint_url, query):
 def sparql_composer(nid):
     final_result=None
     endpoint_url = "https://query.wikidata.org/sparql"
-    query = "SELECT distinct ?person ?personLabel ?personDescription ?birth ?death ?movementLabel ?precisiondob ?precisiondod WHERE {\
-  VALUES (?person) {(wd:%s)}\
-    ?person wdt:P31 wd:Q5;\
-          p:P569/psv:P569  [wikibase:timeValue ?birth; wikibase:timePrecision ?precisiondob].\
-      OPTIONAL {?person p:P570/psv:P570 [wikibase:timeValue ?death; wikibase:timePrecision ?precisiondod].}\
+    query = "SELECT distinct ?person ?personLabel ?personDescription ?birth ?death ?countryLabel ?genderLabel ?coords ?lat ?long ?movementLabel ?precisiondob ?precisiondod WHERE {\
+             VALUES (?person) {(wd:%s)}\
+             ?person wdt:P31 wd:Q5;\
+             p:P569/psv:P569  [wikibase:timeValue ?birth; wikibase:timePrecision ?precisiondob].\
+             OPTIONAL {?person p:P570/psv:P570 [wikibase:timeValue ?death; wikibase:timePrecision ?precisiondod].}\
+             OPTIONAL {?person wdt:P27 ?country .}\
+             OPTIONAL {?person wdt:P21 ?gender .}\
+             OPTIONAL {?country p:P625 ?coords_sample .}\
+             OPTIONAL {?coords_sample ps:P625 ?coords; psv:P625 [ wikibase:geoLatitude ?lat; wikibase:geoLongitude ?long ] .}\
       OPTIONAL {?person wdt:P135 ?movement .}\
       SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\" }\
-} ORDER BY DESC (?precisiondob) DESC( ?precisiondod)\n" % (nid)
+} ORDER BY DESC (?precisiondob) DESC(?precisiondod) (?country)\n" % (nid)
 
     tl = TimeLine.create_from_csv()
     try:
@@ -36,13 +40,22 @@ def sparql_composer(nid):
         results=results['results']['bindings']
         if len(results)>0:  
             death = None
+            country = gender = lat = long = 'unknown'
             movement=None
             result=results[0]   
             name = result['personLabel']['value']
             birth = result['birth']['value']
             if 'death' in result:
                 death = result['death']['value']
-            final_result= Composer(name,birth,death, nid=nid)
+            if 'countryLabel' in result:
+                country = result['countryLabel']['value']
+            if 'genderLabel' in result:
+                gender = result['genderLabel']['value']
+            if 'lat' in result:
+                lat = result['lat']['value']
+            if 'long' in result:
+                long = result['long']['value']
+            final_result= Composer(name,birth,death, nid=nid, country=country, gender=gender, lat=lat, long=long)
             try:
                 movement = tl.assign_movement(final_result)
                 final_result.movement = movement

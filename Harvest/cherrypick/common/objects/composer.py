@@ -131,7 +131,8 @@ class NoSuchComposer(Exception):
 class Composer(obj.ObjectBase):
 
     __DB_TABLE_NAME__ = 'composer'
-    def __init__(self,name,birth=None,death=None,movement=None, perf_date=None, nid=None, id=None):
+    UNK = 'unknown'
+    def __init__(self,name,birth=None,death=None,movement=None, perf_date=None, nid=None, id=None, country=UNK, gender=UNK, lat=UNK, long=UNK):
         super(Composer, self).__init__(Composer.__DB_TABLE_NAME__)
         self.nid = nid
         self.name=name
@@ -140,12 +141,16 @@ class Composer(obj.ObjectBase):
         self.movement=movement
         self.perf_date = perf_date
         self.id = id
+        self.country = country
+        self.gender = gender
+        self.lat = lat
+        self.long = long
         
     def inspect(self):
-        return "Composer: id: %s, name: %s, birth: %s, death: %s, movement: %s, performance date: %s" %(self.nid, self.name,self.birth,self.death,self.movement, self.perf_date)
+        return "Composer: id: %s, name: %s, birth: %s, death: %s, movement: %s, performance date: %s, country: %s, gender: %s, lat: %s, long: %s" %(self.nid, self.name,self.birth,self.death,self.movement, self.perf_date, self.country, self.gender, self.lat, self.long)
         
     def to_csv(self):
-        return "%s,\"%s\",%s,%s,\"%s\",%s" % (self.nid, self.name,self.birth,self.death,self.movement,self.perf_date)
+        return "%s,\"%s\",%s,%s,\"%s\",%s,%s,%s,%s,%s" % (self.nid, self.name,self.birth,self.death,self.movement,self.perf_date,self.country,self.gender, self.lat, self.long)
 
     def birthdate(self):
         return date(self.birth)
