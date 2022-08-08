@@ -11,3 +11,6 @@ different datasets in a single format.
 - `sly` a yacc+lex pure python implementation
 - `pyyaml` a yaml parser
 - `tweepy` a twitter api manager
+- `bs4` a html parser
+- `numpy`
+- `matplotlib`
