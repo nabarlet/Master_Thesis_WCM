@@ -22,29 +22,25 @@ class RCLexer(Lexer):
     """
 
     ignore = ' \t'
-    literals = { COLON, DOT, COMMA, }
+    literals = { DOT, LPAR, RPAR }
     tokens = \
     {
-            COLON,
-            SEMI,
             DOT,
-            COMMA,
-            DURATION,
+            LPAR,
+            RPAR,
+            NUMBER,
             COMPOSER,
-            CONDUCTOR_TAG,
             WORD,
     }
     #
     # Lexical definitions for lex
     #
-    COLON = ':'
-    SEMI  = ';'
     DOT   = r'\.'
-    COMMA = ','
-    DURATION = r'\(\d{1,2}\.\d{2}\)'
-    COMPOSER = r'[A-Z\s\/\.]+:'
-    CONDUCTOR_TAG = r'Dir.?:\s+'
-    WORD = r'.+'
+    LPAR  = r'\('
+    RPAR  = r'\)'
+    NUMBER = r'\d+'
+    COMPOSER = r'[A-ZÀ-Ú\s\/\.\-”]+:'
+    WORD = r'[\w\s\d,\.:\/\'“]+'
     
     last_eol_column = 0
 

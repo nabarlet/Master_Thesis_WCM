@@ -2,40 +2,55 @@ import pdb
 import os, sys
 
 from utilities.path import root_path
-from utilities.date import date_conditioner
 from utilities.string import join
 from sly import Parser
 from rc_parser.rc_lex import RCLexer
 import objects as obj
 
-class ParserError(NameError):
+class RCParserError(NameError):
     pass
 
 class RCParser(Parser):
-    debugfile = os.path.join(root_path, 'test', 'parser_debug.out')
+    debugfile = os.path.join(root_path, 'cherrypick', 'RadioC', 'test', 'parser_debug.out')
     tokens = RCLexer.tokens
-    precedence = (
-        ('left', COMMA),
-        ('right', ORCH_COMMA),
-    )
+    start = 'data_line'
 
-    #
-    # THIS IS YET TBD
-    #
+    @_('COMPOSER title LPAR duration RPAR DOT musicians')
+    def data_line(self, p):
+        comp = p.COMPOSER.rstrip(':')
+        rec = obj.Recording(comp = comp, title = p.title, oi = p.musicians, dur = p.duration)
+        return rec
 
-    def error(self, p):
+    @_('WORD')
+    def title(self, p):
+        return p.WORD
+
+    @_('title WORD')
+    def title(self, p):
+        return p.title + ' ' + p.WORD
+
+    @_('NUMBER DOT NUMBER')
+    def duration(self, p):
+        return p.NUMBER0 + p.DOT + p.NUMBER1
+
+    @_('NUMBER')
+    def duration(self, p):
+        return p.NUMBER
+
+    @_('')
+    def musicians(self, p):
         """
-            +error()+: attempts to resynchronize at EOL
+            empty musicians rule
         """
-        tok = p
-        if p:
-            column = p.index - RCLexer.last_eol_column
-            print("parser error: unexpected token %s (\"%s\") at line %d column %d" % (p.type, p.value, p.lineno, column), file=sys.stderr)
-            while True:
-                tok = next(self.tokens, None)
-                if not tok or tok.type == 'EOL':
-                    break
-            self.errok()
-        else:
-            raise ParserError("Unexpected EOF")
-        return tok
+        return ''
+
+    @_('WORD')
+    def musicians(self, p):
+        return p.WORD
+
+    @_('musicians WORD')
+    def musicians(self, p):
+        return p.musicians + ' ' + p.WORD
+
+    def error(self, tok):
+        raise RCParserError(tok)

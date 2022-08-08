@@ -10,7 +10,7 @@ sys.path.append(root_path)
 import common.wikid.wikidata as wd
 from common.utilities.path import repo_path
 from common.wikid.sparql import sparql_composer
-from common.objects import Composer
+from common.objects import Composer, Recording
 from cherrypick.csv_source_base import CsvSourceBase
 from bbc3_base import BBC3Base
 from bbc3_schedule import BBC3Schedule
@@ -33,12 +33,12 @@ class BBC3Pick(CsvSourceBase):
     def create_csv(cls, repo_dir = __DEFAULT_BBC3_REPO_PATH__):
         for coll in cls.manage(repo_dir):
             extractor = coll.format_extractor()
-            for comp in extractor():
+            for rec in extractor():
                 found = not_found = None
-                if comp.nid and comp.birth:
-                    found = comp
+                if rec.composer.nid and rec.composer.birth:
+                    found = rec
                 else:
-                    not_found = comp
+                    not_found = rec
                 yield found, not_found
 
     def extractor_version_0(self):
@@ -55,6 +55,9 @@ class BBC3Pick(CsvSourceBase):
                 else:
                     print("ValueError: wrong values to unpack: %d (file: %s, line: %d). Skipping..." % (len(row), os.path.basename(self.filename), lineno), file=sys.stderr)
                     continue
+
+                comp = Composer(name, birth, death, movement)
+                rec  = Recording(comp=comp, title=title)
                 try:
                     qperf_date = self.schedule.quantize_date(BBC3Base.process_date(perf_date)).isoformat()
                 except ValueError as e:
@@ -66,7 +69,9 @@ class BBC3Pick(CsvSourceBase):
                     comp = self.retrieve_composer(name)
                     if comp:
                         comp.perf_date = qperf_date
-                        yield comp
+                        rec.composer = comp
+                        rec.perf_date = qperf_date
+                        yield rec
                 else:
                     print("extractor 0 file %s: found key %s in cache... not appending" %(os.path.basename(self.filename), key), file=sys.stderr)
 

@@ -9,10 +9,13 @@ from utilities.pdf_file import PDFFile
 from utilities.string import string_similarity
 from cherrypick.pdf_source_base import PdfSourceBase
 from pathlib import Path
-from rc_parser.rc_lex import RCLexer
+import rc_parser as rcp
 from utilities.date import spanish_date_conditioner
 
 class EndOfHeaderNotFound(Exception):
+    pass
+
+class MalformedComposerString(ValueError):
     pass
 
 class RCPick(PdfSourceBase):
@@ -29,23 +32,53 @@ class RCPick(PdfSourceBase):
             text += t
         return text
 
-    __RC_COMPOSER_LINE_RE__       = u'[A-ZÀ-Ý][A-ZÀ-Ý\.,\s\/\-]{4,}:'
+    __RC_COMPOSER_LINE_RE__       = u'([A-ZÀ-Ý][A-ZÀ-Ý\.,\s\/\-]{2,}:)'
+#   @staticmethod
+#   def repack_composer_info(te
+    @staticmethod
+    def separate_composers(cstring):
+        result = []
+        re_comp = re.compile(RCPick.__RC_COMPOSER_LINE_RE__, re.UNICODE)
+        temp  = re_comp.split(cstring)
+        temp = [r for r in temp if len(r) > 0]
+        tmpsz = len(temp)
+        if tmpsz == 1:                            # line does not have composers
+            return result
+        if (tmpsz % 2) != 0:
+            pdb.set_trace()
+            raise MalformedComposerString(cstring)
+        idx = 0
+        while (idx < len(temp)):
+            result.append(''.join(temp[idx:idx+2]))
+            idx += 2
+
+        for w in result:
+            yield w
+
     def extract_composer(self):
+        lexer  = rcp.RCLexer()
+        parser = rcp.RCParser()
+        re_comp = re.compile(RCPick.__RC_COMPOSER_LINE_RE__, re.UNICODE)
         for cl, date, time in self.find_composer_lines():
-            re_comp = re.compile(RCPick.__RC_COMPOSER_LINE_RE__, re.UNICODE)
-            comps = re_comp.findall(cl)
-            comps = [c.rstrip(':') for c in comps]
-            for c in comps:
-                yield c, date, time
+            for work in RCPick.separate_composers(cl):
+                # works = re_comp.findall(cl)
+                rec = None
+                try:
+                    rec = parser.parse(lexer.tokenize(work))
+                except (rcp.RCParserError, rcp.rc_lex.LexicalError, MalformedComposerString) as rcpe:
+                    print("Parse error: %s" % (rcpe), file=sys.stderr)
+                if rec:
+                    yield rec, date, time
 
     def parse(self):
         re_s = re.compile('\s*\/\s*')
-        for this_comp, date, time in self.extract_composer():
-            this_comp = this_comp.rstrip('\n')
+        for rec, date, time in self.extract_composer():
+            this_comp = rec.composer
             wd_comp = self.retrieve_composer(this_comp)
             if wd_comp:
-                wd_comp.perf_date = self.extract_date(date, time)
-                yield wd_comp
+                wd_comp.perf_date = rec.perf_date = self.extract_date(date, time)
+                rec.composer = wd_comp
+                yield rec
 
     __RC_HEADER_RE__              = "\A(LUNES|MARTES|MIÉRCOLES|JUEVES|VIERNES|SÁBADO|DOMINGO)\s+\d{1,2}\s*\Z"
     __RC_COMPOSER_LINE_START_RE__ = '\A[A-Z]{2,}:'

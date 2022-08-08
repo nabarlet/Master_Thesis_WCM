@@ -10,13 +10,13 @@ from common.utilities.bump import Bump
 b = Bump()
 
 PROVIDER = 'RadioC'
-Performance.clear_performances_of_provider(PROVIDER)
+#Performance.clear_performances_of_provider(PROVIDER)
 b.bump('+')
 for found, not_found in RCPick.create_csv():
     b.bump()
     if found:
         try:
-            found.insert(PROVIDER)
+#           found.insert(PROVIDER)
             print(found.to_csv())
         except Exception as e:
             print(e, file=sys.stderr)
