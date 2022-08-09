@@ -1,19 +1,13 @@
-import os
+import sys,os
 import matplotlib.pyplot as plt
-from db.db import DbPro
-db = DbPro()
 
-def barhplot(comps, query, filename_template, title, limit = 60, xlimit = None, rootpath = '.'):
-    plotdir = os.path.join(rootpath, './plots')
-    results = []
-    for cid, name in comps:
-        comp = db.query(query % (cid))
-        results.append(comp)
-        
-    results = sorted(results, key=lambda x:x[0][2], reverse=True)
-    top     = results[0:limit]
-    ylabels = [item[0][1] for item in top]
-    y       = [item[0][2] for item in top]
+mypath=os.path.dirname(__file__)
+sys.path.append(os.path.join(mypath, *['..']*2, 'cherrypick'))
+
+from common.utilities.string import string_shortener
+
+def barhplot(y, ylabels, filename_template, title, limit = 60, xlimit = None, plotdir = '.'):
+    ylabels = [string_shortener(yl) for yl in ylabels]
     y.reverse()
     ylabels.reverse()
     x = range(len(y))
@@ -30,5 +24,3 @@ def barhplot(comps, query, filename_template, title, limit = 60, xlimit = None, 
         plt.axis([0, xlimit, -1, limit+1])
     filename = filename_template
     plt.savefig(os.path.join(plotdir, filename), bbox_inches='tight')
-
-    return top

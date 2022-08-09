@@ -113,3 +113,19 @@ def escape_quotes(string):
     escaped = qre.sub(r'\"', string)
     return escaped
 
+def string_shortener(string, maxlen = 20, fill = '...'):
+    """
+        string_shortener(string, maxlen = 20, fill = '...')
+
+        shortens a string longer than maxlen, filling the last len(fill)
+        characters with the fill string.
+        It returns the shortened string.
+    """
+    result = string
+    stringsz = len(string)
+    fillsz = len(fill)
+    if stringsz > maxlen:
+        stringsz  = maxlen - fillsz
+        if        stringsz <= fillsz: raise ArgumentError
+        result    = fill + string[-stringsz:]
+    return result

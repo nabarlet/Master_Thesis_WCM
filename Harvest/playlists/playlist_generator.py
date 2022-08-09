@@ -7,7 +7,8 @@ import datetime as dt
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherrypick')])
 
-from common.utilities.bump import Bump
+from common.utilities.bump   import Bump
+from common.utilities.string import string_shortener
 
 from playlist import Playlist, PlaylistStats
 from movement_playlist import MovementPlaylist
@@ -114,11 +115,7 @@ class PlaylistGenerator:
         statsz = float(len(self.stats))
         keys = []
         for k, v in sorted_results:
-            namesz = len(k)
-            name = k
-            if namesz > PlaylistGenerator.__MAX_COMPOSER_NAME_LEN__:
-                namesz  = PlaylistGenerator.__MAX_COMPOSER_NAME_LEN__ - len(PlaylistGenerator.__NAME_DOTS__)
-                name    = PlaylistGenerator.__NAME_DOTS__ + k[-namesz:]
+            name = string_shortener(k)
             keys.append(name)
         values = [v/statsz for k,v in sorted_results]
         max_value = 0
