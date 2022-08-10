@@ -6,5 +6,5 @@ from rc_pick import RCPick
 
 collection = RCPick.manage()
 for c in collection:
-    for txt in c.find_composer_lines():
-        print(txt)
+    txt = c.extract_text_from_pdf()
+    print(txt)
