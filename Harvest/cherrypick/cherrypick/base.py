@@ -25,24 +25,18 @@ class Base:
             yield cls(f)
 
     def retrieve_composer(self, name):
-       result = obj.Composer.query_by_name(name) # try the local database first
+       result = None
+       if not self.black_white_list.is_black(name):
+           nid = self.black_white_list.is_white(name)
+           if not nid:
+               name = self.composers_fuzzy_dict.key_match(name)
+               result = wd.retrieve_composer(name)
+           else:
+               result = sparql_composer(nid)
+
        if not result:
-           if not self.black_white_list.is_black(name):
-               nid = self.black_white_list.is_white(name)
-               if not nid:
-                   name = self.composers_fuzzy_dict.key_match(name)
-                   try:
-                       print("retrieve_composer: composer %s not found by any other means, trying wikidata" % (name), file=sys.stderr)
-                       nid =  wd.retrieve_composer(name).nid
-                   except TypeError:
-                       print("retrieve_composer: unable to retrieve composer %s" % (name), file=sys.stderr)
-                       nid = None
-               if nid:
-                   result = sparql_composer(nid)
-                   if not result:
-                       result = obj.Composer(name, nid=nid)
-               else:
-                   result = obj.Composer(name)
+           result = obj.Composer(name)
+
        return result
 
     @classmethod
