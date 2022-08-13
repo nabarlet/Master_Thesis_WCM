@@ -7,6 +7,7 @@ sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..'
 
 import common.objects as obj
 from common.utilities.date import clean_datetime
+from common.utilities.string import __UNK__
 try:
     from db.db import DbDev, DbPro
 except ModuleNotFoundError:
@@ -15,14 +16,18 @@ except ModuleNotFoundError:
 class Performance(obj.ObjectBase):
 
     __DB_TABLE_NAME__ = 'performance'
-    def __init__(self, datetime, provider, id = None):
+    def __init__(self, datetime, provider, title = __UNK__, id = None):
         super(Performance, self).__init__(Performance.__DB_TABLE_NAME__)
         self.datetime = datetime
         self.provider = provider
-        self.id = id
+        self.title    = title
+        self.id       = id
+
+    def to_csv(self):
+        return "%s,%s,\"%s\",%s" % (self.provider,self.datetime,self.title,str(self.id))
         
     def inspect(self):
-        return "Performance: id: %d, date and time: %s, provider: %s" %(self.id, self.datetime, self.provider)
+        return "Performance: id: %d, date and time: %s, provider: %s, title: %s" %(self.id, self.datetime, self.provider, self.title)
         
     @classmethod
     def query_by_datetime_and_provider(cls, datetime, provider, db = DbPro()):

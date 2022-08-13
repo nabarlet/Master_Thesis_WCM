@@ -49,7 +49,7 @@ def retrieve_composer_slice(offset, params, cre):
     return nid
 
 def result_size(params):
-    result = None
+    result = 0
     data = do_request(params)
 
     if 'query' in data and 'searchinfo' in data['query'] and 'totalhits' in data['query']['searchinfo']:

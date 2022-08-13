@@ -3,6 +3,8 @@ import sys
 import re
 import random, string
 
+__UNK__ = 'unknown'
+
 def join(list_to_join, char = ''):
     """
         +join(list_to_join, char = '')+

@@ -132,14 +132,13 @@ class Composer(obj.ObjectBase):
 
     __DB_TABLE_NAME__ = 'composer'
     UNK = 'unknown'
-    def __init__(self,name,birth=None,death=None,movement=None, perf_date=None, nid=None, id=None, country=UNK, gender=UNK, lat=UNK, long=UNK):
+    def __init__(self,name,birth=None,death=None,movement=UNK, nid=None, id=None, country=UNK, gender=UNK, lat=UNK, long=UNK):
         super(Composer, self).__init__(Composer.__DB_TABLE_NAME__)
         self.nid = nid
         self.name=name
         self.birth=birth
         self.death=death
         self.movement=movement
-        self.perf_date = perf_date
         self.id = id
         self.country = country
         self.gender = gender
@@ -147,10 +146,10 @@ class Composer(obj.ObjectBase):
         self.long = long
         
     def inspect(self):
-        return "Composer: id: %s, name: %s, birth: %s, death: %s, movement: %s, performance date: %s, country: %s, gender: %s, lat: %s, long: %s" %(self.nid, self.name,self.birth,self.death,self.movement, self.perf_date, self.country, self.gender, self.lat, self.long)
+        return "Composer: id: %s, name: %s, birth: %s, death: %s, movement: %s, country: %s, gender: %s, lat: %s, long: %s" %(self.nid, self.name,self.birth,self.death,self.movement, self.country, self.gender, self.lat, self.long)
         
     def to_csv(self):
-        return "%s,\"%s\",%s,%s,\"%s\",%s,%s,%s,%s,%s" % (self.nid, self.name,self.birth,self.death,self.movement,self.perf_date,self.country,self.gender, self.lat, self.long)
+        return "%s,\"%s\",%s,%s,\"%s\",%s,%s,%s,%s" % (self.nid, self.name,self.birth,self.death,self.movement,self.country,self.gender, self.lat, self.long)
 
     def birthdate(self):
         return date(self.birth)

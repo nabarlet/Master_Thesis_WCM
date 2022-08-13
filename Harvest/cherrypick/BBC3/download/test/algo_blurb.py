@@ -1,10 +1,18 @@
 import pdb
 
+import sys
+
 from bs4 import BeautifulSoup
 import requests
 import re
 
-first_page = requests.get("https://www.bbc.co.uk/schedules/p00fzl8t/2021/04/01")
+day = '2021/04/01'
+
+if len(sys.argv) > 1:
+    day = sys.argv[1]
+
+first_link = "https://www.bbc.co.uk/schedules/p00fzl8t/%s" % (day)
+first_page = requests.get(first_link)
 first_page = first_page.text
 
 tree = BeautifulSoup(first_page, 'html.parser')

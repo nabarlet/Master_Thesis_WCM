@@ -21,6 +21,15 @@ def get_results(endpoint_url, query):
 def sparql_composer(nid):
     final_result=None
     endpoint_url = "https://query.wikidata.org/sparql"
+    #
+    # FIXME: this query has been mutilated (coordinate conversion removed)
+    # because the conversion causes an error 500 in the server. The conversion
+    # was removed until a proper solution is found
+    # The lines removed are these two -----------+
+    #                                            |
+    #                                            v
+            # OPTIONAL {?coords_sample ps:P625 ?coords; psv:P625 [ wikibase:geoLatitude ?lat; wikibase:geoLongitude ?long ] .}\
+            # OPTIONAL {?country p:P625 ?coords_sample .}\
     query = "SELECT distinct ?person ?personLabel ?personDescription ?birth ?death ?countryLabel ?genderLabel ?coords ?lat ?long ?movementLabel ?precisiondob ?precisiondod WHERE {\
              VALUES (?person) {(wd:%s)}\
              ?person wdt:P31 wd:Q5;\
@@ -28,11 +37,9 @@ def sparql_composer(nid):
              OPTIONAL {?person p:P570/psv:P570 [wikibase:timeValue ?death; wikibase:timePrecision ?precisiondod].}\
              OPTIONAL {?person wdt:P27 ?country .}\
              OPTIONAL {?person wdt:P21 ?gender .}\
-             OPTIONAL {?country p:P625 ?coords_sample .}\
-             OPTIONAL {?coords_sample ps:P625 ?coords; psv:P625 [ wikibase:geoLatitude ?lat; wikibase:geoLongitude ?long ] .}\
       OPTIONAL {?person wdt:P135 ?movement .}\
       SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\" }\
-} ORDER BY DESC (?precisiondob) DESC(?precisiondod) (?country)\n" % (nid)
+} ORDER BY DESC (?precisiondob) DESC(?precisiondod) (?country) LIMIT 1\n" % (nid)
 
     tl = TimeLine.create_from_csv()
     try:
