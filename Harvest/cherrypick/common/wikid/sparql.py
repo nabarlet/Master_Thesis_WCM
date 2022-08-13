@@ -5,8 +5,10 @@ import sys,os
 import http
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from SPARQLWrapper import SPARQLWrapper, JSON
+from common.utilities.string import __UNK__
 from common.objects.composer import Composer
 from common.objects.timeline import TimeLine, ComposerAgeIsZero
+from common.wikid.geoinfo import get_lat_long_address
 import pdb
 
 
@@ -21,15 +23,6 @@ def get_results(endpoint_url, query):
 def sparql_composer(nid):
     final_result=None
     endpoint_url = "https://query.wikidata.org/sparql"
-    #
-    # FIXME: this query has been mutilated (coordinate conversion removed)
-    # because the conversion causes an error 500 in the server. The conversion
-    # was removed until a proper solution is found
-    # The lines removed are these two -----------+
-    #                                            |
-    #                                            v
-            # OPTIONAL {?coords_sample ps:P625 ?coords; psv:P625 [ wikibase:geoLatitude ?lat; wikibase:geoLongitude ?long ] .}\
-            # OPTIONAL {?country p:P625 ?coords_sample .}\
     query = "SELECT distinct ?person ?personLabel ?personDescription ?birth ?death ?countryLabel ?genderLabel ?coords ?lat ?long ?movementLabel ?precisiondob ?precisiondod WHERE {\
              VALUES (?person) {(wd:%s)}\
              ?person wdt:P31 wd:Q5;\
@@ -47,7 +40,7 @@ def sparql_composer(nid):
         results=results['results']['bindings']
         if len(results)>0:  
             death = None
-            country = gender = lat = long = 'unknown'
+            country = gender = lat = long = __UNK__
             movement=None
             result=results[0]   
             name = result['personLabel']['value']
@@ -58,10 +51,7 @@ def sparql_composer(nid):
                 country = result['countryLabel']['value']
             if 'genderLabel' in result:
                 gender = result['genderLabel']['value']
-            if 'lat' in result:
-                lat = result['lat']['value']
-            if 'long' in result:
-                long = result['long']['value']
+            (lat, long, address) = get_lat_long_address(country)
             final_result= Composer(name,birth,death, nid=nid, country=country, gender=gender, lat=lat, long=long)
             try:
                 movement = tl.assign_movement(final_result)

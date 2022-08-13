@@ -14,3 +14,4 @@ different datasets in a single format.
 - `bs4` a html parser
 - `numpy`
 - `matplotlib`
+- `geopy` a geo localization library

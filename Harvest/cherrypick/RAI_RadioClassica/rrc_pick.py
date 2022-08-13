@@ -11,6 +11,7 @@ import common.objects as obj
 from cherrypick.pdf_source_base import PdfSourceBase
 from pathlib import Path
 from common.utilities.pdf_file import PDFFile
+from common.utilities.string import __UNK__
 from rrc_parser.rrc_subdivider import RRCSubdivider
 
 class RRCPick(PdfSourceBase):
@@ -21,30 +22,26 @@ class RRCPick(PdfSourceBase):
     def manage(cls, repo_dir = __DEFAULT_RRC_REPO_PATH__):
         return super(cls, cls).manage(repo_dir)
 
+    __PROVIDER__ = 'RAIRadioClassica'
     def parse(self):
         for text in self.extract_text():
             rs = RRCSubdivider(text)
             current_date = current_time = None
+            current_title = __UNK__
             for o in rs.parse():
                 found = not_found = None
                 if type(o) is obj.File:
                     current_date = o.date
                 elif type(o) is obj.TimeSection:
-                    current_time = o.time
+                    current_time  = o.time
+                    current_title = o.title_list
                 elif type(o) is obj.Recording:
                     comp = o.composer
                     wd_comp = self.retrieve_composer(comp.name)
+                    o.composer = wd_comp
                     pdate = RRCPick.process_date(current_date, current_time)
-                    if wd_comp:
-                        wd_comp.perf_date = pdate
-                        o.perf_date = pdate
-                        o.composer = wd_comp
-                        yield o
-                    else:
-                        comp.perf_date = pdate
-                        o.perf_date = pdate
-                        o.composer = comp
-                        yield o
+                    o.performance = obj.Performance(pdate, RRCPick.__PROVIDER__, title = current_title)
+                    yield o
 
     @classmethod
     def create_csv(cls, repo_dir = __DEFAULT_RRC_REPO_PATH__):

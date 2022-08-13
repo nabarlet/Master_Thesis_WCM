@@ -31,5 +31,26 @@ class TestDuration(unittest.TestCase):
           self.assertEqual(dt.timedelta(seconds=dur.to_seconds()), v, rv)
           self.assertEqual(str(dur), str(v), str(dur))
 
+  def test_create_with_dot_parser(self):
+      values = { '13.14.15': dt.timedelta(hours=13, minutes=14, seconds=15),
+                 '14.15': dt.timedelta(minutes=14, seconds=15),
+                 '15': dt.timedelta(seconds=15), }
+      for rv, v in values.items():
+          dur = Duration.create(rv, parser=Duration.dot_parser)
+          self.assertTrue(type(dur) is Duration, rv)
+          self.assertEqual(dt.timedelta(seconds=dur.to_seconds()), v, rv)
+          self.assertEqual(str(dur), str(v), str(dur))
+
+
+  def test_create_with_h_dot_parser(self):
+      values = { '13h14.15': dt.timedelta(hours=13, minutes=14, seconds=15),
+                 '14h15.2': dt.timedelta(hours=14, minutes=15, seconds=2),
+                 '1h20.05': dt.timedelta(hours=1, minutes=20, seconds=5), }
+      for rv, v in values.items():
+          dur = Duration.create(rv, parser=Duration.h_dot_parser)
+          self.assertTrue(type(dur) is Duration, rv)
+          self.assertEqual(dt.timedelta(seconds=dur.to_seconds()), v, rv)
+          self.assertEqual(str(dur), str(v), str(dur))
+
 if __name__ == '__main__':
   unittest.main()

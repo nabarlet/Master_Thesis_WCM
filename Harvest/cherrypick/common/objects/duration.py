@@ -30,20 +30,37 @@ class Duration(ObjectBase):
         return "Duration: %s" % (str(self.to_seconds()))
 
     @staticmethod
-    def colon_parser(raw_value):
+    def common_parser(hms_list):
         hours = mins = secs = 0
-        splitted = raw_value.split(':')
-        splitted = [int(s) for s in splitted]
-        if len(splitted) == 3:
-            (hours, mins, secs) = splitted
-        elif len(splitted) == 2:
-            (mins, secs) = splitted
+        if len(hms_list) == 3:
+            (hours, mins, secs) = hms_list
+        elif len(hms_list) == 2:
+            (mins, secs) = hms_list
         else:
-            secs = splitted[0]
+            secs = hms_list[0]
         return dt.timedelta(hours=hours, minutes=mins, seconds=secs)
 
     @staticmethod
+    def colon_parser(raw_value):
+        splitted = raw_value.split(':')
+        splitted = [int(s) for s in splitted]
+        return Duration.common_parser(splitted)
+
+    @staticmethod
     def dot_parser(raw_value):
+        splitted = raw_value.split('.')
+        splitted = [int(s) for s in splitted]
+        return Duration.common_parser(splitted)
+
+
+    @staticmethod
+    def h_dot_parser(raw_value):
+        s1 = raw_value.split('h')
+        s2 = s1[1].split('.')
+        splitted = [s1[0]]
+        splitted.extend(s2)
+        splitted = [int(s) for s in splitted]
+        return Duration.common_parser(splitted)
 
     @classmethod
     def create(cls, raw_value, parser=None):

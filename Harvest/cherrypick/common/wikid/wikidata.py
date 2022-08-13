@@ -56,11 +56,15 @@ def result_size(params):
         result = data['query']['searchinfo']['totalhits']
     return result
 
+__cache__ = {} # composers names get cached here
+
 __RE_COMPOSER_DESCRIPTION__ = '(composer|compositor|compositeur|musician|pianist|violinist)'
 def retrieve_composer(name):
     result=None
     nid=None #name id Q[...]
     query=cleanse_utf8(name)
+    if query in __cache__:
+        return __cache__[query]
     cre = re.compile(__RE_COMPOSER_DESCRIPTION__)
     offset = 0
     params = {
@@ -82,6 +86,7 @@ def retrieve_composer(name):
                 break
             offset += 10
     if not nid or not result:
-        result=Composer(name, nid=nid)
-        
+        result=Composer(query, nid=nid)
+
+    __cache__[query] = result
     return result

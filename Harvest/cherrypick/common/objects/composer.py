@@ -149,7 +149,7 @@ class Composer(obj.ObjectBase):
         return "Composer: id: %s, name: %s, birth: %s, death: %s, movement: %s, country: %s, gender: %s, lat: %s, long: %s" %(self.nid, self.name,self.birth,self.death,self.movement, self.country, self.gender, self.lat, self.long)
         
     def to_csv(self):
-        return "%s,\"%s\",%s,%s,\"%s\",%s,%s,%s,%s" % (self.nid, self.name,self.birth,self.death,self.movement,self.country,self.gender, self.lat, self.long)
+        return "%s,\"%s\",%s,%s,\"%s\",%s,\"%s\",%s,%s" % (self.nid, self.name,self.birth,self.death,self.movement,self.gender,self.country,self.lat,self.long)
 
     def birthdate(self):
         return date(self.birth)

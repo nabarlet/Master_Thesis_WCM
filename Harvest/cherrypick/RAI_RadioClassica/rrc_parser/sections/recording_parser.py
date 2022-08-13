@@ -24,14 +24,15 @@ class RRCRecordingLexer(Lexer, RRCLexerBase):
     """
 
     literals = { EOL, }
-    tokens   = { EOL, DURATA, DURATA_VALUE, NUMBER, WORD, }
+    tokens   = { EOL, DURATA, DURATA_VALUE_TYPE_1, DURATA_VALUE_TYPE_2, NUMBER, WORD, }
     ignore   = ' \t'
     #
     # Lexical definitions for lex
     #
     EOL  = r'\s*\n+'
     DURATA = r'[Dd]urata[:]?'
-    DURATA_VALUE = r'(\d+h\d{2}\.\d{2}|\d{1,2}\.\d{2})'
+    DURATA_VALUE_TYPE_1 = r'\d+h\d{2}\.\d{2}'
+    DURATA_VALUE_TYPE_2 = r'\d{1,2}\.\d{2}'
     NUMBER = r'\d+'
     WORD = r'[:,;\w"”“\'’‘\`\!\?\-–—\&/\\\#\(\)\[\]\{\}…\|\.]+'
     
@@ -60,7 +61,8 @@ class RRCRecordingParser(Parser, RRCParserBase):
         other_info = title = None
         title = p.title_and_other_info[0].rstrip()
         other_info = [s.rstrip() for s in p.title_and_other_info[1:]]
-        result = obj.Recording(composer, other_info, title, dur = p.durata, label = p.label)
+        other_info = ' '.join(other_info)
+        result = obj.Recording(comp = composer, oi = other_info, title = title, dur = p.durata, label = p.label)
         return result
     
     @_('one_line_string EOL')
@@ -71,10 +73,18 @@ class RRCRecordingParser(Parser, RRCParserBase):
     def title_and_other_info(self, p):
         return p.multiple_line_string
 
-    @_('DURATA DURATA_VALUE EOL')
+    @_('DURATA durata_value EOL')
     def durata(self, p):
-        result = obj.Duration(p.DURATA_VALUE)
+        result = p.durata_value
         return result
+
+    @_('DURATA_VALUE_TYPE_1')
+    def durata_value(self, p):
+        return obj.Duration.create(p.DURATA_VALUE_TYPE_1, parser=obj.Duration.h_dot_parser)
+
+    @_('DURATA_VALUE_TYPE_2')
+    def durata_value(self, p):
+        return obj.Duration.create(p.DURATA_VALUE_TYPE_2, parser=obj.Duration.dot_parser)
 
     @_('one_line_string EOL')
     def label(self, p):
