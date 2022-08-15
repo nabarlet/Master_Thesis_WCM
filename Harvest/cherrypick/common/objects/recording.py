@@ -21,4 +21,4 @@ class Recording:
         return result
 
     def to_csv(self):
-        return "%s,\"%s\",\"%s\",%s,\"%s\",%s" % (self.composer.to_csv(), escape_quotes(self.title), escape_quotes(str(self.other_info)), self.duration, self.label, self.performance.to_csv())
+        return "%s,\"%s\",\"%s\",%s,\"%s\",%s" % (self.composer.to_csv(), escape_quotes(self.title), escape_quotes(self.other_info), self.duration, self.label, self.performance.to_csv())

@@ -1,16 +1,20 @@
 import pdb
 import os, sys
-sys.path.extend([os.path.join(os.path.dirname(__file__),'..'), os.path.join(os.path.dirname(__file__), '..', 'common')])
+
+mypath = os.path.join(os.path.dirname(__file__))
+sys.path.extend([os.path.join(mypath,'..'), os.path.join(mypath, '..', 'BBC3')])
 import re
 
 import common.wikid.wikidata as wd
-from utilities.path import root_path
-from utilities.pdf_file import PDFFile
-from utilities.string import string_similarity
+import common.objects as obj
+from common.utilities.path import root_path
+from common.utilities.pdf_file import PDFFile
+from common.utilities.string import string_similarity
 from cherrypick.pdf_source_base import PdfSourceBase
 from pathlib import Path
 import rc_parser as rcp
-from utilities.date import spanish_date_conditioner
+from common.utilities.date import spanish_date_conditioner
+from download.single_day import SingleDay
 
 class EndOfHeaderNotFound(Exception):
     pass
@@ -20,7 +24,8 @@ class MalformedComposerString(ValueError):
 
 class RCPick(PdfSourceBase):
 
-    __DEFAULT_RC_REPO_PATH__ = os.path.join(os.path.dirname(__file__), *['..']*3, 'Repo', 'RadioC')
+    __PROVIDER__ = 'RadioC'
+    __DEFAULT_RC_REPO_PATH__ = os.path.join(os.path.dirname(__file__), *['..']*3, 'Repo', __PROVIDER__)
 
     @classmethod
     def manage(cls, repo_dir = __DEFAULT_RC_REPO_PATH__):
@@ -32,20 +37,25 @@ class RCPick(PdfSourceBase):
             text += t
         return text
 
-    __RC_COMPOSER_LINE_RE__       = u'([A-ZÀ-Ý][A-ZÀ-Ý\.,\s\/\-]{2,}:)'
-#   @staticmethod
-#   def repack_composer_info(te
+    __RC_COMPOSER_LINE_RE__ = u'([A-ZÀ-Ý][A-ZÀ-Ý\.,\s\/\-]{2,}:)'
     @staticmethod
     def separate_composers(cstring):
         result = []
         re_comp = re.compile(RCPick.__RC_COMPOSER_LINE_RE__, re.UNICODE)
         temp  = re_comp.split(cstring)
         temp = [r for r in temp if len(r) > 0]
+        #
+        # get rid of all the cruft before a composer name
+        #
+        while len(temp) > 0:
+            if re_comp.match(temp[0]):
+                break
+            else:
+                temp.remove(temp[0])
         tmpsz = len(temp)
-        if tmpsz == 1:                            # line does not have composers
+        if tmpsz == 0:                            # line does not have composers
             return result
         if (tmpsz % 2) != 0:
-            pdb.set_trace()
             raise MalformedComposerString(cstring)
         idx = 0
         while (idx < len(temp)):
@@ -61,7 +71,6 @@ class RCPick(PdfSourceBase):
         re_comp = re.compile(RCPick.__RC_COMPOSER_LINE_RE__, re.UNICODE)
         for cl, date, time in self.find_composer_lines():
             for work in RCPick.separate_composers(cl):
-                # works = re_comp.findall(cl)
                 rec = None
                 try:
                     rec = parser.parse(lexer.tokenize(work))
@@ -71,14 +80,11 @@ class RCPick(PdfSourceBase):
                     yield rec, date, time
 
     def parse(self):
-        re_s = re.compile('\s*\/\s*')
         for rec, date, time in self.extract_composer():
-            this_comp = rec.composer
-            wd_comp = self.retrieve_composer(this_comp)
-            if wd_comp:
-                wd_comp.perf_date = rec.perf_date = self.extract_date(date, time)
-                rec.composer = wd_comp
-                yield rec
+            fc = SingleDay.find_first_composer(rec.composer)
+            rec.composer = self.retrieve_composer(fc)
+            rec.performance = obj.Performance(self.extract_date(date, time), RCPick.__PROVIDER__)
+            yield rec
 
     __RC_HEADER_RE__              = "\A(LUNES|MARTES|MIÉRCOLES|JUEVES|VIERNES|SÁBADO|DOMINGO)\s+\d{1,2}\s*\Z"
     __RC_COMPOSER_LINE_START_RE__ = '\A[A-Z]{2,}:'

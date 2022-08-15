@@ -25,11 +25,15 @@ class Base:
             yield cls(f)
 
     def retrieve_composer(self, name):
+       return Base.static_retrieve_composer(name, self.black_white_list, self.composers_fuzzy_dict)
+
+    @staticmethod
+    def static_retrieve_composer(name, bwl = BWList(), cfd = FuzzyDict()):
        result = None
-       if not self.black_white_list.is_black(name):
-           nid = self.black_white_list.is_white(name)
+       if not bwl.is_black(name):
+           nid = bwl.is_white(name)
            if not nid:
-               name = self.composers_fuzzy_dict.key_match(name)
+               name = cfd.key_match(name)
                result = wd.retrieve_composer(name)
            else:
                result = sparql_composer(nid)

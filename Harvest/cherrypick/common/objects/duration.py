@@ -31,27 +31,31 @@ class Duration(ObjectBase):
 
     @staticmethod
     def common_parser(hms_list):
-        hours = mins = secs = 0
-        if len(hms_list) == 3:
-            (hours, mins, secs) = hms_list
-        elif len(hms_list) == 2:
-            (mins, secs) = hms_list
-        else:
-            secs = hms_list[0]
+        (hours, mins, secs) = hms_list
         return dt.timedelta(hours=hours, minutes=mins, seconds=secs)
 
     @staticmethod
-    def colon_parser(raw_value):
-        splitted = raw_value.split(':')
-        splitted = [int(s) for s in splitted]
+    def single_split_parser(raw_value, splitchar):
+        splitted = None
+        s1 = raw_value.split(splitchar)
+        s1 = [int(v) for v in s1]
+        if len(s1) == 2:
+            splitted = [0]
+            splitted.extend(s1)
+        elif len(s1) == 1:
+            splitted = [0, 0]
+            splitted.extend(s1)
+        else: # this must be len(s1) == 3
+            splitted = s1
         return Duration.common_parser(splitted)
 
     @staticmethod
-    def dot_parser(raw_value):
-        splitted = raw_value.split('.')
-        splitted = [int(s) for s in splitted]
-        return Duration.common_parser(splitted)
+    def colon_parser(raw_value):
+        return Duration.single_split_parser(raw_value, ':')
 
+    @staticmethod
+    def dot_parser(raw_value):
+        return Duration.single_split_parser(raw_value, '.')
 
     @staticmethod
     def h_dot_parser(raw_value):
@@ -60,6 +64,21 @@ class Duration(ObjectBase):
         splitted = [s1[0]]
         splitted.extend(s2)
         splitted = [int(s) for s in splitted]
+        return Duration.common_parser(splitted)
+
+    @staticmethod
+    def quote_parser(raw_value):
+        rv = raw_value.rstrip('"')
+        vals = rv.split("'")
+        padded_zeroes = 3 - len(vals)
+        splitted = [0]*padded_zeroes
+        splitted.extend([int(v) for v in vals])
+        return Duration.common_parser(splitted)
+
+    @staticmethod
+    def single_number_parser(raw_value):
+        v = int(raw_value)
+        splitted = [0, 0, v]
         return Duration.common_parser(splitted)
 
     @classmethod

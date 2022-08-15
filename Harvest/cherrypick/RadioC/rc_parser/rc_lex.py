@@ -22,15 +22,17 @@ class RCLexer(Lexer):
     """
 
     ignore = ' \t'
-    literals = { DOT, LPAR, RPAR }
+    literals = { DOT, LPAR, RPAR, SINGLE_QUOTE, DOUBLE_QUOTE }
     tokens = \
     {
             DOT,
+            COMPOSER,
+            NUMBER,
+            WORD,
             LPAR,
             RPAR,
-            NUMBER,
-            COMPOSER,
-            WORD,
+            SINGLE_QUOTE,
+            DOUBLE_QUOTE,
     }
     #
     # Lexical definitions for lex
@@ -38,9 +40,14 @@ class RCLexer(Lexer):
     DOT   = r'\.'
     LPAR  = r'\('
     RPAR  = r'\)'
+    SINGLE_QUOTE = r"'"
+    DOUBLE_QUOTE = r'"'
+    # DUR_TYPE_1 = r'\(\d+\.\d{2}\)'
+    # DUR_TYPE_2 = r"\(\d+'\d+\"\)"
+    # DUR_TYPE_3 = r"\(\d+\)"
     NUMBER = r'\d+'
-    COMPOSER = r'[A-ZÀ-Ú\s\/\.\-”]+:'
-    WORD = r'[\w\s\d,\.:\/\'“]+'
+    COMPOSER = r'[A-ZÀ-Ú\s\/\.\-”,„]+:'
+    WORD = r'[\w\s,:;\/\'“"´”"̈\[\]-–-*¡„]+'
     
     last_eol_column = 0
 

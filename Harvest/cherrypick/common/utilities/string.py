@@ -4,6 +4,7 @@ import re
 import random, string
 
 __UNK__ = 'unknown'
+__QUOTE_CHAR__ = '"'
 
 def join(list_to_join, char = ''):
     """
@@ -103,16 +104,19 @@ def string_similarity(a, b):
         if r > result:
             result = r
 
-    result = float(result) / float(len(shorter)) 
+    result = float(result)
+    if len(shorter) > 0:
+        result /= float(len(shorter)) 
+
     return result
 
 def random_string(size = 16):
     result = ''.join(random.choice(string.ascii_letters) for _ in range(size))
     return result
 
+__QCRE__ = re.compile(__QUOTE_CHAR__)
 def escape_quotes(string):
-    qre = re.compile('"') 
-    escaped = qre.sub(r'\"', string)
+    escaped = __QCRE__.sub(r"'", string)
     return escaped
 
 def string_shortener(string, maxlen = 20, fill = '...'):
