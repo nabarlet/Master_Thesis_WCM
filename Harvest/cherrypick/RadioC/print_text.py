@@ -6,5 +6,6 @@ from rc_pick import RCPick
 
 collection = RCPick.manage()
 for c in collection:
+    print(os.path.basename(c.filename))
     txt = c.extract_text_from_pdf()
     print(txt)

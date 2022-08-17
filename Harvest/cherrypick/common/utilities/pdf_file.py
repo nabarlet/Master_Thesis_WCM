@@ -12,3 +12,6 @@ class PDFFile:
     def readpage(self):
         for page in self.pdf.pages:
             yield page.extract_text()
+
+    def close(self):
+        self.pdf.close()

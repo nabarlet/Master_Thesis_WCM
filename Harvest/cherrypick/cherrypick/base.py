@@ -48,10 +48,3 @@ class Base:
         for coll in cls.manage(repo_dir):
             for rec in coll.parse():
                 yield rec
-#               found = not_found = None
-#               comp = rec.composer
-#               if comp and comp.nid and comp.birth:
-#                   found = rec
-#               else:
-#                   not_found = rec
-#               yield found, not_found

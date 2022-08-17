@@ -1,10 +1,11 @@
 reference_text.txt
-*_clean.csv
+*_clean.csv*
 *_clean-*.csv
-*_not_found.csv
-*_notfound.csv
-*_progress.txt
-*_composers.txt
+*_not_found.csv*
+*_notfound.csv*
+*_progress.txt*
+*_composers.txt*
+*_errors.txt*
 *.png
 *_heatmap.csv
 *_heatmap_debug

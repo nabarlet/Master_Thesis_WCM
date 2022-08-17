@@ -11,7 +11,7 @@ from cherrypick.base import Base
 class PdfSourceBase(Base):
 
     def __init__(self, file):
-        super(PdfSourceBase, self).__init__()
+        super().__init__()
         self.filename = file
         self.pdf = PDFFile(file)
 

@@ -33,6 +33,7 @@ class RCLexer(Lexer):
             RPAR,
             SINGLE_QUOTE,
             DOUBLE_QUOTE,
+            # ORD_NUMBER,
     }
     #
     # Lexical definitions for lex
@@ -40,14 +41,13 @@ class RCLexer(Lexer):
     DOT   = r'\.'
     LPAR  = r'\('
     RPAR  = r'\)'
-    SINGLE_QUOTE = r"'"
-    DOUBLE_QUOTE = r'"'
-    # DUR_TYPE_1 = r'\(\d+\.\d{2}\)'
-    # DUR_TYPE_2 = r"\(\d+'\d+\"\)"
-    # DUR_TYPE_3 = r"\(\d+\)"
+    SINGLE_QUOTE = r"['‟’‘]"
+    DOUBLE_QUOTE = r'["”]'
     NUMBER = r'\d+'
-    COMPOSER = r'[A-ZÀ-Ú\s\/\.\-”,„]+:'
-    WORD = r'[\w\s,:;\/\'“"´”"̈\[\]-–-*¡„]+'
+    COMPOSER = r'[A-ZÀ-Ú\s\/\.\-‘”,„]+:'
+    #WORD = r'([\w\s,:;\/\'“"´’"̈\[\]-–-*¡„\+\*&\?!…#►—−=]+|(^([Oo][Pp]|[Nn]|[Mm][Oo][Vv]|[Kk]|[Dd])[\.|º]\s+\d+))'
+    WORD = r'[\w\s,:;\/\'“"´’"̈\[\]-–-*¡„\+\*&\?!…#►—−=]+'
+    # ORD_NUMBER = r'([Oo][Pp]|[Nn]|[Mm][Oo][Vv]|[Kk]|[Dd])\s*[\.|º]\s*\d+'
     
     last_eol_column = 0
 

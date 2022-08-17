@@ -68,21 +68,22 @@ class RCPick(PdfSourceBase):
     def extract_composer(self):
         lexer  = rcp.RCLexer()
         parser = rcp.RCParser()
-        re_comp = re.compile(RCPick.__RC_COMPOSER_LINE_RE__, re.UNICODE)
         for cl, date, time in self.find_composer_lines():
             for work in RCPick.separate_composers(cl):
                 rec = None
                 try:
-                    rec = parser.parse(lexer.tokenize(work))
+                    rec = parser.safe_parse(lexer.tokenize(work))
                 except (rcp.RCParserError, rcp.rc_lex.LexicalError, MalformedComposerString) as rcpe:
                     print("Parse error: %s" % (rcpe), file=sys.stderr)
                 if rec:
                     yield rec, date, time
+        self.pdf.close()
 
     def parse(self):
         for rec, date, time in self.extract_composer():
-            fc = SingleDay.find_first_composer(rec.composer)
-            rec.composer = self.retrieve_composer(fc)
+            if type(rec.composer) != obj.Composer:
+                fc = SingleDay.find_first_composer(rec.composer)
+                rec.composer = self.retrieve_composer(fc)
             rec.performance = obj.Performance(self.extract_date(date, time), RCPick.__PROVIDER__)
             yield rec
 

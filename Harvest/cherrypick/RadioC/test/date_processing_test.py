@@ -8,7 +8,7 @@ class TestDateProcessing(unittest.TestCase):
 
     def setUp(self):
         repo_dir = RCPick.__DEFAULT_RC_REPO_PATH__
-        file = 'REVISTAABR21.pdf'
+        files_template = 'REVISTAABR%2d.pdf'
         path = os.path.join(repo_dir, file)
         self.rcp = RCPick(path)
 
