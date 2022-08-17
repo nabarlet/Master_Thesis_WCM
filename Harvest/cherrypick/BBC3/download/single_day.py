@@ -13,7 +13,7 @@ import datetime as dt
 import urllib
 import SPARQLWrapper
 
-from common.utilities.string import __UNK__
+from common.utilities.string import __UNK__, split_multiple_composers
 import common.objects as obj
 import common.wikid.wikidata as wd
 from cherrypick.base import Base
@@ -118,8 +118,7 @@ class SingleDay:
     __FIRST_COMPOSER__ = re.compile(r'(\s*&\s*|\s*\/\s*|\s*arr\.|\s*and\s*|\s+duo$|\s+trio$|\s+quartet$|\s+quintet$|\s+sextet|\s+septet)', re.I)
     @staticmethod
     def find_first_composer(name):
-        result = SingleDay.__FIRST_COMPOSER__.split(name)[0]
-        return result
+        return split_multiple_composers(name)[0]
 
     def isodate(self, program):
         (d, m, time, title) = program.split(' ', 3)

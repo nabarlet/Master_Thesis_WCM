@@ -1,0 +1,8 @@
+CREATE TABLE movement (id integer PRIMARY KEY, name text, start year NOT NULL, end year, parent_id integer);
+CREATE TABLE provider (id integer PRIMARY KEY, name text, nation text, type_id INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE composer (id integer PRIMARY KEY, name text NOT NULL, birth text NOT NULL, death text, nid text NOT NULL, movement_id INTEGER NOT NULL, country text, gender text, lat text, long text, FOREIGN KEY(movement_id) REFERENCES movement(id));
+CREATE TABLE title (id integer PRIMARY KEY, title text NOT NULL, musicians text, duration text, composer_id INTEGER NOT NULL, FOREIGN KEY(composer_id) REFERENCES composer(id));
+CREATE TABLE performance (id integer PRIMARY KEY, datetime text NOT NULL, provider_id integer NOT NULL, FOREIGN KEY(provider_id) REFERENCES provider(id), UNIQUE(datetime, provider_id));
+CREATE TABLE title_performance (id integer PRIMARY KEY, title_id integer NOT NULL, performance_id integer NOT NULL, FOREIGN KEY(title_id) REFERENCES title(id), FOREIGN KEY(performance_id) REFERENCES performance(id));
+CREATE TABLE provider_type (id integer primary key, type text NOT NULL);
+CREATE TABLE composer_composer (id integer PRIMARY KEY, composer_1_id integer NOT NULL, composer_2_id integer NOT NULL, performance_id integer NOT NULL, FOREIGN KEY(composer_1_id) REFERENCES composer(id), FOREIGN KEY(composer_2_id) REFERENCES composer(id), FOREIGN KEY(performance_id) REFERENCES performance(id));

@@ -81,7 +81,9 @@ class RCPick(PdfSourceBase):
 
     def parse(self):
         for rec, date, time in self.extract_composer():
+            save_composer = None
             if type(rec.composer) != obj.Composer:
+                save_composer = rec.composer
                 fc = SingleDay.find_first_composer(rec.composer)
                 rec.composer = self.retrieve_composer(fc)
             rec.performance = obj.Performance(self.extract_date(date, time), RCPick.__PROVIDER__)
@@ -157,9 +159,19 @@ class RCPick(PdfSourceBase):
             yield comp
 
     def extract_date(self, day, time):
+        result = None
         day = self.condition_day(day)
         (hours, minutes) = self.condition_time(time)
-        return spanish_date_conditioner(self.filename, day, hours, minutes)
+        try:
+            result = spanish_date_conditioner(self.filename, day, hours, minutes)
+        except ValueError as e:
+            #
+            # we need to cater for blatantly wrong dates. Grrr....
+            #
+            print("%s: file:%s day:%d hours:%d minutes:%d" % (str(e), self.filename, day, hours, minutes), file=sys.stderr)
+            day = 1
+            result = spanish_date_conditioner(self.filename, day, hours, minutes)
+        return result
 
     def condition_day(self, day_string):
         re_date = re.compile('\d{1,2}')

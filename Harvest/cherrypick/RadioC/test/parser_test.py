@@ -53,6 +53,7 @@ class TestRCParser(unittest.TestCase):
             # pdb.set_trace()
             self.assertTrue(type(rec) is obj.Recording, line)
             self.assertTrue(rec.composer, line)
+            print(rec.__dict__)
             self.bump.bump()
 
 if __name__ == '__main__':

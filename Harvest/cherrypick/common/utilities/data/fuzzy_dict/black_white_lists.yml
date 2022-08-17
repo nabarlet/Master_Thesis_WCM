@@ -9,6 +9,8 @@ black_list:
 # all labels in white list here will be directely converted to nid
 #
 white_list:
+  GAMBARO:                  Q112464211
+  HARTMANN:                 Q366100
   'A. BARRIOS MANGORE':     Q399102
   'A. BLANQUER':            Q454283
   'A. FELIX MANDELSSOHN':   Q46096
