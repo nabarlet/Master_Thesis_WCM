@@ -96,7 +96,8 @@ class Record(obj.ObjectBase):
             for r in results:
                 (id, title, other_info, dur, label, cid) = r
                 comp = obj.Composer.query_by_id(cid, db=db)
-                result = cls(comp = comp, title = title, oi = other_info, perf=perf, label=label, id=id)
+                dur  = obj.Duration.create(dur, parser=obj.Duration.colon_parser)
+                result = cls(comp = comp, title = title, oi = other_info, perf=perf, dur=dur, label=label, id=id)
         return result
 
     @classmethod
@@ -149,7 +150,8 @@ class Record(obj.ObjectBase):
             if not self.composer.id:
                 raise MalformedRecord(self.composer.inspect())
             r_query = "INSERT INTO %s (title, other_info, duration, composer_id) VALUES (?, ?, ?, ?);" % (self.table_name)
-            values = (self.title, self.other_info, self.duration.to_seconds(), self.composer.id)
+            pdb.set_trace()
+            values = (self.title, self.other_info, str(self.duration), self.composer.id)
             db.sql_execute(r_query, values)
             self.bump.bump('r')
             result = self.__class__.query_by_title_and_oi(self.title, self.other_info, perf=self.performance, db=db)

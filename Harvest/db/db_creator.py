@@ -39,9 +39,12 @@ class DbCreator:
     def create(cls, db = DbDev()):
         dbc = cls(db)
         for data in dbc.read_csvs(): 
-            record = obj.Record.from_csv(data)
-            if record:
-                record.insert(db=db)
+            try:
+	            record = obj.Record.from_csv(data)
+	            if record:
+	                record.insert(db=db)
+            except Exception as e:
+                print("Error --> %s" % (str(e)), file=sys.stderr)
 
     __DATA_PATH__ = os.path.join(mypath, '..', 'cherrypick')
     __CSVS__ = [
