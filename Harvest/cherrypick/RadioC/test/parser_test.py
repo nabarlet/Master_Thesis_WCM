@@ -39,7 +39,7 @@ class TestRCParser(unittest.TestCase):
 #                       rec = self.parser.parse(self.lexer.tokenize(work))
 #                       # for rec in self.parser.parse(self.lexer.tokenize(work)):
 #                       # for rec in recs:
-#                       self.assertTrue(type(rec) is obj.Recording)
+#                       self.assertTrue(type(rec) is obj.Record)
 #                       self.assertTrue(rec.composer)
 #                       self.bump.bump()
 #                   except RCParserError as rcpe:
@@ -51,7 +51,7 @@ class TestRCParser(unittest.TestCase):
         for line in self.selection:
             rec = self.parser.safe_parse(self.lexer.tokenize(line))
             # pdb.set_trace()
-            self.assertTrue(type(rec) is obj.Recording, line)
+            self.assertTrue(type(rec) is obj.Record, line)
             self.assertTrue(rec.composer, line)
             print(rec.__dict__)
             self.bump.bump()

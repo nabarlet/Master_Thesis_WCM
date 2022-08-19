@@ -51,7 +51,11 @@ def spanish_date_conditioner(date_string, day = 1, hour = 0, minutes = 0):
 def date(date_string):
     result = None
     if date_string:
-        d_end = date_string.rindex('T00:00:00Z')
+        d_end = None
+        try:
+            d_end = date_string.rindex('T00:00:00Z')
+        except ValueError: # doesn't have the substring
+            pass           # don't remove anything
         result = dt.date.fromisoformat(date_string[0:d_end])
     return result
 

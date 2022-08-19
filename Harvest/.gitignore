@@ -5,4 +5,5 @@ parser_debug.out
 TODO.md
 *.png
 *_progress.txt
+*_errors.txt
 .~lock*

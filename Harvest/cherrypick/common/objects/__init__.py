@@ -3,7 +3,7 @@ from common.objects.anniversary  import Anniversary
 from common.objects.error	     import ObjectError
 from common.objects.file	     import File
 from common.objects.performer	 import Performer
-from common.objects.recording	 import Recording
+from common.objects.record  	 import Record, RecordPerformance
 from common.objects.time_section import TimeSection
 from common.objects.composer     import Composer, ComposerPerformance, ComposerComposer
 from common.objects.duration     import Duration

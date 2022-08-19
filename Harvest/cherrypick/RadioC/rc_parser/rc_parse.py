@@ -46,7 +46,7 @@ class RCParser(Parser):
     @_('title duration DOT musicians', 'title duration musicians', 'title duration DOT musicians error', 'title duration musicians error')
     def other_info(self, p):
         # pdb.set_trace()
-        result = obj.Recording(comp = None, title = p.title, oi = p.musicians, dur = p.duration)
+        result = obj.Record(comp = None, title = p.title, oi = p.musicians, dur = p.duration)
         return result
 
 #   @_('other_info DOT other_info')

@@ -9,7 +9,10 @@ import common.objects as obj
 from common.utilities.date import date
 from common.objects.provider import Providers
 from common.utilities.composer_plot  import ComposerPlot
-from common.utilities.bump   import Bump
+from common.utilities.bump           import Bump
+from common.utilities.string         import __UNK__
+from common.utilities.bwlist         import BWList
+from common.wikid.geoinfo            import get_lat_long_address
 try:
     from db.db import DbDev, DbPro
 except ModuleNotFoundError:
@@ -37,27 +40,27 @@ class ComposerComposer(obj.ObjectBase):
     @classmethod
     def query_by_composers_and_performance(cls, c1id, c2id, pid, db = None):
         result = None
-        query = "SELECT * FROM %s WHERE ((composer_1_id = %d AND composer_2_id = %d) OR (composer_1_id = %d AND composer_2_id = %d)) AND performance_id = %d" % (ComposerComposer.__DB_TABLE_NAME__, c1id, c2id, c2id, c1id, pid)
-        results = self.sql_execute(query, db)
+        query = "SELECT * FROM %s WHERE ((composer_1_id = ? AND composer_2_id = ?) OR (composer_1_id = ? AND composer_2_id = ?)) AND performance_id = ?" % (self.table_name)
+        values = (c1id, c2id, c2id, c1id, pid)
+        results = self.sql_execute(query, values, db = db)
         if len(results) > 0:
             (id, comp1id, comp2id, perf_id) = results[0]
             result = cls(comp1id, comp2id, perf_id)
         return result
 
     def insert(self):
-        args = (('composer_1_id', 'integer', 'non null'), ('composer_2_id', 'integer', 'non null'), ('performance_id', 'integer', 'non null'))
-        properties = [('FOREIGN KEY(composer_1_id) REFERENCES composer(id)'), ('FOREIGN KEY(composer_2_id) REFERENCES composer(id)'), ('FOREIGN KEY(performance_id) REFERENCES performance(id)')]
-        self.create_table(args, properties)
-        j_string = "INSERT INTO %s (composer_1_id, composer_2_id, performance_id) VALUES (%d, %d, %d);" % (ComposerComposer.__DB_TABLE_NAME__, self.composer_1_id, self.composer_2_id, self.performance_id)
-        self.db_dev.sql_execute(j_string)
+        j_string = "INSERT INTO %s (composer_1_id, composer_2_id, performance_id) VALUES (?, ? , ?);" % (self.table_name)
+        values = (self.composer_1_id, self.composer_2_id, self.performance_id)
+        self.db_dev.sql_execute(j_string, values)
 
     @staticmethod
     def clear_composer_composer_of_provider(provider):
         result = None
         db = DbDev()
         prov = obj.Providers.query_by_name(provider)
-        d_string = "DELETE FROM %s WHERE performance_id IN (SELECT performance.id FROM performance JOIN provider WHERE provider.name = '%s' AND performance.provider_id = provider.id)" % (ComposerComposer.__DB_TABLE_NAME__, provider)
-        db.sql_execute(d_string)
+        d_string = "DELETE FROM %s WHERE performance_id IN (SELECT performance.id FROM performance JOIN provider WHERE provider.name = ? AND performance.provider_id = provider.id)" % (self.table_name)
+        values = (provider)
+        db.sql_execute(d_string, values)
         return prov.id
 
     @classmethod
@@ -102,26 +105,25 @@ class ComposerPerformance(obj.ObjectBase):
 
     def query_by_composer_id_and_performance_id(self, db = None):
         result = None
-        query = "SELECT * FROM %s WHERE composer_id = %d AND performance_id = %d" % (ComposerPerformance.__DB_TABLE_NAME__, self.composer_id, self.performance_id)
-        results = self.sql_execute(query, db)
+        query = "SELECT * FROM %s WHERE composer_id = ? AND performance_id = ?" % (self.table_name)
+        values = (self.composer_id, self.performance_id)
+        results = self.sql_execute(query, values, db = db)
         if len(results) > 0:
             (id, composer_id, performance_id) = results[0]
             result = ComposerPerformance(composer_id, performance_id)
         return result
 
     def insert(self):
-        args = (('composer_id', 'integer', 'non null'), ('performance_id', 'integer', 'non null'))
-        properties = [('FOREIGN KEY(composer_id) REFERENCES composer(id)'), ('FOREIGN KEY(performance_id) REFERENCES performance(id)')]
-        self.create_table(args, properties)
-        j_string = "INSERT INTO %s (composer_id, performance_id) VALUES (%d, %d);" % (ComposerPerformance.__DB_TABLE_NAME__, self.composer_id, self.performance_id)
-        self.db_dev.sql_execute(j_string)
+        j_string = "INSERT INTO %s (composer_id, performance_id) VALUES (?, ?);" % (self.table_name)
+        values = (self.composer_id, self.performance_id)
+        self.db_dev.sql_execute(j_string, values)
 
     @staticmethod
     def clear_composer_performances_of_provider(provider):
         result = None
         db = DbDev()
         prov = obj.Providers.query_by_name(provider)
-        d_string = "DELETE FROM %s WHERE performance_id IN (SELECT performance.id FROM performance,provider WHERE provider.name = '%s' AND performance.provider_id = provider.id)" % (ComposerPerformance.__DB_TABLE_NAME__, provider)
+        d_string = "DELETE FROM %s WHERE performance_id IN (SELECT performance.id FROM performance,provider WHERE provider.name = '%s' AND performance.provider_id = provider.id)" % (self.table_name, provider)
         db.sql_execute(d_string)
         return prov.id
 
@@ -131,8 +133,7 @@ class NoSuchComposer(Exception):
 class Composer(obj.ObjectBase):
 
     __DB_TABLE_NAME__ = 'composer'
-    UNK = 'unknown'
-    def __init__(self,name,birth=None,death=None,movement=UNK, nid=None, id=None, country=UNK, gender=UNK, lat=UNK, long=UNK):
+    def __init__(self,name,birth=None,death=None,movement=__UNK__, nid=None, id=None, country=__UNK__, gender=__UNK__, lat=__UNK__, long=__UNK__):
         super(Composer, self).__init__(Composer.__DB_TABLE_NAME__)
         self.nid = nid
         self.name=name
@@ -144,21 +145,25 @@ class Composer(obj.ObjectBase):
         self.gender = gender
         self.lat = lat
         self.long = long
+        self.check_geolocation()
         
     def inspect(self):
-        return "Composer: id: %s, name: %s, birth: %s, death: %s, movement: %s, country: %s, gender: %s, lat: %s, long: %s" %(self.nid, self.name,self.birth,self.death,self.movement, self.country, self.gender, self.lat, self.long)
+        return "Composer: id: %s, nid: %s, name: %s, birth: %s, death: %s, movement: %s, country: %s, gender: %s, lat: %s, long: %s" %(str(self.id), self.nid, self.name,self.birth,self.death,self.movement, self.country, self.gender, self.lat, self.long)
         
     def to_csv(self):
         return "%s,\"%s\",%s,%s,\"%s\",%s,\"%s\",%s,%s" % (self.nid, self.name,self.birth,self.death,self.movement,self.gender,self.country,self.lat,self.long)
 
+    def anydate(self, d):
+        result = None
+        if d and d != 'None':
+            result = date(d)
+        return result
+
     def birthdate(self):
-        return date(self.birth)
+        return self.anydate(self.birth)
 
     def deathdate(self):
-        result = None
-        if self.death:
-            result = date(self.death)
-        return result
+        return self.anydate(self.death)
 
     def end_date(self):
         result = dt.date.today()
@@ -174,30 +179,33 @@ class Composer(obj.ObjectBase):
         return years
 
     @classmethod
-    def common_query(cls, qstring, db = DbPro()):
+    def common_query(cls, qstring, values, db = DbPro()):
         result = None
-        results = db.query(qstring)
+        results = db.query(qstring, values)
         if results and len(results) > 0:
-            (id, name, birth, death, nid, movement_id) = results[0]
+            (id, name, birth, death, nid, movement_id, country, gender, lat, long) = results[0]
             mov = obj.TimeLine.query_by_id(movement_id).key
-            result = cls(name, birth, death, mov, None, nid, id)
+            result = cls(name, birth=birth, death=death, movement=mov, nid=nid, country=country, gender=gender, lat=lat, long=long, id=id)
         return result
 
     @classmethod
-    def query(cls, nid, db = DbPro()):
-        return cls.common_query("SELECT * FROM %s WHERE nid = '%s';" % (Composer.__DB_TABLE_NAME__, nid), db)
+    def query_by_nid(cls, nid, db = DbPro()):
+        values = (nid,)
+        return cls.common_query("SELECT * FROM %s WHERE nid = ?;" % (Composer.__DB_TABLE_NAME__), values, db=db)
 
     @classmethod
     def query_by_name(cls, name, db = DbPro()):
-        return cls.common_query("SELECT * FROM %s WHERE name = '%s' COLLATE NOCASE;" % (Composer.__DB_TABLE_NAME__, name), db)
+        values = (name,)
+        return cls.common_query("SELECT * FROM %s WHERE name = ? COLLATE NOCASE;" % (Composer.__DB_TABLE_NAME__), values, db=db)
 
     @classmethod
     def query_by_id(cls, id, db = DbPro()):
-        return cls.common_query("SELECT * FROM %s WHERE id = %d;" % (Composer.__DB_TABLE_NAME__, id), db)
+        values = (id,)
+        return cls.common_query("SELECT * FROM %s WHERE id = ?;" % (Composer.__DB_TABLE_NAME__), values, db=db)
 
-    def insert(self, provider):
+    def insert(self, db = DbDev()):
         """
-            insert(provider)
+            insert()
 
             will insert a composer record in the database, checking:
             a) that the record does not exist yet
@@ -205,18 +213,17 @@ class Composer(obj.ObjectBase):
 
             After insertion, it will create a link to a specific performance
         """
-        args = (('name', 'text', 'non_null'), ('birth', 'text', 'non null'), ('death', 'text'), ('nid', 'text', 'non null'), ('movement_id', 'integer', 'non null'))
-        properties = [('FOREIGN KEY(movement_id) REFERENCES movement(id)')]
-        self.create_table(args, properties)
-        c_exists = self.query(self.nid)
-        if not c_exists:
+        result = self.query_by_nid(self.nid, db=db)
+        if not result:
             if self.birthdate():
                 mov = obj.TimeLine.query_by_name(self.movement)
-                i_string = "INSERT INTO %s (name, birth, death, nid, movement_id) VALUES (\"%s\", '%s', '%s', '%s', %d);" % (Composer.__DB_TABLE_NAME__, self.name, self.birthdate(), self.deathdate(), self.nid, mov.id)
-                self.db_dev.sql_execute(i_string)
-                self.link_to_performance(provider)
-        else:
-            self.link_to_performance(provider)
+                i_string = "INSERT INTO %s (name, birth, death, nid, movement_id, country, gender, lat, long) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);" % (self.table_name)
+                values   = (self.name, self.birthdate(), self.deathdate(), self.nid, mov.id, self.country, self.gender, self.lat, self.long)
+                db.sql_execute(i_string, values)
+                self.bump.bump('*')
+                result = self.query_by_nid(self.nid, db=db)
+
+        return result
 
     def link_to_performance(self, provider):
         perf = obj.Performance(self.perf_date, provider)
@@ -231,3 +238,15 @@ class Composer(obj.ObjectBase):
                   raise NoSuchComposer(self.name)
         join = ComposerPerformance(cid, perf.id)
         join.insert()
+
+    def check_geolocation(self):
+        """
+           check_geolocation():
+
+           in case lat and long are not known yet, we chack again with
+           translated names
+        """
+        if self.lat == __UNK__ or self.long == __UNK__:
+            bwl = BWList()
+            new_country = bwl.is_white(self.country)
+            (self.lat, self.long, throw_away) = get_lat_long_address(new_country)

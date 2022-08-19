@@ -4,7 +4,8 @@ import re
 import random, string
 
 __UNK__ = 'unknown'
-__QUOTE_CHAR__ = '"'
+__DOUBLE_QUOTE_CHAR__ = '"'
+__SINGLE_QUOTE_CHAR__ = "'"
 
 def join(list_to_join, char = ''):
     """
@@ -114,9 +115,14 @@ def random_string(size = 16):
     result = ''.join(random.choice(string.ascii_letters) for _ in range(size))
     return result
 
-__QCRE__ = re.compile(__QUOTE_CHAR__)
-def escape_quotes(string):
-    escaped = __QCRE__.sub(r"'", string)
+__DQCRE__ = re.compile(__DOUBLE_QUOTE_CHAR__)
+def double_to_single_quotes(string):
+    escaped = __DQCRE__.sub(r"'", string)
+    return escaped
+
+__SQCRE__ = re.compile(__SINGLE_QUOTE_CHAR__)
+def sql_escape_single_quotes(string):
+    escaped = __SQCRE__.sub(r"''", string)
     return escaped
 
 def string_shortener(string, maxlen = 20, fill = '...'):

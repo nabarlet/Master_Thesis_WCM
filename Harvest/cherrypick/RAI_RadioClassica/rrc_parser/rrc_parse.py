@@ -97,7 +97,7 @@ class RRCParser(Parser):
 
     @_('composer EOL phrase movements EOL performers EOL durata EOL label EOL')
     def recording(self, p):
-        rec = obj.Recording()
+        rec = obj.Record()
         rec.composer, rec.title, rec.performers, rec.duration, rec.label = p.composer, p.phrase, p.performers, p.durata, p.label
         return rec
 

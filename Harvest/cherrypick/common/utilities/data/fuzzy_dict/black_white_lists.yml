@@ -178,9 +178,60 @@ white_list:
   'piotr ciajkovskij': Q7315
   'franco piana': Q112122864
   'jacopo da bologna': Q510939
-  
-  
-  
-  
-  
-    
+  #
+  # Locations start here
+  #
+  "Archduchy of Austria": Austria
+  "Austria-Hungary": Budapest
+  "Austrian Empire": Vienna
+  "Austrian Netherlands": Brussels
+  "Azerbaijan Democratic Republic": Azerbaijan
+  "Burgundian Netherlands": Mechelen
+  "Byzantine Empire": Istanbul
+  "Cisleithania": Vienna
+  "Confederation of the Rhine": Frankfurt
+  "Crown of Castile": Madrid
+  "Duchy of Brunswick-Lüneburg": Braunschweig
+  "Duchy of Mantua": Montova
+  "Duchy of Mecklenburg-Schwerin": Schwerin
+  "Duchy of Milan": Milano
+  "Duchy of Modena and Reggio": Modena
+  "Duchy of Parma": Parma
+  "Ecclesiastical principality of Basel": Basel
+  "Electorate of Cologne": Cologne
+  "Electorate of Saxony": Wittenberg
+  "Federal People's Republic of Yugoslavia": Belgrade
+  "French Third Republic": Paris
+  "German Confederation": Germany
+  "Grand Duchy of Finland": Finland
+  "Grand Duchy of Tuscany": Tuscany
+  "Habsburg Monarchy": Vienna
+  "Hanseatic League": Lübeck
+  "Holy Roman Empire": Roma
+  "http://www.wikidata.org/.well-known/genid/93cec3c722d7d117ad775f7da0b03732": Italia
+  "http://www.wikidata.org/.well-known/genid/de735597efd3eff37cd6eb661b5ec342": Italia
+  "Kingdom of Kartli": Tbilisi
+  "Kingdom of Lombardy–Venetia": Milan
+  "Kingdom of Prussia": Berlin
+  "Kingdom of Romania": Romania
+  "Kingdom of Serbs": Serbia
+  "Kingdom of Sicily (1734-1816)": Sicilia
+  "Kingdom of Yugoslavia": Belgrad
+  "mandatory Lebanese Republic": Damascus
+  "Mandatory Palestine": Damascus
+  "Margraviate of Moravia": Olomuc
+  "Ottoman Empire": Sogut
+  "Pahlavi Dynasty": Iran
+  "Papal States": Roma
+  "Polish–Lithuanian Commonwealth": Cracow
+  "Prince-Bishopric of Liège": Liège
+  "Principality of Anhalt-Zerbst": Zerbst
+  "Principality of Wallachia": Romania
+  "Protectorate of Bohemia and Moravia": Prague
+  "Russian Socialist Federative Soviet Republic": Russia
+  "Second Polish Republic": Poland
+  "Seventeen Provinces": Brussels
+  "Socialist Federal Republic of Yugoslavia": Belgrad
+  "Spanish Netherlands": Spain
+  "Ukrainian Soviet Socialist Republic": Ukraine
+  "Viceroyalty of New Spain": Spain

@@ -10,7 +10,7 @@ sys.path.append(root_path)
 import common.wikid.wikidata as wd
 from common.utilities.path import repo_path
 from common.wikid.sparql import sparql_composer
-from common.objects import Composer, Recording
+from common.objects import Composer, Record
 from cherrypick.csv_source_base import CsvSourceBase
 from bbc3_base import BBC3Base
 from bbc3_schedule import BBC3Schedule
@@ -57,7 +57,7 @@ class BBC3Pick(CsvSourceBase):
                     continue
 
                 comp = Composer(name, birth, death, movement)
-                rec  = Recording(comp=comp, title=title)
+                rec  = Record(comp=comp, title=title)
                 try:
                     qperf_date = self.schedule.quantize_date(BBC3Base.process_date(perf_date)).isoformat()
                 except ValueError as e:

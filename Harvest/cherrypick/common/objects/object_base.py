@@ -9,12 +9,15 @@ try:
 except ModuleNotFoundError:
     from db import DbDev, DbPro
 
+from common.utilities.bump   import Bump
+
 class ObjectBase:
 
     def __init__(self, tn = None):
         self.db_dev = DbDev()
         self.db_pro = DbPro()
         self.table_name = tn
+        self.bump = Bump()
 
     @staticmethod
     def cleanse_string(string):
@@ -27,16 +30,16 @@ class ObjectBase:
         result = escape_meta_re.sub('\\\\\\1', string)
         return result
 
-    def sql_execute(self, string, db = None):
+    def sql_execute(self, string, values = (), db = None):
         if not db:
             db = self.db_dev
-        db.execute(string)
+        db.execute(string, values)
 
     def table_exists(self, db = None):
         result = None
         if self.table_name:
             sql_string = '.table %s' % (self.table_name)
-            result = self.sql_execute(sql_string, db)
+            result = self.sql_execute(sql_string, db = db)
         return result
 
     def create_table(self, fields, properties = ()):
@@ -49,13 +52,13 @@ class ObjectBase:
 
     def select_all(self, db = None):
         sql_string = 'SELECT * FROM %s' % (self.table_name)
-        return self.sql_execute(sql_string, db)
+        return self.sql_execute(sql_string, db = db)
 
     def table_exists(self, db = None):
         result = None
         if self.table_name:
             sql_string = '.table %s' % (self.table_name)
-            result = self.sql_execute(sql_string, db)
+            result = self.sql_execute(sql_string, db = db)
         return result
 
     @classmethod

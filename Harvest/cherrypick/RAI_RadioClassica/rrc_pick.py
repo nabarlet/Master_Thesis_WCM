@@ -35,7 +35,7 @@ class RRCPick(PdfSourceBase):
                 elif type(o) is obj.TimeSection:
                     current_time  = o.time
                     current_title = o.title_list
-                elif type(o) is obj.Recording:
+                elif type(o) is obj.Record:
                     comp = o.composer
                     wd_comp = self.retrieve_composer(comp.name)
                     o.composer = wd_comp

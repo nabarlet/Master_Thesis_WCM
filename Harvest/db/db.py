@@ -1,6 +1,7 @@
 import pdb
 import sys, os
 import sqlite3 as sl
+import traceback
 
 mypath = os.path.dirname(__file__)
 sys.path.append(os.path.join(mypath, '..', 'cherrypick'))
@@ -20,6 +21,7 @@ def sql_try(func):
         try:
             res = func(*arg)
         except sl.Error as e:
+            traceback.print_exc()
             sql_error(e)
         return res
         
@@ -45,10 +47,14 @@ class Db:
             self.dbname = db_file_name
             self.db = self.__connect__()
     
+        def reopen(self):
+            self.db.close()
+            self.db = self.__connect__()
+
         @sql_try
-        def sql_execute(self, string):
+        def sql_execute(self, string, values = ()):
             cur = self.db.cursor()
-            cur.execute(string)
+            cur.execute(string, values)
             self.db.commit()
             return cur
     
@@ -97,9 +103,9 @@ class Db:
             return int(result)
 
         @sql_try
-        def query(self, string):
+        def query(self, string, values = ()):
             result = None
-            cur = self.sql_execute(string)
+            cur = self.sql_execute(string, values)
             if cur:
                 result = cur.fetchall()
             return result

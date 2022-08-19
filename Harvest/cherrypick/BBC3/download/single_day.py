@@ -60,7 +60,7 @@ class SingleDay:
                                     composer = SingleDay.condition_composer(composer)
                                     (date, program_name) = self.isodate(program)
                                     perf = obj.Performance(date, self.provider, title = program_name)
-                                    rec  = obj.Recording(comp=composer, oi=perfs, title=title, perf=perf, dur=dur, label=label)
+                                    rec  = obj.Record(comp=composer, oi=perfs, title=title, perf=perf, dur=dur, label=label)
                                     yield rec
                                 except IndexError as e:
                                     traceback.print_exc()

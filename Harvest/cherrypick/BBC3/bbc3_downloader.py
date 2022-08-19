@@ -6,7 +6,7 @@ import tweepy
 import json
 import re
 import datetime as dt
-from common.objects.recording import Recording
+from common.objects.record import Record
 
 root_path = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(root_path)
@@ -58,7 +58,7 @@ class BBC3Downloader(Base):
             if len(humans)>1:
                 performers=humans[1:]
             complete_title = self.expand_title(title)   
-            gotcha = Recording(composer,performers,complete_title,date)
+            gotcha = Record(composer,performers,complete_title,date)
             if composer.birth:
                 found = gotcha
             else:

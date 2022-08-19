@@ -1,3 +1,4 @@
+import pdb
 import sys,os
 sys.path.append(os.path.join('..', '..'))
 
@@ -34,7 +35,9 @@ class BWList:
             result = None
             ustring = string.upper()
             lstring = string.lower()
-            if ustring in self.white:
+            if string in self.white:
+                result = self.white[string]
+            if not result and ustring in self.white:
                 result = self.white[ustring]
             if not result and lstring in self.white:
                 result = self.white[lstring]

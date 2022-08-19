@@ -23,21 +23,33 @@ class Performance(obj.ObjectBase):
         self.title    = title
         self.id       = id
 
+    def records(self, db = DbPro()):
+        result = []
+        if self.id:
+            q_string = "SELECT record_id FROM %s WHERE performance_id = ?;" % (obj.RecordPerformance.__DB_TABLE_NAME__)
+            values = (self.id, )
+            results = db.sql_execute(q_string, values)
+            for rid in results:
+                record = obj.Record.query_by_id(rid, perf=self, db=db)
+                result.append(record)
+        return result
+
     def to_csv(self):
         return "%s,%s,\"%s\",%s" % (self.provider,self.datetime,self.title,str(self.id))
         
     def inspect(self):
-        return "Performance: id: %d, date and time: %s, provider: %s, title: %s" %(self.id, self.datetime, self.provider, self.title)
+        return "Performance: id: %s, date and time: %s, provider: %s, title: %s" %(str(self.id), self.datetime, self.provider, self.title)
         
     @classmethod
     def query_by_datetime_and_provider(cls, datetime, provider, db = DbPro()):
         result = None
         prov = obj.Providers.query_by_name(provider)
-        q_string = "SELECT * FROM %s WHERE datetime = '%s' AND provider_id = %d;" % (cls.__DB_TABLE_NAME__, clean_datetime(datetime), prov.id)
+        q_string = "SELECT * FROM %s WHERE datetime = ? AND provider_id = ?;" % (cls.__DB_TABLE_NAME__)
+        values = (clean_datetime(datetime), prov.id)
         results = db.query(q_string)
         if len(results) > 0:
-            (id, datetime, provider_id) = results[0]
-            result = cls(datetime, prov.name, id)
+            (id, datetime, title, provider_id) = results[0]
+            result = cls(datetime, prov.name, title=title, id=id)
         return result
 
     @staticmethod
@@ -52,12 +64,13 @@ class Performance(obj.ObjectBase):
         db.sql_execute(d_string)
         return prov_id
 
-    def insert(self):
-        args = (('datetime', 'text', 'non_null'), ('provider_id', 'integer', 'non null'))
-        properties = [('FOREIGN KEY(provider_id) REFERENCES provider(id)'), ('UNIQUE(datetime, provider_id)')]
-        self.create_table(args, properties)
-        p_exists = Performance.query_by_datetime_and_provider(self.datetime, self.provider, db=self.db_dev)
-        if not p_exists:
-            prov = obj.Providers.query_by_name(self.provider)
-            i_string = "INSERT INTO %s (datetime, provider_id) VALUES ('%s', %d);" % (Performance.__DB_TABLE_NAME__, clean_datetime(self.datetime), prov.id)
-            self.db_dev.sql_execute(i_string)
+    def insert(self, db=DbDev()):
+        result = self.__class__.query_by_datetime_and_provider(self.datetime, self.provider, db=db)
+        if not result:
+            prov = obj.Providers.query_by_name(self.provider, db=db)
+            i_string = "INSERT INTO %s (datetime, provider_id, title) VALUES (?, ?, ?);" % (Performance.__DB_TABLE_NAME__)
+            values = (clean_datetime(self.datetime), prov.id, self.title)
+            db.sql_execute(i_string, values)
+            result = self.__class__.query_by_datetime_and_provider(self.datetime, self.provider, db=db)
+
+        return result
