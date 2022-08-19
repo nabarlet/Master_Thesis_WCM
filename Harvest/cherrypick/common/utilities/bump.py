@@ -17,11 +17,11 @@ class Bump:
                 self.fh = open('/proc/self/fd/6', 'w') # open a third file descriptor for writing
             atexit.register(self.fh.close)
 
-        __COUNTER_RATE__ = 10
+        __COUNTER_RATE__ = 50
         def bump(self, ch = '.'):
             to_print = ch
             if self.counter != 0 and (self.counter % Bump.__Bump__.__COUNTER_RATE__) == 0:
-                to_print = str(self.counter)
+                to_print = ' ' + str(self.counter) + ' '
             print(to_print, end='', file=self.fh)
             self.counter += 1
             self.fh.flush()

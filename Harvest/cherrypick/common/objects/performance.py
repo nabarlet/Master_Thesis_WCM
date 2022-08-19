@@ -46,7 +46,7 @@ class Performance(obj.ObjectBase):
         prov = obj.Providers.query_by_name(provider)
         q_string = "SELECT * FROM %s WHERE datetime = ? AND provider_id = ?;" % (cls.__DB_TABLE_NAME__)
         values = (clean_datetime(datetime), prov.id)
-        results = db.query(q_string)
+        results = db.query(q_string, values)
         if len(results) > 0:
             (id, datetime, title, provider_id) = results[0]
             result = cls(datetime, prov.name, title=title, id=id)
@@ -71,6 +71,7 @@ class Performance(obj.ObjectBase):
             i_string = "INSERT INTO %s (datetime, provider_id, title) VALUES (?, ?, ?);" % (Performance.__DB_TABLE_NAME__)
             values = (clean_datetime(self.datetime), prov.id, self.title)
             db.sql_execute(i_string, values)
+            self.bump.bump('p')
             result = self.__class__.query_by_datetime_and_provider(self.datetime, self.provider, db=db)
 
         return result

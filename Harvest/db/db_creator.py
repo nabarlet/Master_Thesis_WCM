@@ -22,9 +22,6 @@ class DbCreator:
 
     __SCHEMA_PATH__ = os.path.join(mypath, 'data', 'db_schema.txt')
     def create_db_from_scratch(self):
-        # db_path = os.path.join(mypath, 'data', self.db.dbname)
-        # command = "cat \"%s\" | sqlite3 \"%s\"" % (DbCreator.__SCHEMA_PATH__, db_path)
-        # os.system(command)
         with open(self.db.dbname, 'w') as dummy: # this is just to create an empty file :-(
             pass
 
@@ -58,3 +55,6 @@ class DbCreator:
                 csvreader = csv.reader(csvfh, delimiter=',', quotechar='"')
                 for csvline in csvreader:
                     yield csvline
+
+if __name__ == '__main__':
+    DbCreator.create()

@@ -33,7 +33,7 @@ class ObjectBase:
     def sql_execute(self, string, values = (), db = None):
         if not db:
             db = self.db_dev
-        db.execute(string, values)
+        return db.execute(string, values)
 
     def table_exists(self, db = None):
         result = None

@@ -7,7 +7,6 @@ sys.path.extend([os.path.join(mypath, *(['..']*2)), os.path.join(mypath, *(['..'
 import common.objects as obj
 from common.utilities.string import join, double_to_single_quotes, sql_escape_single_quotes, __UNK__
 from common.utilities.bwlist import BWList
-from common.utilities.bump   import Bump
 from common.wikid.geoinfo    import get_lat_long_address
 try:
     from db.db import DbDev, DbPro
@@ -43,7 +42,7 @@ class RecordPerformance(obj.ObjectBase):
             j_string = "INSERT INTO %s (record_id, performance_id) VALUES (?, ?);" % (self.table_name)
             values = (self.record.id, self.performance.id)
             db.sql_execute(j_string, values)
-            self.bump.bump('_')
+            self.bump.bump('+')
             result = self.__class__.query_by_rid_and_pid(self.record, self.performance, db=db)
         return result
 
@@ -70,7 +69,10 @@ class Record(obj.ObjectBase):
         return result
 
     def to_csv(self):
-        return "%s,\"%s\",\"%s\",%s,\"%s\",%s" % (self.composer.to_csv(), double_to_single_quotes(self.title), double_to_single_quotes(self.other_info), self.duration, self.label, self.performance.to_csv())
+        result = ''
+        if self.composer and self.performance:
+            result = "%s,\"%s\",\"%s\",%s,\"%s\",%s" % (self.composer.to_csv(), double_to_single_quotes(self.title), double_to_single_quotes(self.other_info), self.duration, self.label, self.performance.to_csv())
+        return result
 
     @classmethod
     def from_csv(cls, csv_line):
@@ -88,7 +90,8 @@ class Record(obj.ObjectBase):
 
     @classmethod
     def common_query(cls, query, values, perf=None, db=DbPro()):
-        results = db.query(query, values, db=db)
+        result = None
+        results = db.query(query, values)
         if results and len(results) > 0:
             for r in results:
                 (id, title, other_info, dur, label, cid) = r
@@ -98,19 +101,15 @@ class Record(obj.ObjectBase):
 
     @classmethod
     def query_by_title_and_oi(cls, title, oi, perf=None, db = DbPro()):
-        result = None
         qstring = "SELECT * FROM %s WHERE title = ? AND other_info = ? COLLATE NOCASE;" % (Record.__DB_TABLE_NAME__)
         values = (title, oi)
         return Record.common_query(qstring, values, perf=perf, db=db)
 
     @classmethod
     def query_by_id(cls, id, perf=None, db = DbPro()):
-        result = None
         qstring = "SELECT * FROM %s WHERE id = ?;" % (Record.__DB_TABLE_NAME__)
         values = (id, )
-        results = db.query(qstring, values)
         return Record.common_query(qstring, values, perf=perf, db=db)
-
 
     def insert(self, db=DbDev()):
         """
@@ -152,7 +151,7 @@ class Record(obj.ObjectBase):
             r_query = "INSERT INTO %s (title, other_info, duration, composer_id) VALUES (?, ?, ?, ?);" % (self.table_name)
             values = (self.title, self.other_info, self.duration.to_seconds(), self.composer.id)
             db.sql_execute(r_query, values)
-            self.bump.bump('+')
+            self.bump.bump('r')
             result = self.__class__.query_by_title_and_oi(self.title, self.other_info, perf=self.performance, db=db)
 
         return result

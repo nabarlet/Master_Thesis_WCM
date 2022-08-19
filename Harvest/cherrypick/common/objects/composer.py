@@ -9,7 +9,6 @@ import common.objects as obj
 from common.utilities.date import date
 from common.objects.provider import Providers
 from common.utilities.composer_plot  import ComposerPlot
-from common.utilities.bump           import Bump
 from common.utilities.string         import __UNK__
 from common.utilities.bwlist         import BWList
 from common.wikid.geoinfo            import get_lat_long_address
@@ -82,7 +81,6 @@ class ComposerComposer(obj.ObjectBase):
                     c2id = col
                     cc = cls(c1id, c2id, perf_id)
                     cc.insert()
-                b.bump()
 
     @classmethod
     def list(cls, db = DbPro()):
@@ -220,7 +218,7 @@ class Composer(obj.ObjectBase):
                 i_string = "INSERT INTO %s (name, birth, death, nid, movement_id, country, gender, lat, long) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);" % (self.table_name)
                 values   = (self.name, self.birthdate(), self.deathdate(), self.nid, mov.id, self.country, self.gender, self.lat, self.long)
                 db.sql_execute(i_string, values)
-                self.bump.bump('*')
+                self.bump.bump('c')
                 result = self.query_by_nid(self.nid, db=db)
 
         return result
