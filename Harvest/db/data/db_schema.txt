@@ -41,3 +41,6 @@ INSERT INTO provider VALUES(2,'RadioC','Spain',1);
 INSERT INTO provider VALUES(3,'BBC3','United Kingdom',1);
 INSERT INTO provider VALUES(4,'JMM','Spain',3);
 INSERT INTO provider VALUES(5,'Spotify','United States',2);
+INSERT INTO provider_type VALUES(1,'radio');
+INSERT INTO provider_type VALUES(2,'streaming');
+INSERT INTO provider_type VALUES(3,'concert organization');
