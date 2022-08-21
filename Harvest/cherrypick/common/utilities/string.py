@@ -142,6 +142,6 @@ def string_shortener(string, maxlen = 20, fill = '...'):
         result    = fill + string[-stringsz:]
     return result
 
-__COMPOSERS_SPLIT__ = re.compile(r'(\s*&\s*|\s*\/\s*|\s+arr\.|\s+and\s+|\s+duo$|\s+trio$|\s+quartet$|\s+quintet$|\s+sextet$|\s+septet$)', re.I)
+__COMPOSERS_SPLIT__ = re.compile(r'(\s*&\s*|\s*\/\s*|\s+\(?arr\.|\s+\(?transc\.|\s+and\s+|\s+duo$|\s+trio$|\s+quartet$|\s+quintet$|\s+sextet$|\s+septet$)', re.I)
 def split_multiple_composers(name):
     return __COMPOSERS_SPLIT__.split(name)

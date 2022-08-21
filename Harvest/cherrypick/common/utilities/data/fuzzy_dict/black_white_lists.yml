@@ -13,6 +13,10 @@ black_list:
 # all labels in white list here will be directely converted to nid
 #
 white_list:
+  BACH:                     Q1339
+  'J. S. BACH':             Q1339
+  'J.S.BACH':               Q1339
+  'JOHANN SEBASTIAN BACH':  Q1339
   GAMBARO:                  Q112464211
   HARTMANN:                 Q366100
   GILBERT:                  Q329358

@@ -23,20 +23,25 @@ class TopCharts(Chart):
         self.make_top_radio_charts()
 
     def make_top_global_chart(self):
-        gquery = """SELECT C.id,C.name,count(*) FROM composer AS C JOIN composer_performance AS CP
-                    WHERE CP.composer_id = C.id AND C.id = %d;"""
+        total = TopCharts.load_total_performances()[0][0]
+        gquery = """SELECT C.id,C.name,count(*) FROM composer AS C JOIN record AS R, record_performance AS RP, performance AS P
+                    WHERE R.composer_id = C.id AND C.id = %d AND RP.record_id = R.id AND RP.performance_id = P.id;"""
         (y, ylabels) = self.make_top_common(gquery)
+        y = [(yitem/float(total))*100 for yitem in y]
         barhplot(y, ylabels, 'Top_%d_global_pop.png', 'Top %d global popularity', plotdir = self.plotdir)
 
-    SINGLE_PROV_XLIMIT = 600
+    # SINGLE_PROV_XLIMIT = 600
+    SINGLE_PROV_XLIMIT = None
     def make_top_radio_charts(self):
         radios = TopCharts.load_providers()
         for rid, rname in radios:
-            lquery_tail = " AND P.provider_id = %d AND CP.performance_id = P.id;" % (rid)
-            lquery = "SELECT C.id,C.name,count(*) FROM composer AS C JOIN composer_performance AS CP, performance AS P WHERE CP.composer_id = C.id AND C.id = %d" + lquery_tail 
+            total = TopCharts.load_total_performances(rid)[0][0]
+            lquery_tail = " AND P.provider_id = %d;" % (rid)
+            lquery = "SELECT C.id,C.name,count(*) FROM composer AS C JOIN record AS R, record_performance AS RP, performance AS P WHERE R.composer_id = C.id AND C.id = %d AND RP.record_id = R.id AND RP.performance_id = P.id" + lquery_tail 
             filename = 'Top_%d_' + ("%s_pop.png" % (rname))
             plot_title = 'Top %d ' + ("%s popularity" % (rname)) 
             (y, ylabels) = self.make_top_common(lquery)
+            y = [(yitem/float(total))*100 for yitem in y]
             barhplot(y, ylabels, filename, plot_title, plotdir = self.plotdir, xlimit = TopCharts.SINGLE_PROV_XLIMIT)
 
     def make_top_common(self, query):

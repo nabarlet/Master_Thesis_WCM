@@ -1,3 +1,5 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
 --
 -- DB schema and initialization
 --
@@ -44,3 +46,4 @@ INSERT INTO provider VALUES(5,'Spotify','United States',2);
 INSERT INTO provider_type VALUES(1,'radio');
 INSERT INTO provider_type VALUES(2,'streaming');
 INSERT INTO provider_type VALUES(3,'concert organization');
+COMMIT;

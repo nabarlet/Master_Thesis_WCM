@@ -8,8 +8,8 @@ from cherrypick.base import Base
 
 class CsvSourceBase(Base):
 
-    def __init__(self, file):
-        super(CsvSourceBase, self).__init__()
+    def __init__(self, file, provider):
+        super(CsvSourceBase, self).__init__(provider)
         self.filename = file
 
     @classmethod

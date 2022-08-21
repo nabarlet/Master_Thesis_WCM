@@ -10,8 +10,8 @@ from cherrypick.base import Base
 
 class PdfSourceBase(Base):
 
-    def __init__(self, file):
-        super().__init__()
+    def __init__(self, file, provider):
+        super().__init__(provider)
         self.filename = file
         self.pdf = PDFFile(file)
 

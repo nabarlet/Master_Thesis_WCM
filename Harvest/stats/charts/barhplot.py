@@ -7,7 +7,7 @@ sys.path.append(os.path.join(mypath, *['..']*2, 'cherrypick'))
 from common.utilities.string import string_shortener
 
 def barhplot(y, ylabels, filename_template, title, limit = 60, xlimit = None, plotdir = '.'):
-    ylabels = [string_shortener(yl) for yl in ylabels]
+    ylabels = [string_shortener(str(yl)) for yl in ylabels]
     y.reverse()
     ylabels.reverse()
     x = range(len(y))

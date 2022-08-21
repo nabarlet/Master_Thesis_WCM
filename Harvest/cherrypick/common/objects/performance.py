@@ -22,17 +22,24 @@ class Performance(obj.ObjectBase):
         self.provider = provider
         self.title    = title
         self.id       = id
+        self._records_= []
 
-    def records(self, db = DbPro()):
+    def load_records(self, db = DbPro()):
         result = []
         if self.id:
-            q_string = "SELECT record_id FROM %s WHERE performance_id = ?;" % (obj.RecordPerformance.__DB_TABLE_NAME__)
+            q_string = "SELECT record_id FROM %s AS RP WHERE RP.performance_id = ?;" % (obj.RecordPerformance.__DB_TABLE_NAME__)
             values = (self.id, )
-            results = db.sql_execute(q_string, values)
+            results = db.query(q_string, values)
             for rid in results:
                 record = obj.Record.query_by_id(rid, perf=self, db=db)
                 result.append(record)
-        return result
+        self._records_ = result
+        return self._records_
+
+    def records(self, db = DbPro()):
+        if len(self._records_) == 0:
+            self.load_records(db = db)
+        return self._records_
 
     def to_csv(self):
         return "%s,%s,\"%s\",%s" % (self.provider,self.datetime,self.title,str(self.id))
@@ -50,6 +57,7 @@ class Performance(obj.ObjectBase):
         if len(results) > 0:
             (id, datetime, title, provider_id) = results[0]
             result = cls(datetime, prov.name, title=title, id=id)
+            # result.load_records(db = db)
         return result
 
     @staticmethod

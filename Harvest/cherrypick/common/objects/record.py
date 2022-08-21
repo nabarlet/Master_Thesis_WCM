@@ -61,11 +61,12 @@ class Record(obj.ObjectBase):
 
     def inspect(self):
         result = "Record:\n\tcomposer:\t" + self.composer.inspect() + '\n'
-        result += "\ttitle:\t\t" + self.title + '\n'
-        result += "\tother_info:\t" + self.other_info + '\n'
-        result += "\tduration:\t" + self.duration.inspect() + '\n'
-        result += "\tperformance:\t" + self.performance.inspect() + '\n'
-        result += "\tlabel:\t\t" + self.label + '\n'
+        result += "\tid:\t\t" + str(self.id) + '\n'
+        result += "\ttitle:\t\t" + str(self.title) + '\n'
+        result += "\tother_info:\t" + str(self.other_info) + '\n'
+        result += "\tduration:\t" + str(self.duration.inspect()) + '\n'
+        result += "\tperformance:\t" + str(self.performance.inspect()) + '\n'
+        result += "\tlabel:\t\t" + str(self.label) + '\n'
         return result
 
     def to_csv(self):
@@ -80,13 +81,31 @@ class Record(obj.ObjectBase):
         (nid, name, birth, death, movement, gender, country, lat, long) = csv_line[0:9] # composer
         if nid:
             (title, other_info, dur, label) = csv_line[9:13]                            # recording
-            (provider, perf_date, perf_title, id) = csv_line[13:]                       # performance
+            everything_else = csv_line[13:]                                             # performance
+            if len(everything_else) != 4:
+                print("WARNING: incorrect fields for performance data (%s). Unpacking the first four" % (str(everything_else)), file=sys.stderr)
+            (provider, perf_date, perf_title, id) = everything_else[:4]                  # performance
             dur      = obj.Duration.create(dur, parser=obj.Duration.colon_parser)
             composer = obj.Composer(name, nid=nid, birth=birth, death=death, movement=movement, gender=gender, country=country, lat=lat, long=long)
             perform  = obj.Performance(perf_date, provider, title = perf_title)
             record   = obj.Record(comp=composer, oi=other_info, title=title, perf=perform, dur=dur, label=label)
             result   = record
         return result
+
+    @classmethod
+    def retrieve_from_csv(cls, csv_line, db=DbPro()):
+        mrec = cls.from_csv(csv_line)
+        perf = obj.Performance.query_by_datetime_and_provider(mrec.performance.datetime, mrec.performance.provider, db=db)
+        comp = obj.Composer.query_by_name(mrec.composer.name, db=db)
+        record = cls.query_by_title_and_oi(mrec.title, mrec.other_info, db=db)
+        if record:
+            if comp:
+                record.composer = comp
+            if perf:
+                record.performance = perf
+        else:
+            record = mrec
+        return record
 
     @classmethod
     def common_query(cls, query, values, perf=None, db=DbPro()):
@@ -125,12 +144,14 @@ class Record(obj.ObjectBase):
             * insert Record->Performance link
             * insert all the composer->composer link belonging to the same performance
         """
+        result = None
         try:
             orig_composer    = self.composer
             self.composer    = self.composer.insert(db=db)
             if self.composer and self.composer.id:
                 self.performance = self.performance.insert(db=db)
                 self.record      = self.insert_record(db=db)
+                result           = self.record
                 tp_link          = obj.RecordPerformance(self.record, self.performance)
                 tp_link.insert(db=db)
                 #
@@ -144,16 +165,70 @@ class Record(obj.ObjectBase):
         except Exception as e:
             print("Error: %s, record: %s" % (str(e), self.to_csv()), file=sys.stderr)
 
+        return result
+
     def insert_record(self, db=DbDev()):
         result = self.__class__.query_by_title_and_oi(self.title, self.other_info, perf=self.performance, db=db)
         if not result:
             if not self.composer.id:
                 raise MalformedRecord(self.composer.inspect())
             r_query = "INSERT INTO %s (title, other_info, duration, composer_id) VALUES (?, ?, ?, ?);" % (self.table_name)
-            pdb.set_trace()
             values = (self.title, self.other_info, str(self.duration), self.composer.id)
             db.sql_execute(r_query, values)
             self.bump.bump('r')
             result = self.__class__.query_by_title_and_oi(self.title, self.other_info, perf=self.performance, db=db)
 
         return result
+
+    def delete(self, db = DbDev()):
+        """
+            delete(db = DbDev())
+           
+            Deletes this record from the database. The procedure is as follows:
+           
+            - find all Record connected to this composer
+              - if only this one is connected, delete composer 
+            - find all the RecordPerformance records connected to this record
+              - if RecordPerformance == 1, delete record
+            - delete record_performance
+        """   
+        #
+        # check composer first
+        #
+        query = "SELECT count(*) FROM record AS R WHERE R.composer_id = ?;"
+        values = (self.composer.id, )
+        result = db.query(query, values)
+        if result[0] == 1:
+            self.composer.delete(db = db)
+        #
+        # then RecordPerformance records
+        #
+        query = "SELECT id FROM record_performance AS RP WHERE RP.performance_id = ?;"
+        values = (self.performance.id, )
+        results = db.query(query, values)
+        if len(results) < 2:
+            sqlc = "DELETE FROM record WHERE id = ?;"
+            values = (self.id, )
+            print("%s:%d: %s with values %s" % (os.path.basename(__file__), 209, sqlc, str(values)))
+            db.sql_execute(sqlc, values)
+        #
+        # delete related record_performance
+        #
+        sqlc = "DELETE FROM record_performance WHERE record_id = ? AND performance_id = ?;"
+        values = (self.id, self.performance.id, )
+        print("%s:%d: %s with values %s" % (os.path.basename(__file__), 216, sqlc, str(values)))
+        db.sql_execute(sqlc, values)
+        self.bump.bump('-')
+
+    def update_composer(self, new_composer, db=DbDev()):
+        nc = new_composer.insert(db=db)
+        if nc:
+            self.composer = nc
+            rec = self.insert(db=db)
+            qupd = "UPDATE record SET composer_id = ? WHERE id = ?;"
+            values = (nc.id, rec.id,)
+            print("%s:%d: %s with values %s -- (%s)" % (os.path.basename(__file__), 224, qupd, str(values), nc.name))
+            db.sql_execute(qupd, values)
+            self.bump.bump('/')
+        else:
+            self.delete(db=db)

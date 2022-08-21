@@ -8,8 +8,8 @@ sys.path.append(os.path.join(mypath, '..', 'cherrypick'))
 
 from common.utilities.path import db_path
 
-def sql_error(e):
-    print(str(e), file=sys.stderr)
+def sql_error(e, args=''):
+    print(str(e) + args, file=sys.stderr)
 
 def sql_try(func):
     """
@@ -22,7 +22,7 @@ def sql_try(func):
             res = func(*arg)
         except sl.Error as e:
             traceback.print_exc()
-            sql_error(e)
+            sql_error(e, str(func) + ' ' + str(arg))
         return res
         
     return inner

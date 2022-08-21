@@ -21,13 +21,14 @@ class BBC3Pick(CsvSourceBase):
 
     cache = []
 
-    def __init__(self, file):
-        super(BBC3Pick, self).__init__(file)
+    __PROVIDER__ = 'BBC3'
+    def __init__(self, file, provider = __PROVIDER__):
+        super(BBC3Pick, self).__init__(file, provider)
         self.schedule = BBC3Schedule()
 
     @classmethod
     def manage(cls, repo_dir = __DEFAULT_BBC3_REPO_PATH__):
-        return super(BBC3Pick, cls).manage(repo_dir)
+        return super(BBC3Pick, cls).manage(repo_dir, BBC3Pick.__PROVIDER__)
 
     @classmethod
     def create_csv(cls, repo_dir = __DEFAULT_BBC3_REPO_PATH__):

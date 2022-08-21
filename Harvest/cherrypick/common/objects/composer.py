@@ -41,7 +41,7 @@ class ComposerComposer(obj.ObjectBase):
         result = None
         query = "SELECT * FROM %s WHERE ((composer_1_id = ? AND composer_2_id = ?) OR (composer_1_id = ? AND composer_2_id = ?)) AND performance_id = ?" % (self.table_name)
         values = (c1id, c2id, c2id, c1id, pid)
-        results = self.sql_execute(query, values, db = db)
+        results = self.query(query, values, db = db)
         if len(results) > 0:
             (id, comp1id, comp2id, perf_id) = results[0]
             result = cls(comp1id, comp2id, perf_id)
@@ -105,7 +105,7 @@ class ComposerPerformance(obj.ObjectBase):
         result = None
         query = "SELECT * FROM %s WHERE composer_id = ? AND performance_id = ?" % (self.table_name)
         values = (self.composer_id, self.performance_id)
-        results = self.sql_execute(query, values, db = db)
+        results = self.query(query, values, db = db)
         if len(results) > 0:
             (id, composer_id, performance_id) = results[0]
             result = ComposerPerformance(composer_id, performance_id)
@@ -222,6 +222,13 @@ class Composer(obj.ObjectBase):
                 result = self.query_by_nid(self.nid, db=db)
 
         return result
+
+    def delete(self, db = DbDev()):
+        result = self.query_by_nid(self.nid, db=db)
+        sqlc = "DELETE FROM composer AS C WHERE C.id = ?;"
+        values = (self.id, )
+        print("%s:%d: %s with values %s" % (os.path.basename(__file__), 230, sqlc, str(values)))
+        # db.sql_execute(sqlc, values)
 
     def link_to_performance(self, provider):
         perf = obj.Performance(self.perf_date, provider)

@@ -16,12 +16,13 @@ class JMMPick(CsvSourceBase):
 
     __DEFAULT_JMM_REPO_PATH__ = os.path.join(repo_path, 'JMM')
 
-    def __init__(self, file):
-        super(JMMPick, self).__init__(file)
+    __PROVIDER__ = 'JMM'
+    def __init__(self, file, provider = __PROVIDER__):
+        super(JMMPick, self).__init__(file, provider)
 
     @classmethod
     def manage(cls, repo_dir = __DEFAULT_JMM_REPO_PATH__):
-        return super(JMMPick, cls).manage(repo_dir)
+        return super(JMMPick, cls).manage(repo_dir, JMMPick.__PROVIDER__)
 
     @classmethod
     def create_csv(cls, repo_dir = __DEFAULT_JMM_REPO_PATH__):

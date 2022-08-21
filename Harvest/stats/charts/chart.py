@@ -32,3 +32,12 @@ class Chart:
         db = DbPro()
         rquery = "SELECT P.id,P.name FROM provider AS P JOIN provider_type AS PT WHERE P.type_id = PT.id AND PT.type = 'radio';"
         return db.query(rquery)
+
+    @staticmethod
+    def load_total_performances(prov_id = None):
+        db = DbPro()
+        tail = ';'
+        if prov_id:
+            tail = " AND P.provider_id = %d;" % (prov_id)
+        rquery = "SELECT count(*) FROM record_performance AS RP JOIN performance AS P, record AS R WHERE RP.performance_id = P.id AND RP.record_id = R.id" + tail
+        return db.query(rquery)

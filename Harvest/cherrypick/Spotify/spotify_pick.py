@@ -13,12 +13,13 @@ class SpotifyPick(CsvSourceBase):
 
     __DEFAULT_Spotify_REPO_PATH__ = os.path.join(repo_path, 'Spotify')
 
-    def __init__(self, file):
-        super(SpotifyPick, self).__init__(file)
+    __PROVIDER__ = 'Spotify'
+    def __init__(self, file, provider = __PROVIDER__):
+        super(SpotifyPick, self).__init__(file, provider)
 
     @classmethod
     def manage(cls, repo_dir = __DEFAULT_Spotify_REPO_PATH__):
-        return super(SpotifyPick, cls).manage(repo_dir)
+        return super(SpotifyPick, cls).manage(repo_dir, SpotifyPick.__PROVIDER__)
 
     @classmethod
     def create_csv(cls, repo_dir = __DEFAULT_Spotify_REPO_PATH__):

@@ -59,7 +59,7 @@ def date(date_string):
         result = dt.date.fromisoformat(date_string[0:d_end])
     return result
 
-__RE_IS_A_DATE__ = re.compile('\A\d{4}-\d{2}-\d{2}')
+__RE_IS_A_DATE__ = re.compile('\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}')
 def clean_datetime(datetime_string):
     """
         clean_datetime(datetime_string)

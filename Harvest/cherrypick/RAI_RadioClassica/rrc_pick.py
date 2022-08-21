@@ -17,10 +17,11 @@ from rrc_parser.rrc_subdivider import RRCSubdivider
 class RRCPick(PdfSourceBase):
 
     __DEFAULT_RRC_REPO_PATH__ = os.path.join(repo_path, 'RAI-RadioClassica')
+    __PROVIDER__ = 'RAIRadioClassica'
 
     @classmethod
     def manage(cls, repo_dir = __DEFAULT_RRC_REPO_PATH__):
-        return super(cls, cls).manage(repo_dir)
+        return super(cls, cls).manage(repo_dir, RRCPick.__PROVIDER__)
 
     __PROVIDER__ = 'RAIRadioClassica'
     def parse(self):
