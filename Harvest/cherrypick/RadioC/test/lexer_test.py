@@ -16,10 +16,13 @@ class TestRCLexer(unittest.TestCase):
         for c in self.collection:
             fn = os.path.basename(c.filename)
             for cl, date, time in c.find_composer_lines():
-                for work in RCPick.separate_composers(cl):
-                    for t in self.lexer.tokenize(work):
-                        # print("%s: %s" % (fn, t))
-                        self.assertTrue(t)
+                try:
+                    for work in RCPick.separate_composers(cl):
+                        for t in self.lexer.tokenize(work):
+                            print("%s: %s" % (fn, t))
+                            self.assertTrue(t)
+                except Exception as e:
+                    print(e, file=sys.stderr)
             c.pdf.close()
 
 if __name__ == '__main__':

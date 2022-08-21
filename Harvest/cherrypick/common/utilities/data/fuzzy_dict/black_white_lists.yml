@@ -11,6 +11,10 @@ black_list:
 white_list:
   GAMBARO:                  Q112464211
   HARTMANN:                 Q366100
+  GILBERT:                  Q329358
+  STITT:                    Q502311
+  LOVANO:                   Q540056
+  GUESUALDO:                Q192958
   'A. BARRIOS MANGORE':     Q399102
   'A. BLANQUER':            Q454283
   'A. FELIX MANDELSSOHN':   Q46096

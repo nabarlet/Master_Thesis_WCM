@@ -27,6 +27,7 @@ class RCLexer(Lexer):
     {
             DOT,
             COMPOSER,
+            YEAR,
             NUMBER,
             WORD,
             LPAR,
@@ -43,6 +44,7 @@ class RCLexer(Lexer):
     RPAR  = r'\)'
     SINGLE_QUOTE = r"['‟’‘]"
     DOUBLE_QUOTE = r'["”]'
+    YEAR   = r'\s*[12]\d{3}\s*'
     NUMBER = r'\d+'
     COMPOSER = r'[A-ZÀ-Ú\s\/\.\-‘”,„]+:'
     #WORD = r'([\w\s,:;\/\'“"´’"̈\[\]-–-*¡„\+\*&\?!…#►—−=]+|(^([Oo][Pp]|[Nn]|[Mm][Oo][Vv]|[Kk]|[Dd])[\.|º]\s+\d+))'
