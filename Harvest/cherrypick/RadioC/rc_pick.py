@@ -29,7 +29,7 @@ class RCPick(PdfSourceBase):
 
     @classmethod
     def manage(cls, repo_dir = __DEFAULT_RC_REPO_PATH__):
-        return super(cls, cls).manage(repo_dir)
+        return super(cls, cls).manage(repo_dir, RCPick.__PROVIDER__)
 
     def extract_text_from_pdf(self):
         text = ""

@@ -4,6 +4,10 @@
 black_list:
   - RTVE
   - BWV
+  - Trad
+  - Trad.
+  - ANÓNIMO
+  - ANONIMO
 
 #
 # all labels in white list here will be directely converted to nid
@@ -15,7 +19,6 @@ white_list:
   'A. BLANQUER':            Q454283
   'A. FELIX MANDELSSOHN':   Q46096
   A.SCARLATTI:              Q183087
-  ANÓNIMO:                  Q102358465
   'C. GARDEL':              Q229613
   'C. P. E. BACH':          Q76428
   'C. SCHUMANN':            Q132232
