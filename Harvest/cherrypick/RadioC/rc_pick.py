@@ -55,8 +55,8 @@ class RCPick(PdfSourceBase):
         tmpsz = len(temp)
         if tmpsz == 0:                            # line does not have composers
             return result
-        if (tmpsz % 2) != 0:
-            raise MalformedComposerString(cstring)
+        # if (tmpsz % 2) != 0:
+        #   raise MalformedComposerString(cstring)
         idx = 0
         while (idx < len(temp)):
             result.append(''.join(temp[idx:idx+2]))
@@ -91,7 +91,7 @@ class RCPick(PdfSourceBase):
 
     __RC_HEADER_RE__              = "\A(LUNES|MARTES|MIÉRCOLES|JUEVES|VIERNES|SÁBADO|DOMINGO)\s+\d{1,2}\s*\Z"
     __RC_COMPOSER_LINE_START_RE__ = '\A[A-Z]{2,}:'
-    __RC_COMPOSER_LINE_END_RE__   = '\A\d{2}\.\d{2}\s+'
+    __RC_COMPOSER_LINE_END_RE__   = '\A\d{2}\.\d{2}\s*'
     def find_composer_lines(self):
         """
             find_composer_lines():

@@ -126,10 +126,10 @@ class RCParser(Parser):
         # pdb.set_trace()
         return p.NUMBER
 
-    @_('year')
+    @_('LPAR YEAR RPAR')
     def word_element(self, p):
         # pdb.set_trace()
-        return p.year
+        return p.YEAR
 
     @_('DOT')
     def ponctuation(self, p):
@@ -150,11 +150,6 @@ class RCParser(Parser):
     def ponctuation(self, p):
         # pdb.set_trace()
         return p.DOUBLE_QUOTE
-
-    @_('LPAR NUMBER RPAR')
-    def year(self, p):
-        # pdb.set_trace()
-        return p.LPAR + p.NUMBER + p.RPAR
 
     def error(self, tok):
         #

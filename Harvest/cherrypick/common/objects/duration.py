@@ -101,5 +101,6 @@ class Duration(ObjectBase):
             parser = Duration.colon_parser
         result = cls(__UNK__)
         if raw_value != __UNK__:
-            result = cls(parser(raw_value, attrs))
+            cooked_value = parser(raw_value, attrs)
+            result = cls(cooked_value)
         return result
