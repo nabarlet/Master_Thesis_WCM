@@ -27,7 +27,7 @@ class TopCharts(Chart):
         gquery = """SELECT C.id,C.name,count(*) FROM composer AS C JOIN record AS R, record_performance AS RP, performance AS P
                     WHERE R.composer_id = C.id AND C.id = %d AND RP.record_id = R.id AND RP.performance_id = P.id;"""
         (y, ylabels) = self.make_top_common(gquery)
-        y = [(yitem/float(total))*100 for yitem in y]
+        # y = [(yitem/float(total))*100 for yitem in y]
         barhplot(y, ylabels, 'Top_%d_global_pop.png', 'Top %d global popularity', plotdir = self.plotdir)
 
     # SINGLE_PROV_XLIMIT = 600
@@ -41,7 +41,7 @@ class TopCharts(Chart):
             filename = 'Top_%d_' + ("%s_pop.png" % (rname))
             plot_title = 'Top %d ' + ("%s popularity" % (rname)) 
             (y, ylabels) = self.make_top_common(lquery)
-            y = [(yitem/float(total))*100 for yitem in y]
+            # y = [(yitem/float(total))*100 for yitem in y]
             barhplot(y, ylabels, filename, plot_title, plotdir = self.plotdir, xlimit = TopCharts.SINGLE_PROV_XLIMIT)
 
     def make_top_common(self, query):
