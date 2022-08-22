@@ -14,7 +14,6 @@ class DbCreator:
     def __init__(self, db = DbDev()):
         self.db = db
         self.bump = Bump()
-        self.reset()
         
     def reset(self):
         os.remove(self.db.dbname)
@@ -38,6 +37,7 @@ class DbCreator:
     @classmethod
     def create(cls, db = DbDev()):
         dbc = cls(db)
+        dbc.reset()
         for data in dbc.read_csvs(): 
             try:
 	            record = obj.Record.from_csv(data)
@@ -46,18 +46,42 @@ class DbCreator:
             except Exception as e:
                 print("Error --> %s" % (str(e)), file=sys.stderr)
 
+    @classmethod
+    def create_single(cls, provider, db = DbDev()):
+        dbc = cls(db)
+        csvfile = DbCreator.__CSVS__[provider]
+        for data in dbc.read_csv(csvfile, db=db): 
+            try:
+	            record = obj.Record.from_csv(data)
+	            if record:
+	                record.insert(db=db)
+            except Exception as e:
+                print("Error --> %s" % (str(e)), file=sys.stderr)
+
+    def read_csv(self, csvfile, db = DbDev()):
+        with open(csvfile, 'r') as csvfh:
+            csvreader = csv.reader(csvfh, delimiter=',', quotechar='"')
+            for csvline in csvreader:
+                yield csvline
+
     __DATA_PATH__ = os.path.join(mypath, '..', 'cherrypick')
-    __CSVS__ = [
-        os.path.join(__DATA_PATH__, 'RAI_RadioClassica', 'RRC_clean.csv'),
-        os.path.join(__DATA_PATH__, 'BBC3', 'BBC_clean.csv'),
-        os.path.join(__DATA_PATH__, 'RadioC', 'RC_clean.csv'),
-    ]
+    __CSVS__ = {
+        'RAI_RadioClassica': os.path.join(__DATA_PATH__, 'RAI_RadioClassica', 'RRC_clean.csv'),
+        'BBC3':              os.path.join(__DATA_PATH__, 'BBC3', 'BBC_clean.csv'),
+        'RadioC':            os.path.join(__DATA_PATH__, 'RadioC', 'RC_clean.csv'),
+    }
     def read_csvs(self):
-        for csvfile in DbCreator.__CSVS__:
-            with open(csvfile, 'r') as csvfh:
-                csvreader = csv.reader(csvfh, delimiter=',', quotechar='"')
-                for csvline in csvreader:
-                    yield csvline
+        for csvfile in DbCreator.__CSVS__.values():
+            for csvline in self.read_csv(csvfile, db = db):
+                yield csvline
 
 if __name__ == '__main__':
-    DbCreator.create()
+    if len(sys.argv) < 2:
+        print("Attempting to re-create full database from scratch. Not continuing.", file=sys.stderr)
+        #
+        # comment out the next line and uncomment the following one if you
+        # _really_ want to do it!
+        #
+        sys.exit(-1)
+        # DbCreator.create()
+    DbCreator.create_single(sys.argv[1])
