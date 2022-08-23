@@ -29,8 +29,9 @@ class PlaylistNode:
 
     @staticmethod
     def load_composer(nid, db):
-        cquery = "SELECT composer.nid, composer.name, movement.name FROM composer JOIN movement WHERE composer.nid = '%s' AND composer.movement_id = movement.id;" % (nid)
-        return db.query(cquery)[0]
+        cquery = "SELECT C.nid, C.name, M.name FROM composer AS C JOIN movement AS M WHERE C.nid = ? AND C.movement_id = M.id;"
+        values = (nid,)
+        return db.query(cquery, values)[0]
 
     __CACHE_PN_SEPARATOR__ = '|'
     __CACHE_PN_CROSS_SEPARATOR__ = ','

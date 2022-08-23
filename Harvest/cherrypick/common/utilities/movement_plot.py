@@ -75,12 +75,14 @@ class MovementPlot:
             pquery = "SELECT id from performance;"
             perfs = self.db.query(pquery)
             for pid in perfs:
-                query = "SELECT movement.name FROM movement JOIN  composer, composer_performance, performance \
-                         WHERE movement.id = composer.movement_id \
-                         AND composer_performance.performance_id = performance.id \
-                         AND composer_performance.composer_id = composer.id \
-                         AND performance.id = %d;" % (pid[0])
-                res = self.db.query(query)
+                query = "SELECT M.name FROM movement AS M JOIN  composer AS C, record_performance AS RP, record AS R, performance AS P \
+                         WHERE M.id = C.movement_id \
+                         AND RP.performance_id = P.id \
+                         AND RP.record_id = R.id \
+                         AND R.composer_id = C.id \
+                         AND P.id = ?;"
+                values = (pid[0], )
+                res = self.db.query(query, values)
                 self.fill_matrix(res)
                             
             self.condition_matrix()

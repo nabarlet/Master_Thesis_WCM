@@ -74,7 +74,7 @@ class ComposerComposer(obj.ObjectBase):
             perfs = db.select_all('performance AS P', 'P.id', "WHERE P.provider_id = %d" % (p.id))
             for r in perfs:
                 (perf_id, ) = r
-                comps = db.select_all('composer AS C JOIN composer_performance AS CP, performance AS P', 'C.id', "WHERE CP.composer_id = C.id AND CP.performance_id = P.id AND P.id = %d ORDER BY P.datetime" % (perf_id))
+                comps = db.select_all('composer AS C JOIN record_performance AS CP, record as R, performance AS P', 'C.id', "WHERE RP.performance_id = P.id AND RP.record_id = R.id AND R.composer_id = C.id AND P.id = %d ORDER BY P.datetime" % (perf_id))
                 comps = [c[0] for c in comps] # need to explicitely bypass the 'select_all' generator and have the list of composers per performance
                 for row, col in ComposerPlot.static_matrix_fill(comps):
                     c1id = row

@@ -139,11 +139,13 @@ class ComposerPlot:
                       provider_type AS PT WHERE P.provider_id = PR.id AND PR.type_id = PT.id AND PT.type = 'radio';"
             perfs = self.db.query(pquery)
             for pid in perfs:
-                query = "SELECT composer.nid FROM composer JOIN composer_performance, performance \
-                         WHERE composer_performance.performance_id = performance.id \
-                         AND composer_performance.composer_id = composer.id \
-                         AND performance.id = %d;" % (pid[0])
-                res = self.db.query(query)
+                query = "SELECT C.nid FROM composer AS C JOIN record_performance AS RP, performance AS P, record AS R \
+                         WHERE RP.performance_id = P.id \
+                         AND RP.record_id = R.id \
+                         AND R.composer_id = C.id \
+                         AND P.id = ?;"
+                values = (pid[0], )
+                res = self.db.query(query, values)
                 self.fill_matrix(res)
                             
             self.condition_matrix()
@@ -285,9 +287,11 @@ class ComposerRadioPlot(ComposerPlot):
             extra_args = 'WHERE provider_id < 4'
             for p in self.db.select_all(table, what, extra_args):
                 id = p[0] 
-                res = self.db.query('SELECT composer.nid FROM composer JOIN composer_performance \
-                                     WHERE composer_performance.performance_id = %d \
-                                     AND composer.id = composer_performance.composer_id;' % (id))
+                values = (id, )
+                res = self.db.query('SELECT C.nid FROM composer AS C JOIN record AS R, record_performance AS RP \
+                                     WHERE RP.performance_id = ? \
+                                     AND RP.record_id = R.id \
+                                     AND C.id = R.composer_id;', values)
                 self.fill_matrix(res)
 
             self.condition_matrix()
@@ -308,9 +312,10 @@ class ComposerProviderPlot(ComposerPlot):
             extra_args = 'WHERE provider_id = %d' % (p_id)
             for p in self.db.select_all(table, what, extra_args):
                 id = p[0] 
-                res = self.db.query('SELECT composer.nid FROM composer JOIN composer_performance \
-                                     WHERE composer_performance.performance_id = %d \
-                                     AND composer.id = composer_performance.composer_id;' % (id))
+                res = self.db.query('SELECT C.nid FROM composer AS C JOIN record_performance AS RP, record AS R \
+                                     WHERE RP.performance_id = ? \
+                                     AND RP.record_id = R.id \
+                                     AND C.id = R.composer_id;', (id, ))
                 self.fill_matrix(res)
 
             self.condition_matrix()
