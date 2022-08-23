@@ -25,7 +25,7 @@ class TopEras(Chart):
     def make_top_global_era(self):
         egquery = "SELECT M.id,M.name,count(M.id) FROM movement AS M JOIN composer AS C, record AS R, record_performance AS RP, performance AS P WHERE M.id = %d AND C.movement_id = M.id AND R.composer_id = R.id AND RP.performance_id = P.id AND RP.record_id = R.id;"
         (y, ylabels) = self.make_top_common(egquery)
-        barhplot(y, ylabels, 'Top_global_eras.png', 'Eras global popularity', plotdir = self.plotdir, limit = None)
+        barhplot(y, ylabels, 'Top_global_eras.png', 'Eras global popularity', plotdir = self.plotdir, limit = None, fontsize = 30)
 
     def make_top_radio_eras(self):
         radios = TopEras.load_providers()
@@ -35,7 +35,7 @@ class TopEras(Chart):
             filename = "Eras_%s_pop.png" % (rname)
             plot_title = "Eras %s popularity" % (rname) 
             (y, ylabels) = self.make_top_common(lquery)
-            barhplot(y, ylabels, filename, plot_title, plotdir = self.plotdir, limit = None)
+            barhplot(y, ylabels, filename, plot_title, plotdir = self.plotdir, limit = None, fontsize = 30)
 
     def make_top_common(self, query):
         results = []

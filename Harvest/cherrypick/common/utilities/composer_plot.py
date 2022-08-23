@@ -135,6 +135,15 @@ class ComposerPlot:
     def load_full_map(self):
         if not self.full_map_loaded:
             self.clear_map()
+            #
+            # FIXME: the real query here should be:
+            #
+            # "SELECT C.nid,C.name,count(RP.id) from composer AS C JOIN record_performance as RP, record as R
+            #  WHERE RP.record_id = R.id and R.composer_id = C.id GROUP BY C.id ORDER BY count(RP.id) DESC ;"
+            #
+            # this would allow to restrict the need for core memory of the
+            # queries actually in use.
+            #
             pquery = "SELECT P.id from performance AS P JOIN provider AS PR, \
                       provider_type AS PT WHERE P.provider_id = PR.id AND PR.type_id = PT.id AND PT.type = 'radio';"
             perfs = self.db.query(pquery)
