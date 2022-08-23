@@ -1,5 +1,6 @@
 import sys,os
 import matplotlib.pyplot as plt
+import pdb
 
 mypath=os.path.dirname(__file__)
 sys.path.append(os.path.join(mypath, *['..']*2, 'cherrypick'))

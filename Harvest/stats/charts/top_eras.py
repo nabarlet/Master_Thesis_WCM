@@ -23,27 +23,21 @@ class TopEras(Chart):
         self.make_top_radio_eras()
 
     def make_top_global_era(self):
-        egquery = "SELECT M.id,M.name,count(M.id) FROM movement AS M JOIN composer AS C, record AS R, record_performance AS RP, performance AS P WHERE M.id = %d AND C.movement_id = M.id AND R.composer_id = R.id AND RP.performance_id = P.id AND RP.record_id = R.id;"
+        egquery = "SELECT M.name, count (C.id) from movement as M JOIN composer as C, record as R, record_performance as RP, performance as P, provider as PR WHERE C.movement_id = M.id AND RP.performance_id = P.id AND RP.record_id = R.id AND R.composer_id = C.id AND P.provider_id < 4 group by M.name order by count(P.id) DESC;"
         (y, ylabels) = self.make_top_common(egquery)
         barhplot(y, ylabels, 'Top_global_eras.png', 'Eras global popularity', plotdir = self.plotdir, limit = None, fontsize = 30)
 
     def make_top_radio_eras(self):
         radios = TopEras.load_providers()
         for rid, rname in radios:
-            lquery_tail = " AND P.provider_id = %d;" % (rid)
-            lquery = "SELECT M.id,M.name,count(M.id) FROM movement AS M JOIN composer AS C, record AS R, record_performance AS RP, performance AS P WHERE M.id = %d AND C.movement_id = M.id AND RP.record_id = R.id AND R.composer_id = C.id AND RP.performance_id = P.id " + lquery_tail 
+            lquery = "SELECT M.name, count (C.id) from movement as M JOIN composer as C, record as R, record_performance as RP, performance as P, provider as PR WHERE C.movement_id = M.id AND RP.performance_id = P.id AND RP.record_id = R.id AND R.composer_id = C.id AND P.provider_id = %d group by M.name order by count(P.id) DESC;" %(rid) 
             filename = "Eras_%s_pop.png" % (rname)
             plot_title = "Eras %s popularity" % (rname) 
             (y, ylabels) = self.make_top_common(lquery)
-            barhplot(y, ylabels, filename, plot_title, plotdir = self.plotdir, limit = None, fontsize = 30)
+            barhplot(y, ylabels, filename, plot_title, plotdir = self.plotdir, limit = None, fontsize=30)
 
     def make_top_common(self, query):
-        results = []
-        for cid, cname in self.eras:
-            era = self.db.query(query % (cid))
-            results.append(era)
-
-        results = sorted(results, key=lambda x:x[0][2], reverse=True)
-        ylabels = [item[0][1] for item in results]
-        y       = [item[0][2] for item in results]
+        results = self.db.query(query)
+        ylabels = [item[0] for item in results]
+        y       = [item[1] for item in results]
         return (y, ylabels)
