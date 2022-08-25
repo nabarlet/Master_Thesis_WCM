@@ -10,11 +10,14 @@ class Bump:
 
         def setup(self):
             if not self.fh:
-                #
-                # NOTE: this is guaranteed to work only on GNU Linux, on other
-                # operating systems YMMV
-                #
-                self.fh = open('/proc/self/fd/6', 'w') # open a third file descriptor for writing
+                try:
+                    #
+                    # NOTE: this is guaranteed to work only on GNU Linux, on other
+                    # operating systems YMMV
+                    #
+                    self.fh = open('/proc/self/fd/6', 'w') # open a third file descriptor for writing
+                except FileNotFoundError:
+                    self.fh = sys.stderr
             atexit.register(self.fh.close)
 
         __COUNTER_RATE__ = 50
