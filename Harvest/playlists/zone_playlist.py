@@ -38,6 +38,7 @@ class ZonePlaylist(Playlist):
                 for n in range(iter):
                     pn = exclusive_random(z, already_chosen)
                     pn.zone = idx
+                    pn.title = self.generate_title(pn)
                     already_chosen.append(pn)
                     comps.append(pn)
             # shuffle(comps)
@@ -50,5 +51,3 @@ if __name__ == '__main__':
         config = sys.argv[1]
     zp = ZonePlaylist.create(config)
     zp.print_csv(config)
-    
-    #print(zp.stat_top_era(), file=sys.stderr)
