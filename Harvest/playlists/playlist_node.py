@@ -1,11 +1,17 @@
-import sys
+import sys, os
 import pdb
+
+mypath=os.path.dirname(__file__)
+sys.path.append(os.path.join(mypath, '..', 'cherrypick'))
+
+from common.utilities.string import __UNK__
 
 class PlaylistNode:
 
     def __init__(self, nid, name, mname, pop, cv):
         self.nid = nid
         self.name = name
+        self.title = __UNK__
         self.movement_name = mname.rstrip()
         self.popvalue = pop
         self.cross_value = cv # total number of crossings of this composer with others
@@ -15,12 +21,12 @@ class PlaylistNode:
         self.crossings = []
 
     def print(self, file=sys.stdout):
-        print("%-36s %-14s - %-16s - zone: %s" % (self.name, '(' + self.nid + ')', self.movement_name, str(self.zone)), file=file)
+        print("%-36s %-14s - %-16s - zone: %s - title: \"%s\"" % (self.name, '(' + self.nid + ')', self.movement_name, str(self.zone), self.title), file=file)
 
     def print_csv(self, file=sys.stdout):
         if self.zone == None:
             self.zone = -1
-        print("\"%s\",\"%s\",%s,%d,%.6g,%d,%.6g,%3.1f" % (self.name, self.nid, self.movement_name, self.zone, self.popvalue, self.cross_value, self.log_distance, self.lin_distance), file=file)
+        print("\"%s\",\"%s\",%s,%d,%.6g,%d,%.6g,%3.1f,\"%s\"" % (self.name, self.nid, self.movement_name, self.zone, self.popvalue, self.cross_value, self.log_distance, self.lin_distance, self.title), file=file)
 
     @classmethod
     def create_from_db(cls, nid, db, pop, value):

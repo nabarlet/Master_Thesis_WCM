@@ -4,12 +4,14 @@ import math
 import re
 import numpy as np
 import datetime as dt
+from   random import choice
 
 mypath=os.path.dirname(__file__)
 sys.path.extend([os.path.join(mypath, '..'), os.path.join(mypath, '..', 'cherrypick')])
 
 from common.utilities.composer_plot import ComposerPlot
 from common.utilities.wcm_math import exp_decile
+from common.utilities.string import __UNK__
 from common.objects.timeline import TimeLine
 from db.db import DbPro
 from playlist_node import PlaylistNode
@@ -165,6 +167,59 @@ class Playlist:
         raise PureVirtualMethodCalled
         self.already_generated = True
 
+    def generate_title(self, pn):
+        """
+            generate_title(playlist_node)
+
+            generates a random title among the composer's titles available
+        """
+        result = __UNK__
+        query = "SELECT R.title FROM record as R JOIN composer AS C WHERE C.nid = ? AND R.composer_id = C.id"
+        values = (pn.nid, )
+        results = self.db.query(query, values)
+        result  = choice(results)[0]
+        return result
+
+    @staticmethod
+    def calc_distance(a, b):
+        """
+            calc_distance(a, b)
+
+            calculates the distance between composer A and composer B
+            by checking the position of composer B in the crossings of
+            composer A. Returns 0 if no crossing is found.
+        """
+        result = (0.0, 0)
+        if a:
+            for c in a.crossings:
+                if b.nid == c.node.nid:
+                    result = (c.log_distance, c.lin_distance)
+        return result
+
+    def clear(self):
+        self.generated = []
+        self.already_generated = False
+
+    def print(self):
+        self.generate()
+        for pn in self.generated:
+            pn.print()
+
+    def header(self, args):
+        return "=== %s (%s) (%s) ===" % (self.__class__.__name__, dt.datetime.now().isoformat(), args)
+
+    def print_csv(self, args = '', file = sys.stdout):
+        self.generate()
+        print(file = file) # precede header with a newline
+        print(self.header(args), file = file)
+        print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d", file = file)
+        for pn in self.generated:
+            pn.print_csv(file = file)
+
+    def plot(self):
+        pass
+
+    @staticmethod
     @staticmethod
     def calc_distance(a, b):
         """
