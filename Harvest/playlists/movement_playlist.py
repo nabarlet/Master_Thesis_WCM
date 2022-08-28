@@ -42,7 +42,7 @@ class MovementPlaylist(Playlist):
             prev = None
             for n in range(self.__size__):
                 pn = choice(self.movement_composers)
-                pn = self.generate_title(prev, pn)
+                pn.title = self.generate_title(prev, pn)
                 (pn.log_distance, pn.lin_distance) = self.calc_distance(prev,pn)
                 comps.append(pn)
                 prev = pn
@@ -58,6 +58,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         mov = sys.argv[1]
     mp = MovementPlaylist(mov)
-    mp.print_csv()
     
     mp.print_stats()
