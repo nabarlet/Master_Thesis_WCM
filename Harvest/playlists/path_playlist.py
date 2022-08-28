@@ -39,13 +39,16 @@ class PathPlaylist(Playlist):
             n = 0
             cur = choice(self.zones[0])
             cur.zone = n
+            cur.title = self.random_title(cur)
             comps.append(cur)
             while (n < self.__size__):
                 n += 1
                 possibilities = cur.lookup_cross_range(self.range)
-                cur = self.next(comps, cur, possibilities, 0)
-                cur.zone = self.zone_lookup(cur)
-                comps.append(cur)
+                nxt = self.next(comps, cur, possibilities, 0)
+                nxt.zone = self.zone_lookup(nxt)
+                nxt.title = self.generate_title(cur, nxt)
+                comps.append(nxt)
+                cur = nxt
             # shuffle(comps)
             self.generated = comps
         self.already_generated = True

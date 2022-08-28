@@ -167,9 +167,9 @@ class Playlist:
         raise PureVirtualMethodCalled
         self.already_generated = True
 
-    def generate_title(self, pn):
+    def random_title(self, pn):
         """
-            generate_title(playlist_node)
+            random_title(playlist_node)
 
             generates a random title among the composer's titles available
         """
@@ -178,6 +178,32 @@ class Playlist:
         values = (pn.nid, )
         results = self.db.query(query, values)
         result  = choice(results)[0]
+        return result
+
+    def generate_title(self, prev, nxt):
+        """
+            generate_title(prev, next)
+
+            generates a title for the next composer based on the possible
+            existing connection between the previous one and the next. This
+            implies that both have appeared at least once on a real playlist
+            somewhere. If no connection is found, then a random title of the
+            next composer is chosen.
+        """
+        result = __UNK__
+        if prev:
+            query = "SELECT R.title FROM record AS R JOIN record_performance AS RP, composer AS C, performance AS P \
+                            WHERE RP.performance_id = P.id AND RP.record_id = R.id AND R.composer_id = C.id AND C.nid = ? \
+                            AND P.id in (SELECT P2.id FROM record AS R2 JOIN record_performance AS RP2, composer AS C2, performance AS P2 \
+                            WHERE RP2.performance_id = P2.id AND RP2.record_id = R2.id AND R2.composer_id = C2.id AND C2.nid = ?);"
+            values = (nxt.nid, prev.nid,)
+            results = self.db.query(query, values)
+            if results and len(results) > 0:
+                result = choice(results)[0]
+
+        if result == __UNK__:
+            result = self.random_title(nxt)
+
         return result
 
     @staticmethod
@@ -219,7 +245,6 @@ class Playlist:
     def plot(self):
         pass
 
-    @staticmethod
     @staticmethod
     def calc_distance(a, b):
         """

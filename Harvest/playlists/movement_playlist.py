@@ -42,6 +42,7 @@ class MovementPlaylist(Playlist):
             prev = None
             for n in range(self.__size__):
                 pn = choice(self.movement_composers)
+                pn = self.generate_title(prev, pn)
                 (pn.log_distance, pn.lin_distance) = self.calc_distance(prev,pn)
                 comps.append(pn)
                 prev = pn

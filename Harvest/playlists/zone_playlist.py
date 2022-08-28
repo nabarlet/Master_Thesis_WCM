@@ -35,12 +35,14 @@ class ZonePlaylist(Playlist):
             for idx, z in enumerate(self.zones):
                 iter = self.config[idx]
                 already_chosen = []
+                prev = None
                 for n in range(iter):
                     pn = exclusive_random(z, already_chosen)
                     pn.zone = idx
-                    pn.title = self.generate_title(pn)
+                    pn.title = self.generate_title(prev, pn)
                     already_chosen.append(pn)
                     comps.append(pn)
+                    prev = pn
             # shuffle(comps)
             self.generated = comps
         self.already_generated = True

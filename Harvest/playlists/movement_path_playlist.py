@@ -43,10 +43,13 @@ class MovementPathPlaylist(MovementPlaylist):
         if not self.already_generated:
             first_zone = self.lookup_first_zone()
             cur = choice(self.mov_zones[first_zone])
+            cur = self.random_title(cur)
             comps.append(cur)
             for n in range(self.__size__-1):
-                pn = self.next(cur,comps)
-                comps.append(pn)
+                nxt = self.next(cur,comps)
+                nxt = self.generate_title(cur, nxt)
+                comps.append(nxt)
+                cur = nxt
             #shuffle(comps)
             self.generated = comps
         self.already_generated = True

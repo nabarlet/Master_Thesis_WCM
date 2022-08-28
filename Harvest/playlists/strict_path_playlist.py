@@ -10,6 +10,7 @@ from random import choice, shuffle
 from db.db import DbPro
 from playlist import Playlist
 from utilities.plugs import exclusive_random
+from common.utilities.string import __UNK__
 
 class MatchNotFound(Exception):
     pass
@@ -20,12 +21,14 @@ class StrictPathPlaylist(Playlist):
         comps = []
         if not self.already_generated:
             cur = choice(self.zones[0])
+            cur.title = self.random_title(cur)
             comps.append(cur)
             try:
                 while True:
                     pn = self.next(cur, comps)
                     (pn.log_distance, pn.lin_distance) = self.calc_distance(cur, pn)
                     pn.zone = self.zone_lookup(pn)
+                    pn.title = self.generate_title(comps, pn)
                     comps.append(pn)
                     cur = pn
             except MatchNotFound:
@@ -33,6 +36,31 @@ class StrictPathPlaylist(Playlist):
             #shuffle(comps)
             self.generated = comps
         self.already_generated = True
+
+    def generate_title(self, past_comps, cur):
+        result = __UNK__
+        if len(past_comps) > 0:
+            base_query = "SELECT R.title FROM record AS R JOIN record_performance AS RP, composer AS C, performance AS P \
+                          WHERE RP.performance_id = P.id AND RP.record_id = R.id AND R.composer_id = C.id AND C.nid = ?"
+            per_comp_query = " AND P.id in (SELECT P%d.id FROM record AS R%d JOIN record_performance AS RP%d, composer AS C%d, performance AS P%d \
+                              WHERE RP%d.performance_id = P%d.id AND RP%d.record_id = R%d.id AND R%d.composer_id = C%d.id AND C%d.nid = ?)"
+            query_tail = ';'
+            query = base_query
+            values = [cur.nid]
+            idx = 2
+            for c in past_comps:
+                query += (per_comp_query % ((idx,)*12))
+                values.append(c.nid)
+                idx += 1
+            query += query_tail
+            results = self.db.query(query, values)
+            if results and len(results) > 0:
+                result = choice(results)[0]
+
+        if result == __UNK__:
+            result = self.random_title(cur)
+
+        return result
         
     def next(self, cur, already_found):
         possibilities = self.find_possibilities(cur, already_found, 0)

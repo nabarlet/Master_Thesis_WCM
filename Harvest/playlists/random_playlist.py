@@ -19,12 +19,12 @@ class RandomPlaylist(Playlist):
             for n in range(self.__size__):
                 pn = choice(self.composers)
                 if cur:
-                    (pn.log_distance, pn.lin_distance) = RandomPlaylist.calc_distance.__func__(cur, pn)
+                    (pn.log_distance, pn.lin_distance) = RandomPlaylist.calc_distance(cur, pn)
                 else:
                     (pn.log_distance, pn.lin_distance) = (0.0, 0.0)
                 (pn.log_distance, pn.lin_distance) = (0.0, 0.0)
                 pn.zone = self.zone_lookup(pn)
-                pn.title = self.generate_title(pn)
+                pn.title = self.generate_title(cur, pn)
                 self.generated.append(pn)
                 cur = pn
         self.already_generated = True

@@ -41,7 +41,7 @@ class ZonePathPlaylist(ZonePlaylist):
             n = 0
             cur = choice(self.zones[0])
             cur.zone = n
-            cur.title = super().generate_title(cur)
+            cur.title = self.random_title(cur)
             comps.append(cur)
             n += 1
             while (n < len(self.zones)):                
@@ -58,19 +58,6 @@ class ZonePathPlaylist(ZonePlaylist):
             # shuffle(comps)
             self.generated = comps
         self.already_generated = True
-
-    def generate_title(self, prev, nxt):
-        result = __UNK__
-        query = "SELECT R.title FROM record AS R JOIN record_performance AS RP, composer AS C, performance AS P \
-                        WHERE RP.performance_id = P.id AND RP.record_id = R.id AND R.composer_id = C.id AND C.nid = ? \
-                        AND P.id in (SELECT P2.id FROM record AS R2 JOIN record_performance AS RP2, composer AS C2, performance AS P2 \
-                        WHERE RP2.performance_id = P2.id AND RP2.record_id = R2.id AND R2.composer_id = C2.id AND C2.nid = ?);"
-        values = (nxt.nid, prev.nid,)
-        results = self.db.query(query, values)
-        if results and len(results) > 0:
-            result = choice(results)[0]
-
-        return result
 
     def next(self, already_found, seed, possibilities, zone_number):
         result = None
