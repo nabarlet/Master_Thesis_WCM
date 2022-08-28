@@ -238,7 +238,7 @@ class Playlist:
         self.generate()
         print(file = file) # precede header with a newline
         print(self.header(args), file = file)
-        print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d", file = file)
+        print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d,title", file = file)
         for pn in self.generated:
             pn.print_csv(file = file)
 
