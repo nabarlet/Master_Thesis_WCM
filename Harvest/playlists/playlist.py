@@ -273,14 +273,6 @@ class Playlist:
     def header(self, args):
         return "=== %s (%s) (%s) ===" % (self.__class__.__name__, dt.datetime.now().isoformat(), args)
 
-    def print_csv(self, args = '', file = sys.stdout):
-        self.generate()
-        print(file = file) # precede header with a newline
-        print(self.header(args), file = file)
-        print("name,nid,movement,zone,pop_value,crossings,log_d,lin_d", file = file)
-        for pn in self.generated:
-            pn.print_csv(file = file)
-
     def plot(self):
         pass
 
@@ -307,14 +299,12 @@ class Playlist:
         result = []
         subdiv = exp_decile(self.composers, Playlist.__ZONE_0_SIZE__)
         start = subdiv[0]
-        idx = 0
-        for end in subdiv[1:]:
-            zcomps=self.composers[start:end]
+        for idx, end in enumerate(subdiv[1:]):
+            zcomps=self.composers[start:end+1]
             for zc in zcomps:
                 zc.zone = idx
             result.append(zcomps)
             start = end
-            idx += 1
         return result
 
     def zone_lookup(self, pn):

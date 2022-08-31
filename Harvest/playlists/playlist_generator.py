@@ -40,15 +40,16 @@ class PlaylistGenerator:
             while (self.succeded < self.count):
                 try:
                     pl = self.type.create_random_args(self.cache)
-                    if pl.size() < PlaylistGenerator.__MINIMUM_PLAYLIST_SIZE__:
+                    if not pl or pl.size() < PlaylistGenerator.__MINIMUM_PLAYLIST_SIZE__:
                         self.failed += 1
                     else:
                         self.stats.append(pl.calc_stats())
+                        pl.print_stats()
                         self.succeded += 1
                         b.bump() 
                 except Exception as e:
                     print("%s: Playlist generation failed: %s" % (self.name, str(e)), file=sys.stderr)
-                    print(traceback.format_exc(), file=sys.stderr)
+                    # print(traceback.format_exc(), file=sys.stderr)
                     self.failed += 1
             self.generated = True
 

@@ -8,14 +8,18 @@ class Bump:
             self.counter = 0
             self.setup()
 
+        __PROGRESS_FILE_PATH__ = './progress.txt'
         def setup(self):
+            """
+                setup()
+
+                this opens a './progress.txt' file in append mode wherever the script happens
+                to be launched. If it fails, then redirects the output to
+                standard error.
+            """
             if not self.fh:
                 try:
-                    #
-                    # NOTE: this is guaranteed to work only on GNU Linux, on other
-                    # operating systems YMMV
-                    #
-                    self.fh = open('/proc/self/fd/6', 'w') # open a third file descriptor for writing
+                    self.fh = open(Bump.__Bump__.__PROGRESS_FILE_PATH__, 'a')
                 except FileNotFoundError:
                     self.fh = sys.stderr
             atexit.register(self.fh.close)

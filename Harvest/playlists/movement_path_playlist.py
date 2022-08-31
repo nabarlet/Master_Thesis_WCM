@@ -11,6 +11,9 @@ from db.db import DbPro
 from movement_playlist import MovementPlaylist
 from utilities.plugs import exclusive_random
 
+class MovementPathPlaylistGenerationFailed(ValueError):
+    pass
+
 class MovementPathPlaylist(MovementPlaylist):
 
     @classmethod
@@ -21,33 +24,43 @@ class MovementPathPlaylist(MovementPlaylist):
         
     @classmethod
     def create_random_args(cls, cache = None):
+        result = None
         total = 0
-        eras = [('Medieval', 29), ('Renaissance', 142),('Baroque', 468), ('Classical', 188), ('Romantic', 488), ('Modernism', 1288), ('Contemporary', 1441)]
+        eras = MovementPathPlaylist.get_eras()
         for e,v in eras:
             total +=v 
         weights = [v/float(total) for n,v in eras]
-        era = choices(eras,weights = weights)
+        era = choices(eras,weights = weights)[0][0]
         ranges = [[0.0,0.1],[0.0,0.2],[0.1,0.2],[0.2,0.3],[0.0,0.3],[0.3,0.4],[0.4,0.5],[0.3,0.5],[0.5,0.7],[0.6,0.8],[0.8,1.0]]   
         rng = choice(ranges)
-        return cls(era, rng, cache)
+        try:
+            result = cls(mov = era, rng = rng, cache = cache)
+        except MovementPathPlaylistGenerationFailed:
+            pass
+        return result
 
     def __init__(self, mov = 'Classical', rng = [0.0, 1.0], cache = None):
-        super().__init__(mov, cache)
         self.range = rng
+        super().__init__(mov, cache)
         self.mov_zones = [[] for z in range(len(self.zones))]
         for c in self.movement_composers:
+            if c.zone == None:
+                pdb.set_trace()
             self.mov_zones[c.zone].append(c)
+        nop = 0
             
     def generate(self):
         comps = []
         if not self.already_generated:
             first_zone = self.lookup_first_zone()
+            if first_zone > len(self.mov_zones):
+                raise MovementPathPlaylistGenerationFailed("mov: %s, range: %s" % (self.movement, str(self.range)))
             cur = choice(self.mov_zones[first_zone])
-            cur = self.random_title(cur)
+            cur.title = self.random_title(cur)
             comps.append(cur)
             for n in range(self.__size__-1):
                 nxt = self.next(cur,comps)
-                nxt = self.generate_title(cur, nxt)
+                nxt.title = self.generate_title(cur, nxt)
                 comps.append(nxt)
                 cur = nxt
             #shuffle(comps)
@@ -72,7 +85,8 @@ class MovementPathPlaylist(MovementPlaylist):
                 (c.node.log_distance, c.node.lin_distance) = (c.log_distance, c.lin_distance)
                 possibilities.append(c.node)
         if len(possibilities) < 1:
-            print("%s does not cross with his own movement" %(cur.name), file = sys.stderr)
+            print("Composer %s does not cross in zone %d with his own movement" %(cur.name, cur.zone), file = sys.stderr)
+            raise MovementPathPlaylistGenerationFailed("mov: %s, range: %s" % (self.movement, str(self.range)))
         
         result = exclusive_random(possibilities,already_found)
         return result   
@@ -85,6 +99,4 @@ if __name__ == '__main__':
         mov = sys.argv[1]
         rng = sys.argv[2]
     mp = MovementPathPlaylist.create(mov, rng)
-    mp.print_csv("%s %s" %(mov,rng))
-    
-    mp.print_stats()
+    mp.print_csv(args = ("%s %s" %(mov,rng)))

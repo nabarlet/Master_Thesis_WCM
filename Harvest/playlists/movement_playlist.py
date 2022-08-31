@@ -20,12 +20,18 @@ class MovementPlaylist(Playlist):
     @classmethod
     def create_random_args(cls, cache = None):
         total = 0
-        eras = [('Medieval', 29), ('Renaissance', 142),('Baroque', 468), ('Classical', 188), ('Romantic', 488), ('Modernism', 1288), ('Contemporary', 1441)]
+        eras = MovementPlaylist.get_eras()
         for e,v in eras:
             total +=v 
         weights = [v/float(total) for n,v in eras]
         era = choices(eras, weights = weights)
         return cls(era[0][0], cache)
+
+    @staticmethod
+    def get_eras(db = DbPro()):
+        query = 'SELECT M.name,count(C.id) FROM movement as M JOIN composer AS C WHERE C.movement_id = M.id GROUP BY M.name ORDER BY M.id;'
+        result = db.query(query)
+        return result
 
     def load_movement_composers(self):
         result = []
@@ -50,8 +56,10 @@ class MovementPlaylist(Playlist):
             self.generated = comps
         self.already_generated = True
         
-    def print_csv(self, file = sys.stdout):
-        super().print_csv(args=self.movement, file = file) 
+    def print_csv(self, args='', file = sys.stdout):
+        if len(args) == 0:
+            args = self.movement
+        super().print_csv(args=args, file = file) 
     
 if __name__ == '__main__':
     mov = 'Classical'
