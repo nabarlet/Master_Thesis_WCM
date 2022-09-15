@@ -77,11 +77,12 @@ class DbCreator:
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Attempting to re-create full database from scratch. Not continuing.", file=sys.stderr)
-        #
-        # comment out the next line and uncomment the following one if you
-        # _really_ want to do it!
-        #
-        sys.exit(-1)
-        # DbCreator.create()
-    DbCreator.create_single(sys.argv[1])
+        ans = 'n'
+        print("Attempting to re-create full database from scratch. Are you sure? [y|n]")
+        ans = input()
+        if ans == 'y' or ans == 'Y':
+            DbCreator.create()
+        else:
+            sys.exit(-1)
+    else:
+        DbCreator.create_single(sys.argv[1])

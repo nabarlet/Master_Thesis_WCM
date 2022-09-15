@@ -14,9 +14,14 @@ CREATE TABLE performance (id integer PRIMARY KEY, datetime text NOT NULL, title 
 CREATE TABLE record_performance (id integer PRIMARY KEY, record_id integer NOT NULL, performance_id integer NOT NULL, FOREIGN KEY(record_id) REFERENCES record(id), FOREIGN KEY(performance_id) REFERENCES performance(id), UNIQUE(record_id, performance_id));
 CREATE TABLE provider_type (id integer primary key, type text NOT NULL);
 CREATE TABLE composer_composer (id integer PRIMARY KEY, composer_1_id integer NOT NULL, composer_2_id integer NOT NULL, performance_id integer NOT NULL, FOREIGN KEY(composer_1_id) REFERENCES composer(id), FOREIGN KEY(composer_2_id) REFERENCES composer(id), FOREIGN KEY(performance_id) REFERENCES performance(id));
+COMMIT;
 --
 -- Initialization of trivial tables
 --
+BEGIN TRANSACTION;
+INSERT INTO provider_type VALUES(1,'radio');
+INSERT INTO provider_type VALUES(2,'streaming');
+INSERT INTO provider_type VALUES(3,'concert organization');
 INSERT INTO movement VALUES(1,'Medieval',500,1400,NULL);
 INSERT INTO movement VALUES(2,'Ars Nova',1170,1310,1);
 INSERT INTO movement VALUES(3,'Ars Antiqua',1310,1377,1);
@@ -38,12 +43,12 @@ INSERT INTO movement VALUES(18,'Contemporary',1950,2022,NULL);
 INSERT INTO movement VALUES(19,'Minimalism',1960,1970,18);
 INSERT INTO movement VALUES(20,'Postmodernism',1970,1970,18);
 INSERT INTO movement VALUES(21,'Postminimalism',1980,1990,18);
+INSERT INTO provider_type VALUES(1,'radio');
+INSERT INTO provider_type VALUES(2,'streaming');
+INSERT INTO provider_type VALUES(3,'concert organization');
 INSERT INTO provider VALUES(1,'RAIRadioClassica','Italy',1);
 INSERT INTO provider VALUES(2,'RadioC','Spain',1);
 INSERT INTO provider VALUES(3,'BBC3','United Kingdom',1);
 INSERT INTO provider VALUES(4,'JMM','Spain',3);
 INSERT INTO provider VALUES(5,'Spotify','United States',2);
-INSERT INTO provider_type VALUES(1,'radio');
-INSERT INTO provider_type VALUES(2,'streaming');
-INSERT INTO provider_type VALUES(3,'concert organization');
 COMMIT;
