@@ -62,7 +62,7 @@ class RRCRecordingParser(Parser, RRCParserBase):
         title = p.title_and_other_info[0].rstrip()
         other_info = [s.rstrip() for s in p.title_and_other_info[1:]]
         other_info = ' '.join(other_info)
-        result = obj.Recording(comp = composer, oi = other_info, title = title, dur = p.durata, label = p.label)
+        result = obj.Record(comp = composer, oi = other_info, title = title, dur = p.durata, label = p.label)
         return result
     
     @_('one_line_string EOL')
