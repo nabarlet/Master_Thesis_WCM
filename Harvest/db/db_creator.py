@@ -38,7 +38,7 @@ class DbCreator:
     def create(cls, db = DbDev()):
         dbc = cls(db)
         dbc.reset()
-        for data in dbc.read_csvs(): 
+        for data in dbc.read_csvs(db=db): 
             try:
 	            record = obj.Record.from_csv(data)
 	            if record:
@@ -70,7 +70,7 @@ class DbCreator:
         'BBC3':              os.path.join(__DATA_PATH__, 'BBC3', 'BBC_clean.csv'),
         'RadioC':            os.path.join(__DATA_PATH__, 'RadioC', 'RC_clean.csv'),
     }
-    def read_csvs(self):
+    def read_csvs(self, db = DbDev()):
         for csvfile in DbCreator.__CSVS__.values():
             for csvline in self.read_csv(csvfile, db = db):
                 yield csvline

@@ -6,13 +6,13 @@ BEGIN TRANSACTION;
 --
 -- Table definition
 --
+CREATE TABLE provider_type (id integer PRIMARY KEY, type text NOT NULL);
 CREATE TABLE movement (id integer PRIMARY KEY, name text, start year NOT NULL, end year, parent_id integer);
-CREATE TABLE provider (id integer PRIMARY KEY, name text, nation text, type_id INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE provider (id integer PRIMARY KEY, name text, nation text, type_id INTEGER NOT NULL, FOREIGN KEY(type_id) REFERENCES provider_type(id));
 CREATE TABLE composer (id integer PRIMARY KEY, name text NOT NULL, birth text NOT NULL, death text, nid text NOT NULL, movement_id INTEGER NOT NULL, country text, gender text, lat text, long text, FOREIGN KEY(movement_id) REFERENCES movement(id));
 CREATE TABLE record (id integer PRIMARY KEY, title text NOT NULL, other_info text, duration text, label text, composer_id INTEGER NOT NULL, FOREIGN KEY(composer_id) REFERENCES composer(id));
 CREATE TABLE performance (id integer PRIMARY KEY, datetime text NOT NULL, title text, provider_id integer NOT NULL, FOREIGN KEY(provider_id) REFERENCES provider(id), UNIQUE(datetime, provider_id));
 CREATE TABLE record_performance (id integer PRIMARY KEY, record_id integer NOT NULL, performance_id integer NOT NULL, FOREIGN KEY(record_id) REFERENCES record(id), FOREIGN KEY(performance_id) REFERENCES performance(id), UNIQUE(record_id, performance_id));
-CREATE TABLE provider_type (id integer primary key, type text NOT NULL);
 CREATE TABLE composer_composer (id integer PRIMARY KEY, composer_1_id integer NOT NULL, composer_2_id integer NOT NULL, performance_id integer NOT NULL, FOREIGN KEY(composer_1_id) REFERENCES composer(id), FOREIGN KEY(composer_2_id) REFERENCES composer(id), FOREIGN KEY(performance_id) REFERENCES performance(id));
 COMMIT;
 --
@@ -43,9 +43,6 @@ INSERT INTO movement VALUES(18,'Contemporary',1950,2022,NULL);
 INSERT INTO movement VALUES(19,'Minimalism',1960,1970,18);
 INSERT INTO movement VALUES(20,'Postmodernism',1970,1970,18);
 INSERT INTO movement VALUES(21,'Postminimalism',1980,1990,18);
-INSERT INTO provider_type VALUES(1,'radio');
-INSERT INTO provider_type VALUES(2,'streaming');
-INSERT INTO provider_type VALUES(3,'concert organization');
 INSERT INTO provider VALUES(1,'RAIRadioClassica','Italy',1);
 INSERT INTO provider VALUES(2,'RadioC','Spain',1);
 INSERT INTO provider VALUES(3,'BBC3','United Kingdom',1);

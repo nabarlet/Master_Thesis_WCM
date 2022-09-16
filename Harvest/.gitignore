@@ -4,6 +4,6 @@ db/data/*
 parser_debug.out
 TODO.md
 *.png
-*_progress.txt
+*progress.txt
 *_errors.txt
 .~lock*
